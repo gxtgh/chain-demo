@@ -1,0 +1,94 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 34px;
+  padding: 24px;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at top right, rgba(89, 200, 255, 0.28), transparent 28%),
+    linear-gradient(180deg, rgba(8, 38, 63, 0.98), rgba(5, 24, 39, 0.96));
+  box-shadow: var(--shadow-panel);
+}
+
+.hero {
+  display: grid;
+  gap: 16px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.36em;
+  color: rgba(89, 200, 255, 0.88);
+}
+
+.title {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.15;
+}
+
+.description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.9;
+  color: rgba(221, 235, 246, 0.88);
+}
+
+.nav {
+  display: grid;
+  gap: 12px;
+}
+
+.navCard {
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.navCard:hover {
+  border-color: rgba(89, 200, 255, 0.32);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.navCardActive {
+  border-color: rgba(89, 200, 255, 0.42);
+  background:
+    linear-gradient(135deg, rgba(89, 200, 255, 0.14), rgba(255, 255, 255, 0.06)),
+    rgba(255, 255, 255, 0.1);
+}
+
+.navLabel {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.navDescription {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.8;
+  color: rgba(221, 235, 246, 0.82);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+  color: rgba(221, 235, 246, 0.92);
+}

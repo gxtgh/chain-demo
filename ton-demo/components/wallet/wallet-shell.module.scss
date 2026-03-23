@@ -1,0 +1,267 @@
+.stack {
+  display: grid;
+  gap: 24px;
+}
+
+.subnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.subnavItem {
+  padding: 10px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text-muted);
+}
+
+.subnavItemActive {
+  border-color: rgba(0, 152, 234, 0.24);
+  color: var(--ton-navy);
+  background: rgba(215, 242, 255, 0.92);
+}
+
+.metaGrid {
+  display: grid;
+  gap: 16px;
+}
+
+.metaCard {
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: var(--shadow-soft);
+}
+
+.metaLabel {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  color: var(--text-muted);
+}
+
+.metaValue {
+  margin-top: 12px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.grid {
+  display: grid;
+  gap: 24px;
+}
+
+.panel {
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow-soft);
+}
+
+.panelHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 24px;
+}
+
+.panelDescription {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+.panelBody {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.fieldLabel {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+}
+
+.inlineControls {
+  display: grid;
+  gap: 12px;
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  background: #ffffff;
+  color: var(--text-main);
+}
+
+.textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.button,
+.buttonLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--ton-navy);
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.buttonGhost,
+.buttonGhostLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--text-main);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.button:disabled,
+.buttonGhost:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: rgba(0, 152, 234, 0.1);
+  color: var(--ton-navy);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.featureList {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.featureItem {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(0, 152, 234, 0.08), rgba(89, 200, 255, 0.04));
+}
+
+.tableWrap {
+  overflow: auto;
+  margin-top: 20px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: #ffffff;
+}
+
+.table {
+  width: 100%;
+  min-width: 1060px;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 14px;
+  border-bottom: 1px solid rgba(148, 184, 216, 0.16);
+  text-align: left;
+  vertical-align: top;
+  font-size: 14px;
+}
+
+.code {
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  word-break: break-all;
+}
+
+.logList {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.logItem {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(8, 38, 63, 0.98);
+  color: #ffffff;
+}
+
+.logMeta {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(137, 211, 247, 0.84);
+}
+
+.logMessage {
+  margin-top: 8px;
+  line-height: 1.7;
+}
+
+.empty {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(215, 242, 255, 0.56);
+  color: var(--text-muted);
+}
+
+@media (min-width: 768px) {
+  .metaGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .inlineControls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1080px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
