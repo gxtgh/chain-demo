@@ -1,0 +1,38 @@
+.control {
+  display: inline-grid;
+  gap: 8px;
+}
+
+.label {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.select {
+  min-width: 180px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  background: var(--panel-strong);
+  color: var(--text-main);
+}
+
+.badge {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 18px;
+  background: var(--panel-strong);
+  color: var(--text-main);
+  box-shadow: var(--shadow-soft);
+}
+
+.badge strong {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ton-navy);
+  word-break: break-all;
+}

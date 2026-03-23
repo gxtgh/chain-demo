@@ -1,0 +1,25 @@
+.header {
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ton-blue);
+}
+
+.title {
+  margin: 12px 0 0;
+  font-size: 34px;
+  line-height: 1.2;
+}
+
+.description {
+  max-width: 920px;
+  margin: 14px 0 0;
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--text-muted);
+}

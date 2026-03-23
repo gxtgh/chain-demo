@@ -1,0 +1,42 @@
+.page {
+  min-height: 100vh;
+  padding: 18px;
+}
+
+.grid {
+  display: grid;
+  min-height: calc(100vh - 36px);
+  max-width: 1440px;
+  margin: 0 auto;
+  gap: 18px;
+}
+
+.content {
+  border: 1px solid var(--border);
+  border-radius: 34px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.78)),
+    linear-gradient(135deg, rgba(215, 242, 255, 0.36), transparent 50%);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(20px);
+}
+
+.contentInner {
+  padding: 20px;
+}
+
+@media (min-width: 1080px) {
+  .grid {
+    grid-template-columns: 300px minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .page {
+    padding: 24px;
+  }
+
+  .contentInner {
+    padding: 32px;
+  }
+}
