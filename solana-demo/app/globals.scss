@@ -1,0 +1,51 @@
+@import "@solana/wallet-adapter-react-ui/styles.css";
+
+:root {
+  --bg-start: #f8fcff;
+  --bg-end: #eef7f8;
+  --text-main: #0d1b2a;
+  --panel: rgba(255, 255, 255, 0.82);
+  --sea: #0a9396;
+  --sand: #e9c46a;
+  --border: rgba(255, 255, 255, 0.7);
+  --muted: #5f6f81;
+  --shadow-panel: 0 24px 80px rgba(13, 27, 42, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--text-main);
+  font-family:
+    "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(10, 147, 150, 0.16), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(233, 196, 106, 0.16), transparent 24%),
+    linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.wallet-adapter-button {
+  border-radius: 9999px !important;
+  background: #0d1b2a !important;
+  font-family: inherit !important;
+}
