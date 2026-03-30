@@ -13,6 +13,7 @@ const translations: Record<SupportedLang, TranslationTree> = {
         'A foundation case for multi-chain token launch pages with wallet, theme, language, and AI-assisted form filling.',
       standard: 'Create Standard Token',
       tax: 'Create Tax Token',
+      okxTrade: 'OKX Trade Test',
     },
     shell: {
       chain: 'Chain',
@@ -89,6 +90,39 @@ const translations: Record<SupportedLang, TranslationTree> = {
           poolToken: 'Pool Token',
         },
       },
+      okxTrade: {
+        eyebrow: 'Trade Test',
+        title: 'OKX Swap Test',
+        description:
+          'A private-key-only test page for getting OKX DEX quotes on EVM chains, approving token spend when needed, and sending the final swap transaction.',
+        fields: {
+          privateKey: 'Private Key',
+          fromTokenAddress: 'Token 1 Contract',
+          fromTokenAmount: 'Token 1 Amount',
+          toTokenAddress: 'Token 2 Contract',
+          slippage: 'Slippage (%)',
+          fromWrappedNativeMode: 'Token 1 uses native route',
+          toWrappedNativeMode: 'Token 2 uses native route',
+        },
+        quoteSummary: 'Quote Summary',
+        executionLogs: 'Swap Execution Logs',
+        tokenInfo: 'Token Info',
+        steps: {
+          quote: 'Get Quote',
+          approve: 'Approve Token',
+          swap: 'Swap With Private Key',
+        },
+        notices: {
+          privateKey:
+            'The private key stays in the browser for this test page, but OKX API credentials are still sensitive and should not be exposed in production.',
+          erc20Only:
+            'Use the two route switches below to test native -> ERC20, ERC20 -> ERC20, and ERC20 -> native swaps independently.',
+          fromWrappedNativeMode:
+            'Enable this for native -> ERC20 swaps, such as BNB/ETH to an ERC20 token. Disable it to force Token 1 through the ERC20 approval flow.',
+          toWrappedNativeMode:
+            'Enable this for ERC20 -> native swaps, such as USDT to BNB/ETH. Disable it if Token 2 should stay as wrapped native ERC20.',
+        },
+      },
     },
     ai: {
       title: 'AI Launch Copilot',
@@ -110,6 +144,7 @@ const translations: Record<SupportedLang, TranslationTree> = {
         '一个用于多链代币创建页的基础案例，先把钱包、主题、语言和 AI 辅助填表这套通用壳子搭稳。',
       standard: '创建标准代币',
       tax: '创建税费代币',
+      okxTrade: 'OKX 交易测试',
     },
     shell: {
       chain: '链',
@@ -182,6 +217,38 @@ const translations: Record<SupportedLang, TranslationTree> = {
           taxFeeReceiveAddress: '税费接收地址',
           exchange: '交易所',
           poolToken: '底池币种',
+        },
+      },
+      okxTrade: {
+        eyebrow: 'Trade Test',
+        title: 'OKX 交易测试',
+        description:
+          '一个仅使用私钥的测试页面，用来调用 OKX DEX 报价、必要时执行授权，并最终发送兑换交易。',
+        fields: {
+          privateKey: '私钥',
+          fromTokenAddress: '代币1合约地址',
+          fromTokenAmount: '代币1数量',
+          toTokenAddress: '代币2合约地址',
+          slippage: '滑点(%)',
+          fromWrappedNativeMode: '代币1按原生币路径处理',
+          toWrappedNativeMode: '代币2按原生币路径处理',
+        },
+        quoteSummary: '报价摘要',
+        executionLogs: '交易执行日志',
+        tokenInfo: '代币信息',
+        steps: {
+          quote: '获取报价',
+          approve: '授权代币',
+          swap: '私钥发起交易',
+        },
+        notices: {
+          privateKey:
+            '这个测试页会在浏览器内存中使用私钥，但 OKX API 凭证仍然属于敏感信息，不适合直接用于生产环境。',
+          erc20Only: '通过下面两个路径开关，可以分别测试 原生币 -> ERC20、ERC20 -> ERC20、ERC20 -> 原生币 这三类交易。',
+          fromWrappedNativeMode:
+            '做原生币 -> ERC20 时开启，例如 BNB/ETH 换 ERC20；关闭后代币1会强制按 ERC20 授权再交易。',
+          toWrappedNativeMode:
+            '做 ERC20 -> 原生币 时开启，例如 USDT 换 BNB/ETH；关闭后代币2会保留为包装原生币 ERC20。',
         },
       },
     },

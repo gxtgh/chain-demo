@@ -1,6 +1,6 @@
 export type SupportedLang = 'en-us' | 'zh-cn'
 export type SupportedChainKey = 'bsc' | 'eth' | 'base'
-export type SupportedPageKey = 'create-token' | 'create-tax-token'
+export type SupportedPageKey = 'create-token' | 'create-tax-token' | 'okx-trade-test'
 
 export type ChainConfig = {
   key: SupportedChainKey
@@ -72,7 +72,7 @@ export function getChainConfig(chainKey: string) {
 }
 
 export function isSupportedPageKey(page: string): page is SupportedPageKey {
-  return page === 'create-token' || page === 'create-tax-token'
+  return page === 'create-token' || page === 'create-tax-token' || page === 'okx-trade-test'
 }
 
 export function isSupportedChainKey(chain: string): chain is SupportedChainKey {

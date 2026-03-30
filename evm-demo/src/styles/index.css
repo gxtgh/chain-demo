@@ -327,6 +327,17 @@ select:focus {
   padding: 14px 16px;
 }
 
+.toggle-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.toggle-copy span {
+  color: var(--muted);
+  font-size: 0.94rem;
+  line-height: 1.5;
+}
+
 .assistant-card,
 .review-card {
   display: grid;
