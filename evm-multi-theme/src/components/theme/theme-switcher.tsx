@@ -10,7 +10,7 @@ export function ThemeSwitcher() {
     <>
       <TopbarMenuButton
         ariaLabel={t('topbar.theme')}
-        icon={<ThemeIcon />}
+        icon={theme === 'light' ? <SunIcon /> : <ThemeIcon />}
         value={theme}
         options={themeModeRegistry.map((themeOption) => ({
           key: themeOption.id,

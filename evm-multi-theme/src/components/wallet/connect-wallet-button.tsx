@@ -1,5 +1,5 @@
 import { useAppKit, useAppKitAccount, useAppKitNetwork, useWalletInfo } from '@reown/appkit/react'
-import { bsc, base, mainnet } from '@reown/appkit/networks'
+import { bsc, bscTestnet, base, mainnet } from '@reown/appkit/networks'
 import { useEffect } from 'react'
 import { useRouteContext } from '@/app/use-route-context'
 import { supportedChains } from '@/config/chains'
@@ -32,7 +32,13 @@ export function ConnectWalletButton() {
   const isWrongChain = isConnected && chainId !== chainDefinition.chainId
   const isConnecting = status === 'connecting'
   const targetNetwork =
-    chainDefinition.key === 'bsc' ? bsc : chainDefinition.key === 'base' ? base : mainnet
+    chainDefinition.key === 'bsc'
+      ? bsc
+      : chainDefinition.key === 'bsc-testnet'
+        ? bscTestnet
+        : chainDefinition.key === 'base'
+          ? base
+          : mainnet
 
   useEffect(() => {
     if (!isConnected || !chainId) {
@@ -49,6 +55,7 @@ export function ConnectWalletButton() {
       nextChain: matchedChain.key,
       nextTheme: theme,
       nextThemeColor: themeColor,
+      replace: true,
     })
   }, [chain, chainId, isConnected, lang, navigateToPage, page, theme, themeColor])
 

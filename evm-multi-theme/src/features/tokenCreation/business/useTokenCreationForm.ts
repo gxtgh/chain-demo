@@ -1,7 +1,5 @@
 import { useMemo, useState } from 'react'
-import { defaultTokenCreationValues } from './defaults'
-import { validateTokenCreation } from './schema'
-import type { TokenCreationFormValues } from './types'
+import { defaultTokenCreationValues, type TokenCreationFormValues, validateTokenCreation } from './model'
 
 export function useTokenCreationForm(t: (key: string) => string) {
   const [formValues, setFormValues] = useState<TokenCreationFormValues>(defaultTokenCreationValues)

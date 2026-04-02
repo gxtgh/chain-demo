@@ -33,7 +33,7 @@ export function TopbarMenuButton({ ariaLabel, icon, value, options, onChange }: 
   return (
     <Dropdown
       trigger={['click']}
-      placement="bottomRight"
+      placement="bottom"
       overlayClassName="topbar-menu-popup"
       getPopupContainer={(triggerNode) => triggerNode.parentElement ?? document.body}
       menu={{

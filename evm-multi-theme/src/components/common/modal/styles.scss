@@ -1,0 +1,186 @@
+.app-modal {
+  --ant-modal-content-bg: var(--theme-surface-strong);
+  --ant-modal-header-bg: transparent;
+  --ant-modal-title-color: var(--text);
+
+  .ant-modal-mask {
+    backdrop-filter: blur(12px);
+    background: color-mix(in srgb, #05070b 58%, transparent);
+  }
+
+  .ant-modal-content {
+    border-radius: 1.5rem;
+    border: 1px solid var(--theme-line);
+    background: var(--theme-surface-strong);
+    background-color: var(--theme-surface-strong) !important;
+    color: var(--text);
+    box-shadow: var(--theme-shadow);
+    backdrop-filter: blur(1rem);
+    overflow: hidden;
+  }
+
+  .ant-modal-header {
+    padding: 1.125rem 1.5rem 0.875rem;
+    margin: -20px -24px 0;
+    border-bottom: 1px solid var(--theme-line);
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--theme-accent) 10%, transparent), transparent),
+      transparent;
+  }
+
+  .ant-modal-body {
+    padding: 1.125rem 0 0;
+    color: var(--text);
+  }
+
+  .ant-modal-footer {
+    margin-top: 1rem;
+    padding: 1rem 0 0;
+    border-top: 1px solid var(--theme-line);
+  }
+
+  .ant-modal-title {
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .ant-modal-close {
+    top: 16px;
+    right: 24px;
+    color: var(--muted);
+    width: 28px;
+    height: 28px;
+  }
+
+  .ant-modal-close:hover {
+    color: var(--text);
+  }
+}
+
+body.app-theme.app-theme-dark {
+  .app-modal {
+    --ant-modal-content-bg: rgba(18, 18, 26, 0.96);
+    --ant-modal-header-bg: rgba(18, 18, 26, 0.96);
+    --ant-modal-title-color: #f7f1eb;
+
+    .ant-modal-mask {
+      background: rgba(4, 6, 10, 0.72);
+    }
+
+    .ant-modal-content {
+      border-color: rgba(255, 255, 255, 0.1);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 28%),
+        rgba(18, 18, 26, 0.96);
+      background-color: rgba(18, 18, 26, 0.96) !important;
+      color: #f3ede7;
+      box-shadow:
+        0 32px 84px rgba(0, 0, 0, 0.52),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .ant-modal-header {
+      border-bottom-color: rgba(255, 255, 255, 0.08);
+      background:
+        linear-gradient(180deg, color-mix(in srgb, var(--theme-accent) 14%, transparent), transparent 72%),
+        rgba(255, 255, 255, 0.01);
+      background-color: rgba(18, 18, 26, 0.96) !important;
+    }
+
+    .ant-modal-footer {
+      border-top-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .ant-modal-title {
+      color: #f7f1eb;
+    }
+
+    .ant-modal-close {
+      color: rgba(246, 239, 233, 0.68);
+    }
+
+    .ant-modal-close:hover {
+      color: #f6efe9;
+    }
+
+    .ant-modal-body,
+    .ant-modal-footer {
+      color: #f3ede7;
+    }
+  }
+}
+
+.app-modal-footer-layout {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.app-modal-footer-layout > .ant-btn {
+  flex: 1 1 ;
+  min-width: 0;
+  height: 3.25rem;
+  border-radius: 1rem;
+  font-weight: 700;
+}
+
+.app-modal-footer-layout > .ant-btn-default {
+  border-color: var(--theme-line);
+  background: color-mix(in srgb, var(--theme-surface) 94%, transparent);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.app-modal-footer-layout > .ant-btn-default:hover {
+  border-color: color-mix(in srgb, var(--theme-accent) 24%, var(--theme-line) 76%) !important;
+  color: var(--text) !important;
+  background: color-mix(in srgb, var(--theme-surface) 98%, transparent) !important;
+}
+
+.app-modal-footer-layout > .ant-btn-primary {
+  border: none;
+  background: linear-gradient(135deg, var(--theme-accent), var(--theme-accent-strong));
+  box-shadow: 0 16px 28px color-mix(in srgb, var(--theme-accent) 24%, transparent);
+}
+
+.app-modal-footer-layout > .ant-btn-primary:hover {
+  background: linear-gradient(135deg, var(--theme-accent-strong), var(--theme-accent)) !important;
+}
+
+body.app-theme.app-theme-dark {
+  .app-modal-footer-layout > .ant-btn-default {
+    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    color: #f3ede7;
+  }
+
+  .app-modal-footer-layout > .ant-btn-default:hover {
+    border-color: color-mix(in srgb, var(--theme-accent) 28%, rgba(255, 255, 255, 0.08)) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: #f6efe9 !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-modal {
+    .ant-modal {
+      max-width: calc(100vw - 24px);
+    }
+
+    .ant-modal-header {
+      padding: 1rem 1rem 0.875rem;
+    }
+
+    .ant-modal-body {
+      padding: 1rem 0 0;
+    }
+
+    // .ant-modal-footer {
+    //   padding: 0.875rem 1rem 1rem;
+    // }
+  }
+
+  .app-modal-footer-layout {
+    flex-direction: column-reverse;
+  }
+}

@@ -1,25 +1,30 @@
 import { useMemo } from 'react'
 import { useRouteContext } from '@/app/use-route-context'
 import { PageSeo } from '@/components/common/page-seo'
+import { getChainFullName } from '@/config/chains'
 import { getPageSeo } from '@/config/seo'
 import { buildPagePath } from '@/config/routes'
-import { AcceptanceHero } from '../components/acceptance-hero'
-import { AcceptanceSummaryCards } from '../components/acceptance-summary-cards'
-import { AcceptanceFunctionTable } from '../components/acceptance-function-table'
-import { AcceptanceRoleBoard } from '../components/acceptance-role-board'
-import { AcceptanceTaskList } from '../components/acceptance-task-list'
-import { AcceptanceRiskPanel } from '../components/acceptance-risk-panel'
-import { AcceptanceLinksPanel } from '../components/acceptance-links-panel'
+import {
+  AcceptanceFunctionTable,
+  AcceptanceHero,
+  AcceptanceLinksPanel,
+  AcceptanceRiskPanel,
+  AcceptanceRoleBoard,
+  AcceptanceSummaryCards,
+  AcceptanceTaskList,
+} from '../components/acceptance-sections'
 import { getAcceptanceData } from '../config/acceptance-data'
+import '../styles.scss'
 
 export function ProjectAcceptancePage() {
   const { lang, chain, theme, themeColor, t, chainDefinition } = useRouteContext()
   const functions = useMemo(() => getAcceptanceData(lang, chain, theme, themeColor), [chain, lang, theme, themeColor])
   const primaryFunction = functions[0]
+  const chainLabel = getChainFullName(chainDefinition)
   const seo = getPageSeo('project-acceptance', {
     t,
-    chainName: chainDefinition.name,
-    nativeSymbol: chainDefinition.nativeSymbol,
+    chainName: chainLabel,
+    nativeSymbol: chainDefinition.nativeToken.symbol,
     tokenType: chainDefinition.tokenType,
   })
 
@@ -46,7 +51,7 @@ export function ProjectAcceptancePage() {
   ]
 
   return (
-    <section className="page-stack">
+    <section className="page-stack project-acceptance-page">
       <PageSeo {...seo} />
       <AcceptanceHero
         eyebrow={t('acceptance.eyebrow')}

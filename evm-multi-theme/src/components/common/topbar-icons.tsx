@@ -1,4 +1,5 @@
 import type { SVGProps } from 'react'
+import { GlobalOutlined } from '@ant-design/icons'
 
 type IconProps = SVGProps<SVGSVGElement>
 
@@ -27,16 +28,9 @@ export function ChainIcon(props: IconProps) {
   )
 }
 
-export function LanguageIcon(props: IconProps) {
+export function LanguageIcon() {
   return (
-    <BaseIcon {...props}>
-      <path d="M4 6h9" />
-      <path d="M8.5 6c0 6-2.5 10-4.5 12" />
-      <path d="M8.5 6c0 4.3 2.1 8.1 5.5 12" />
-      <path d="M14 18h6" />
-      <path d="M17 6l3 12" />
-      <path d="M17 6l-3 12" />
-    </BaseIcon>
+    <GlobalOutlined />
   )
 }
 
@@ -71,6 +65,25 @@ export function PaletteIcon(props: IconProps) {
       <circle cx="7.5" cy="10" r="1" />
       <circle cx="10" cy="7.5" r="1" />
       <circle cx="15" cy="7.5" r="1" />
+    </BaseIcon>
+  )
+}
+
+export function MenuIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M4 7h16" />
+      <path d="M4 12h16" />
+      <path d="M4 17h16" />
+    </BaseIcon>
+  )
+}
+
+export function SettingsIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19 12a7 7 0 00-.08-1l2.05-1.6-2-3.46-2.48.77a7 7 0 00-1.73-1L14.4 2h-4.8l-.36 2.71a7 7 0 00-1.73 1l-2.48-.77-2 3.46L5.08 11a7 7 0 000 2l-2.05 1.6 2 3.46 2.48-.77a7 7 0 001.73 1L9.6 22h4.8l.36-2.71a7 7 0 001.73-1l2.48.77 2-3.46L18.92 13c.05-.33.08-.66.08-1z" />
     </BaseIcon>
   )
 }

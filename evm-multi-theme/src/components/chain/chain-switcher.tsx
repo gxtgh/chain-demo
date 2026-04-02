@@ -1,6 +1,5 @@
 import { supportedChains } from '@/config/chains'
 import { useRouteContext } from '@/app/use-route-context'
-import { ChainIcon } from '@/components/common/topbar-icons'
 import { TopbarMenuButton } from '@/components/common/topbar-menu-button'
 import { useAccount, useSwitchChain } from 'wagmi'
 
@@ -10,33 +9,53 @@ function ChainLogo({ src, alt }: { src: string; alt: string }) {
 
 export function ChainSwitcher() {
   const { t, chain, page, lang, theme, themeColor, navigateToPage } = useRouteContext()
-  const { isConnected } = useAccount()
+  const { isConnected, chainId } = useAccount()
   const { switchChainAsync } = useSwitchChain()
+  const currentChain = supportedChains.find((chainOption) => chainOption.key === chain) ?? supportedChains[0]
 
   return (
     <TopbarMenuButton
       ariaLabel={t('topbar.chain')}
-      icon={<ChainIcon />}
+      icon={<ChainLogo src={currentChain.icon} alt={currentChain.fullName} />}
       value={chain}
       options={supportedChains.map((chainOption) => ({
         value: chainOption.key,
         key: chainOption.key,
-        label: chainOption.name,
-        code: chainOption.shortName,
-        prefix: <ChainLogo src={chainOption.icon} alt={chainOption.name} />,
+        label: chainOption.fullName,
+        code: chainOption.name,
+        prefix: <ChainLogo src={chainOption.icon} alt={chainOption.fullName} />,
       }))}
       onChange={(nextChain) => {
+        const nextChainKey = nextChain as typeof chain
+        if (nextChainKey === chain) {
+          return
+        }
+
+        const target = supportedChains.find((item) => item.key === nextChainKey)
+
+        if (isConnected && target) {
+          if (chainId === target.chainId) {
+            navigateToPage(page, {
+              nextLang: lang,
+              nextChain: nextChainKey,
+              nextTheme: theme,
+              nextThemeColor: themeColor,
+              replace: true,
+            })
+            return
+          }
+
+          void switchChainAsync({ chainId: target.chainId }).catch(() => undefined)
+          return
+        }
+
         navigateToPage(page, {
           nextLang: lang,
-          nextChain: nextChain as typeof chain,
+          nextChain: nextChainKey,
           nextTheme: theme,
           nextThemeColor: themeColor,
+          replace: true,
         })
-
-        const target = supportedChains.find((item) => item.key === nextChain)
-        if (isConnected && target) {
-          void switchChainAsync({ chainId: target.chainId }).catch(() => undefined)
-        }
       }}
     />
   )

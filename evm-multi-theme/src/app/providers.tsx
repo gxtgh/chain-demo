@@ -2,7 +2,7 @@ import { ConfigProvider } from 'antd'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactNode, useMemo } from 'react'
 import { WagmiProvider } from 'wagmi'
-import { mainnet, bsc, base } from '@reown/appkit/networks'
+import { mainnet, bsc, bscTestnet, base } from '@reown/appkit/networks'
 import type { AppKitNetwork } from '@reown/appkit/networks'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { createAppKit } from '@reown/appkit/react'
@@ -10,7 +10,7 @@ import { http } from 'viem'
 
 const queryClient = new QueryClient()
 const projectId = '630c648c23af10f1fe6798c3a8eb3e4e'
-const networks: [AppKitNetwork, ...AppKitNetwork[]] = [bsc, mainnet, base]
+const networks: [AppKitNetwork, ...AppKitNetwork[]] = [bsc, bscTestnet, mainnet, base]
 
 const metadata = {
   name: 'EVM Multi Theme',
@@ -24,6 +24,7 @@ const wagmiAdapter = new WagmiAdapter({
   networks,
   transports: {
     [bsc.id]: http(),
+    [bscTestnet.id]: http('https://data-seed-prebsc-1-s1.binance.org:8545'),
     [mainnet.id]: http(),
     [base.id]: http(),
   },

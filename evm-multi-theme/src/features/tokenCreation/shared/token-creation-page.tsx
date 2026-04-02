@@ -1,22 +1,24 @@
 import { PageHeader } from '@/components/common/page-header'
 import { PageSeo } from '@/components/common/page-seo'
 import { useRouteContext } from '@/app/use-route-context'
+import { getChainFullName } from '@/config/chains'
 import { getPageSeo } from '@/config/seo'
+import type { TokenCreationSubmitValues, TokenCreationViewModel } from '../business/model'
 import { useTokenCreationForm } from '../business/useTokenCreationForm'
 import { useTokenCreationSubmit } from '../business/useTokenCreationSubmit'
-import type { TokenCreationViewModel } from '../business/types'
-import { TokenCreationThemePage1 } from '../theme/page1'
-import { TokenCreationThemePage2 } from '../theme/page2'
-import { TokenCreationThemePage3 } from '../theme/page3'
+import { TokenCreationFormPanel } from './token-creation-form-panel'
+import { TokenPermissionCard } from './token-permission-card'
+import '../styles.scss'
 
 export function TokenCreationPage() {
   const { t, themeColor, chainDefinition } = useRouteContext()
   const form = useTokenCreationForm(t)
   const submit = useTokenCreationSubmit(chainDefinition, t, () => form.isValid)
+  const chainLabel = getChainFullName(chainDefinition)
   const seo = getPageSeo('token-creation', {
     t,
-    chainName: chainDefinition.name,
-    nativeSymbol: chainDefinition.nativeSymbol,
+    chainName: chainLabel,
+    nativeSymbol: chainDefinition.nativeToken.symbol,
     tokenType: chainDefinition.tokenType,
   })
 
@@ -24,22 +26,41 @@ export function TokenCreationPage() {
     chainDefinition,
     formValues: form.formValues,
     errors: form.errors,
-    updateField: form.updateField,
+    updateField: (key, value) => {
+      form.updateField(key, value)
+      submit.clearResult()
+    },
     creationFee: submit.creationFee,
     feeLoading: submit.feeLoading,
-    attemptCount: submit.attemptCount,
-    submitPhase: submit.submitPhase,
-    submitError: submit.submitError,
+    loading: submit.loading,
+    submitStep: submit.submitStep,
     result: submit.result,
+    successModalOpen: submit.successModalOpen,
+    failureModalOpen: submit.failureModalOpen,
     onSubmit: async () => {
       form.markSubmitted()
       if (!form.isValid) {
         return
       }
-      await submit.submit(form.formValues)
+
+      const { name, symbol, totalSupply, decimals } = form.formValues
+      if (decimals == null) {
+        return
+      }
+
+      const submitValues: TokenCreationSubmitValues = {
+        name,
+        symbol,
+        totalSupply,
+        decimals,
+      }
+
+      await submit.submit(submitValues)
     },
-    resetSubmitState: submit.resetSubmitState,
-    hasSubmitted: form.hasSubmitted,
+    onCancelFlow: submit.cancelFlow,
+    onCloseSuccessModal: submit.closeSuccessModal,
+    onCloseFailureModal: submit.closeFailureModal,
+    onClearResult: submit.clearResult,
     t,
   }
 
@@ -50,20 +71,24 @@ export function TokenCreationPage() {
         eyebrow={t('tokenCreation.eyebrow')}
         title={t('tokenCreation.title')}
         description={t('tokenCreation.description', {
-          symbol: chainDefinition.name,
+          symbol: chainLabel,
           tokenType: chainDefinition.tokenType,
         })}
       />
     </>
   )
 
-  if (themeColor === 'purple') {
-    return <TokenCreationThemePage2 header={header} model={model} />
-  }
-
-  if (themeColor === 'green') {
-    return <TokenCreationThemePage3 header={header} model={model} />
-  }
-
-  return <TokenCreationThemePage1 header={header} model={model} />
+  return (
+    <section className={`page-stack token-creation-page token-creation-${themeColor}`}>
+      <div className="hero-banner">{header}</div>
+      <div className="theme-single-column">
+        <div className="theme-main theme-main-centered">
+          <div className="token-creation-stack">
+            <TokenCreationFormPanel model={model} />
+            <TokenPermissionCard chainDefinition={chainDefinition} t={t} />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
 }

@@ -8,6 +8,18 @@ const messages = {
   'en-us': {
     common: {
       overview: 'Overview',
+      exception: {
+        possibleReasons: 'Reasons for failure',
+        errorReason1: 'The {{chain}} network is congested. Please try again later.',
+        errorReason2: 'Please make sure your account has enough balance for the on-chain transaction.',
+        contactOfficialSupport: 'If you still cannot find a solution, please contact official support for help.',
+      },
+    },
+    mobile: {
+      menu: 'Menu',
+      routes: 'Pages',
+      settings: 'Settings',
+      controls: 'Controls',
     },
     app: {
       name: 'Web3 Token',
@@ -68,11 +80,19 @@ const messages = {
         name: 'Please enter the token full name',
         symbol: 'Please enter the token symbol',
         totalSupply: 'Please enter the supply',
+        decimals: 'Please enter the precision',
       },
       hints: {
         fee: 'The creation fee is read directly from the target factory contract on the selected chain.',
         decimals: 'Use 18 decimals as the default release setting unless your token economics require a different precision.',
         status: 'Submission state and the final token address stay aligned across every theme.',
+      },
+      tooltips: {
+        name: 'The full token name shown in wallets, explorers, and trading interfaces. It is recommended to keep it consistent with your project brand.',
+        symbol: 'The short token symbol displayed in wallets and trading interfaces. It is usually made up of letters or numbers.',
+        totalSupply: 'The initial total supply of the token. Please confirm it matches your issuance plan before creation.',
+        decimals: 'Defines the smallest divisible unit of the token. In most cases, 18 is the recommended default setting.',
+        creationFee: 'The creation fee is read from the factory contract on the selected chain. Network gas is charged separately when the transaction is submitted.',
       },
       actions: {
         submit: 'Create Token',
@@ -106,6 +126,7 @@ const messages = {
         walletRequired: 'Connect a wallet before submitting.',
         walletUnavailable: 'Injected wallet was not found in this browser.',
         factoryUnavailable: 'Factory contract is not configured for this chain.',
+        insufficientBalance: 'Insufficient balance to pay gas and the creation fee.',
         txFailed: 'Transaction failed. Please try again.',
       },
       success: {
@@ -115,11 +136,91 @@ const messages = {
         txHash: 'Transaction Hash',
         openExplorer: 'Open in explorer',
       },
+      permission: {
+        title: 'Standard Token',
+        description:
+          'Deploy a standard fungible token contract on an EVM-compatible chain for basic asset issuance, wallet display, and later DEX market setup.',
+        highlights: {
+          core: 'Standard interface',
+          factory: 'Factory deployment',
+          noAdmin: 'No admin extensions',
+        },
+        cards: {
+          basicInfo: {
+            title: 'Basic Information',
+            description:
+              'After the token is created successfully, the returned token address can be used for wallet import, explorer lookup, and later liquidity configuration.',
+          },
+          permissions: {
+            title: 'Permissions',
+            description:
+              'This template is positioned as a base standard token and does not include additional admin-control modules. It does not provide mint, pause, blacklist, whitelist, trading tax, fee receiver, auto-liquidity, or buyback logic.',
+          },
+          tradingFlow: {
+            title: 'Trading Enablement Flow',
+            description:
+              'Successful deployment only means the token contract exists on-chain. To make the token tradable, you usually still need to import it into wallets, create a DEX pair, add initial liquidity, validate the buy/sell route, and complete logo plus metadata submission.',
+          },
+        },
+        noteOne: 'The current creation flow includes the token name, symbol, total supply, and decimals.',
+        noteTwo:
+          'This version does not include advanced token logic such as trading tax, blacklist, whitelist, pause, buyback, or automatic liquidity features.',
+        noteThree:
+          'After token creation, wallet display, liquidity setup, trading access, and metadata submission still need to be handled separately.',
+        noteFour: 'Please review the token name, symbol, total supply, and decimals carefully before submitting the transaction.',
+      },
+      successSummary: {
+        title: 'Creation Summary',
+        description:
+          'Your token has been created successfully. Please keep the following information for wallet display, trading setup, and metadata submission.',
+        chain: 'Network',
+        name: 'Token Name',
+        symbol: 'Token Symbol',
+        totalSupply: 'Total Supply',
+        decimals: 'Decimals',
+        tokenAddress: 'Token Address',
+        txHash: 'Transaction Hash',
+      },
+      nextSteps: {
+        title: 'Next Steps',
+        description:
+          'After your token is created, we recommend completing the following steps to help users identify, view, and trade your token more easily.',
+        addWallet: {
+          title: 'Add to Wallet',
+          description:
+            'Add the token address, symbol, and decimals to common wallets and confirm the token information is displayed correctly.',
+          action: 'View Guide',
+        },
+        addLiquidity: {
+          title: 'Create Liquidity (DEX)',
+          description:
+            'Create a trading pair on your target DEX and add the initial liquidity to prepare for market trading.',
+          action: 'View Steps',
+        },
+        goLive: {
+          title: 'Enable Trading',
+          description:
+            'After liquidity is added, check whether the token can already be searched and traded through the target trading entry.',
+          action: 'View Suggestions',
+        },
+        metadata: {
+          title: 'Add Logo & Metadata',
+          description:
+            'Complete the logo, token name, description, website, and social links to improve visibility and recognition.',
+          action: 'Complete Info',
+        },
+        note:
+          'Display and listing times may vary across wallets, DEXs, and data platforms. Please refer to each platform for actual availability.',
+      },
       modal: {
         progressTitle: 'Creating standard token',
         successTitle: 'Token created successfully',
         errorTitle: 'Token creation failed',
         errorDescription: 'The transaction did not complete on-chain. Check your wallet state and balance, then try again.',
+        progressTip: 'Token information is being prepared and the wallet will ask you to confirm the transaction before it is broadcast on-chain.',
+        errorReasonLabel: 'Possible reasons',
+        errorReasonOne: 'The selected wallet balance is not enough to cover gas and the creation fee.',
+        errorReasonTwo: 'The current chain or factory contract is unavailable, or the transaction was rejected in the wallet.',
       },
       themes: {
         orange: 'Atlas theme',
@@ -192,6 +293,18 @@ const messages = {
   'zh-cn': {
     common: {
       overview: '概览',
+      exception: {
+        possibleReasons: '失败的原因',
+        errorReason1: '{{chain}}链上拥堵，请稍后再试。',
+        errorReason2: '请确保您的账户有足够的余额进行上链操作。',
+        contactOfficialSupport: '如果您仍无法找到解决方案，请联系官方客服以获取帮助。',
+      },
+    },
+    mobile: {
+      menu: '菜单',
+      routes: '页面导航',
+      settings: '页面设置',
+      controls: '页面控制',
     },
     app: {
       name: 'Web3 代币',
@@ -251,11 +364,19 @@ const messages = {
         name: '请输入代币全称',
         symbol: '请输入代币简称',
         totalSupply: '请输入发行量',
+        decimals: '请输入精度',
       },
       hints: {
         fee: '创建费会直接从当前链的工厂合约里读取。',
         decimals: '除非你的代币经济模型有特殊要求，否则建议沿用 18 位小数。',
         status: '提交状态和最终代币地址会在 3 套主题里保持一致。',
+      },
+      tooltips: {
+        name: '代币在钱包、区块浏览器和交易界面中展示的完整名称，建议与项目品牌名称保持一致。',
+        symbol: '代币在钱包和交易界面中展示的简称，通常由字母或数字组成。',
+        totalSupply: '代币的初始总发行量，创建前请确认是否符合你的发行计划。',
+        decimals: '决定代币最小可分割单位，常规场景下建议使用 18 作为默认值。',
+        creationFee: '创建费会从当前所选链的工厂合约中读取，提交交易时仍需另外支付链上 Gas。',
       },
       actions: {
         submit: '创建代币',
@@ -289,6 +410,7 @@ const messages = {
         walletRequired: '提交前请先连接钱包。',
         walletUnavailable: '当前浏览器没有检测到注入钱包。',
         factoryUnavailable: '当前链没有配置标准代币工厂合约。',
+        insufficientBalance: '当前余额不足以支付 gas 和创建费。',
         txFailed: '交易执行失败，请稍后再试。',
       },
       success: {
@@ -298,11 +420,82 @@ const messages = {
         txHash: '交易哈希',
         openExplorer: '打开区块浏览器',
       },
+      permission: {
+        title: '标准代币',
+        description:
+          '在 EVM 兼容链上部署标准同质化代币合约，适用于基础资产发行、钱包展示以及后续在 DEX 建立交易市场。',
+        highlights: {
+          core: '标准接口代币',
+          factory: '工厂合约部署',
+          noAdmin: '无扩展管理权限',
+        },
+        cards: {
+          basicInfo: {
+            title: '基础信息',
+            description:
+              '代币创建成功后，返回的代币地址可用于钱包导入、浏览器查询以及后续的流动性配置。',
+          },
+          permissions: {
+            title: '权限',
+            description:
+              '定位为基础标准代币，不集成额外的管理权限模块。默认不包含增发、暂停、黑白名单、交易税、手续费接收地址、自动流动性或回购等扩展控制逻辑。',
+          },
+          tradingFlow: {
+            title: '实现交易流程',
+            description:
+              '代币创建成功仅代表合约已经部署，不等于已经具备可交易性。通常仍需完成钱包导入、DEX 建对、注入初始流动性、验证买卖路径，以及提交 Logo 与 Metadata 等后续步骤。',
+          },
+        },
+        noteOne: '当前创建流程包含代币名称、简称、发行量和精度四项基础信息。',
+        noteTwo: '当前版本不包含交易税、黑白名单、暂停、回购、自动流动性等复杂逻辑。',
+        noteThree: '代币创建完成后，钱包展示、流动性配置、交易入口和资料提交仍需你后续单独处理。',
+        noteFour: '提交交易前，请重点确认代币名称、简称、发行量和精度是否填写正确。',
+      },
+      successSummary: {
+        title: '创建摘要',
+        description: '代币已创建成功，请保存以下信息，便于后续添加钱包、配置交易和补充资料。',
+        chain: '所在网络',
+        name: '代币名称',
+        symbol: '代币简称',
+        totalSupply: '发行量',
+        decimals: '精度',
+        tokenAddress: '代币地址',
+        txHash: '交易哈希',
+      },
+      nextSteps: {
+        title: '下一步建议',
+        description: '代币创建成功后，建议继续完成以下步骤，帮助用户更快识别、查看并交易你的代币。',
+        addWallet: {
+          title: '添加到钱包',
+          description: '将代币地址、简称和精度添加到常用钱包，确认代币信息显示正常。',
+          action: '查看添加方式',
+        },
+        addLiquidity: {
+          title: '创建流动性（DEX）',
+          description: '在目标 DEX 创建交易对并添加首笔流动性，为后续交易做好准备。',
+          action: '查看操作步骤',
+        },
+        goLive: {
+          title: '开启交易支持',
+          description: '完成流动性配置后，检查代币是否已可在目标交易入口中搜索和交易。',
+          action: '查看交易建议',
+        },
+        metadata: {
+          title: '完善 Logo 与代币资料',
+          description: '补充 Logo、名称、简介、官网和社媒等资料，提升展示完整度与识别度。',
+          action: '去完善资料',
+        },
+        note: '不同钱包、DEX 和数据平台的展示与收录时间可能存在差异，请以各平台实际生效情况为准。',
+      },
       modal: {
         progressTitle: '正在创建标准代币',
         successTitle: '代币创建成功',
         errorTitle: '代币创建失败',
         errorDescription: '本次交易没有在链上成功完成，请检查钱包状态和余额后再试。',
+        progressTip: '系统会先生成代币参数，然后由钱包弹出签名确认，确认后再把交易广播到链上。',
+        errorReasonLabel: '可能原因',
+        errorReasonOne: '当前钱包余额不足以支付 gas 和创建费。',
+        errorReasonTwo: '当前链或工厂合约不可用，或者交易在钱包侧被拒绝。',
       },
       themes: {
         orange: 'Atlas 工具主题',

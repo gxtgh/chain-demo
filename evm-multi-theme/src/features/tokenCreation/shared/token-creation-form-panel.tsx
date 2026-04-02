@@ -1,8 +1,15 @@
-import { CheckCircleFilled, CopyOutlined } from '@ant-design/icons'
-import { Button, Input, InputNumber, Modal, Result, Steps } from 'antd'
+import { CheckCircleFilled, CloseOutlined } from '@ant-design/icons'
+import { Button, Input, InputNumber } from 'antd'
+import { CopyButton } from '@/components/common/copy-button'
+import { AppModal } from '@/components/common/modal'
 import { formatEther } from 'ethers'
-import { useMemo, useState } from 'react'
-import type { TokenCreationViewModel } from '../business/types'
+import { OperationStatus } from '@/components/common/operation-status'
+import { OperationWarning } from '@/components/common/operation-warning'
+import type { TokenCreationViewModel } from '../business/model'
+import { formatText } from '@/utils'
+import { FieldLabelWithTooltip } from './field-label-with-tooltip'
+import { TokenCreationSummary } from './token-creation-summary'
+import { TokenNextSteps } from './token-next-steps'
 
 export function TokenCreationFormPanel({ model }: { model: TokenCreationViewModel }) {
   const {
@@ -13,68 +20,25 @@ export function TokenCreationFormPanel({ model }: { model: TokenCreationViewMode
     updateField,
     creationFee,
     feeLoading,
-    attemptCount,
-    submitPhase,
-    submitError,
+    loading,
+    submitStep,
     result,
+    successModalOpen,
+    failureModalOpen,
     onSubmit,
-    resetSubmitState,
-    hasSubmitted,
+    onCancelFlow,
+    onCloseSuccessModal,
+    onCloseFailureModal,
+    onClearResult,
   } = model
-  const [closedSuccessAttempt, setClosedSuccessAttempt] = useState<number | null>(null)
-  const [closedFailureAttempt, setClosedFailureAttempt] = useState<number | null>(null)
-
-  const statusMessage =
-    submitPhase === 'loading_fee'
-      ? t('tokenCreation.status.loadingFee')
-      : submitPhase === 'preparing'
-        ? t('tokenCreation.status.preparing')
-      : submitPhase === 'waiting_wallet'
-        ? t('tokenCreation.status.waitingWallet')
-        : submitPhase === 'pending'
-          ? t('tokenCreation.status.pending')
-          : submitPhase === 'success'
-            ? t('tokenCreation.status.success')
-            : ''
-
-  const progressStep = useMemo(() => {
-    if (submitPhase === 'preparing') return 0
-    if (submitPhase === 'waiting_wallet') return 1
-    if (submitPhase === 'pending') return 2
-    return 3
-  }, [submitPhase])
-
-  const stepItems = useMemo(
-    () => [
-      { title: t('tokenCreation.steps.preparing') },
-      { title: t('tokenCreation.steps.waitingWallet') },
-      { title: t('tokenCreation.steps.pending') },
-      { title: t('tokenCreation.steps.completed') },
-    ],
-    [t],
-  )
-
-  const progressOpen = submitPhase === 'preparing' || submitPhase === 'waiting_wallet' || submitPhase === 'pending'
-  const successOpen = submitPhase === 'success' && Boolean(result) && closedSuccessAttempt !== attemptCount
-  const failureOpen = submitPhase === 'error' && Boolean(submitError) && attemptCount > 0 && closedFailureAttempt !== attemptCount
-
-  async function handleCopy(value: string | undefined) {
-    if (!value || !navigator.clipboard) {
-      return
-    }
-
-    try {
-      await navigator.clipboard.writeText(value)
-    } catch {
-      // Ignore clipboard failures in unsupported environments.
-    }
-  }
+  const txExplorerUrl = result?.txExplorerUrl ?? ''
+  const tokenExplorerUrl = result?.tokenExplorerUrl ?? ''
 
   return (
     <section className="surface-card form-card">
       <div className="field-grid">
         <label className="field">
-          <span>{t('tokenCreation.fields.name')}</span>
+          <FieldLabelWithTooltip label={t('tokenCreation.fields.name')} tooltip={t('tokenCreation.tooltips.name')} />
           <Input
             className="token-form-input"
             placeholder={t('tokenCreation.placeholders.name')}
@@ -88,7 +52,7 @@ export function TokenCreationFormPanel({ model }: { model: TokenCreationViewMode
         </label>
 
         <label className="field">
-          <span>{t('tokenCreation.fields.symbol')}</span>
+          <FieldLabelWithTooltip label={t('tokenCreation.fields.symbol')} tooltip={t('tokenCreation.tooltips.symbol')} />
           <Input
             className="token-form-input"
             placeholder={t('tokenCreation.placeholders.symbol')}
@@ -102,7 +66,10 @@ export function TokenCreationFormPanel({ model }: { model: TokenCreationViewMode
         </label>
 
         <label className="field">
-          <span>{t('tokenCreation.fields.totalSupply')}</span>
+          <FieldLabelWithTooltip
+            label={t('tokenCreation.fields.totalSupply')}
+            tooltip={t('tokenCreation.tooltips.totalSupply')}
+          />
           <InputNumber
             className="token-form-number"
             style={{ width: '100%' }}
@@ -119,7 +86,7 @@ export function TokenCreationFormPanel({ model }: { model: TokenCreationViewMode
         </label>
 
         <label className="field">
-          <span>{t('tokenCreation.fields.decimals')}</span>
+          <FieldLabelWithTooltip label={t('tokenCreation.fields.decimals')} tooltip={t('tokenCreation.tooltips.decimals')} />
           <InputNumber
             className="token-form-number"
             min={0}
@@ -127,7 +94,7 @@ export function TokenCreationFormPanel({ model }: { model: TokenCreationViewMode
             value={formValues.decimals}
             controls={false}
             placeholder={t('tokenCreation.placeholders.decimals')}
-            onChange={(value) => updateField('decimals', Number(value ?? 18))}
+            onChange={(value) => updateField('decimals', value == null ? null : Number(value))}
             status={errors.decimals ? 'error' : undefined}
           />
           {errors.decimals ? <small className="field-error">{errors.decimals}</small> : null}
@@ -137,151 +104,133 @@ export function TokenCreationFormPanel({ model }: { model: TokenCreationViewMode
       <Button
         block
         className="primary-button ant-primary-button"
-        loading={submitPhase === 'waiting_wallet' || submitPhase === 'pending'}
+        loading={loading}
         onClick={() => void onSubmit()}
         type="primary"
         size="large"
       >
-        {submitPhase === 'waiting_wallet' || submitPhase === 'pending'
-          ? t('tokenCreation.actions.submitting')
-          : t('tokenCreation.actions.submit')}
+        {loading ? t('tokenCreation.actions.submitting') : t('tokenCreation.actions.submit')}
       </Button>
 
-      <div className="fee-inline-note">
-        <span>{t('tokenCreation.labels.creationFee')}</span>
+      <div className="fee-inline-note fee-inline-note-after-submit">
+        <FieldLabelWithTooltip
+          label={t('tokenCreation.labels.creationFee')}
+          tooltip={t('tokenCreation.tooltips.creationFee')}
+        />
         <strong>
-          {feeLoading || creationFee == null ? '...' : `${formatEther(creationFee)} ${chainDefinition.nativeSymbol}`}
+          {feeLoading || creationFee == null ? '...' : `${formatEther(creationFee)} ${chainDefinition.nativeToken.symbol}`}
         </strong>
       </div>
 
-      {hasSubmitted && submitPhase === 'error' && submitError ? (
-        <div className={`state-banner ${submitPhase}`}>{submitError || statusMessage}</div>
-      ) : null}
-
       {result ? (
         <div className="result-card success-result-card">
-          <div className="success-banner">
-            <CheckCircleFilled />
-            <span>{t('tokenCreation.success.banner')}</span>
-          </div>
-          <div className="summary-list compact">
-            <div className="summary-row">
-              <span>{t('tokenCreation.success.txHash')}</span>
-              <strong>{result.txHash}</strong>
+          <div className="success-card-head">
+            <div className="success-banner">
+              <CheckCircleFilled />
+              <span>{t('tokenCreation.success.banner')}</span>
             </div>
-            <div className="summary-row">
-              <span>{t('tokenCreation.success.tokenAddress')}</span>
-              <strong>{result.tokenAddress ?? '--'}</strong>
-            </div>
+            <button className="result-close-button" onClick={onClearResult} type="button" aria-label={t('tokenCreation.actions.close')}>
+              <CloseOutlined />
+            </button>
           </div>
-          <a className="text-link" href={result.explorerUrl} target="_blank" rel="noreferrer">
-            {t('tokenCreation.success.openExplorer')}
-          </a>
+          <TokenCreationSummary chainDefinition={chainDefinition} formValues={formValues} result={result} t={t} />
+          <TokenNextSteps t={t} />
         </div>
       ) : null}
 
-      <Modal
-        open={progressOpen}
-        footer={null}
-        closable={false}
-        centered
-        className="token-progress-modal"
+      <OperationStatus
+        open={Boolean(submitStep)}
         title={t('tokenCreation.modal.progressTitle')}
-      >
-        <div className="token-progress-body">
-          <Steps
-            direction="vertical"
-            current={progressStep}
-            items={stepItems}
-            status={submitPhase === 'error' ? 'error' : undefined}
-          />
-          <div className={`progress-inline-tip ${submitPhase}`}>{statusMessage}</div>
-        </div>
-      </Modal>
+        step={submitStep}
+        steps={[
+          { id: 1, text: t('tokenCreation.steps.preparing') },
+          { id: 2, text: t('tokenCreation.steps.waitingWallet') },
+          { id: 3, text: t('tokenCreation.steps.pending') },
+          {
+            id: 4,
+            text: t('tokenCreation.steps.completed'),
+            errorText: t('tokenCreation.steps.failed'),
+          },
+        ]}
+        // tipsText={t('tokenCreation.modal.progressTip')}
+        cancelBtnShow={submitStep?.id === 1 || submitStep?.id === 2}
+        onClose={onCancelFlow}
+      />
 
-      <Modal
-        open={successOpen}
-        footer={null}
-        onCancel={() => setClosedSuccessAttempt(attemptCount)}
-        centered
+      <AppModal
+        open={successModalOpen}
+        footer={<Button type="primary" onClick={onCloseSuccessModal}>{t('tokenCreation.actions.close')}</Button>}
+        onCancel={onCloseSuccessModal}
         className="token-result-modal"
+        title={<div className="token-result-modal-heading">{t('tokenCreation.modal.successTitle')}</div>}
       >
-        <Result
-          status="success"
-          title={t('tokenCreation.modal.successTitle')}
-          subTitle={t('tokenCreation.status.success')}
-          extra={
-            <div className="result-actions">
-              <Button onClick={() => setClosedSuccessAttempt(attemptCount)}>{t('tokenCreation.actions.close')}</Button>
-              <Button href={result?.explorerUrl} target="_blank" rel="noreferrer" type="primary">
-                {t('tokenCreation.success.openExplorer')}
-              </Button>
+        <div className="result-modal-shell">
+          <div className="result-modal-success">
+            <div className="success-banner">
+              <CheckCircleFilled />
+              <span>{t('tokenCreation.success.banner')}</span>
             </div>
-          }
-        />
-        <div className="result-modal-card">
-          <div className="result-modal-row">
-            <span>{t('tokenCreation.success.tokenAddress')}</span>
-            <div className="result-modal-value">
-              <strong>{result?.tokenAddress ?? '--'}</strong>
-              {result?.tokenAddress ? (
-                <button type="button" onClick={() => void handleCopy(result.tokenAddress)} aria-label="copy token address">
-                  <CopyOutlined />
-                </button>
-              ) : null}
+            <p>{t('tokenCreation.successSummary.description')}</p>
+          </div>
+          <div className="result-modal-card">
+            <div className="result-modal-row">
+              <span>{t('tokenCreation.success.tokenAddress')}</span>
+              <div className="result-modal-value">
+                {result?.tokenAddress ? (
+                  <a className="value-link" href={tokenExplorerUrl} target="_blank" rel="noreferrer">
+                    {formatText(result.tokenAddress)}
+                  </a>
+                ) : (
+                  <strong>--</strong>
+                )}
+                {result?.tokenAddress ? (
+                  <CopyButton ariaLabel="copy token address" value={result.tokenAddress} />
+                ) : null}
+              </div>
+            </div>
+            <div className="result-modal-row">
+              <span>{t('tokenCreation.success.txHash')}</span>
+              <div className="result-modal-value">
+                {result?.txHash ? (
+                  <a className="value-link" href={txExplorerUrl} target="_blank" rel="noreferrer">
+                    {formatText(result.txHash)}
+                  </a>
+                ) : (
+                  <strong>--</strong>
+                )}
+                {result?.txHash ? (
+                  <CopyButton ariaLabel="copy tx hash" value={result.txHash} />
+                ) : null}
+              </div>
             </div>
           </div>
-          <div className="result-modal-row">
-            <span>{t('tokenCreation.success.txHash')}</span>
-            <div className="result-modal-value">
-              <strong>{result?.txHash ?? '--'}</strong>
-              {result?.txHash ? (
-                <button type="button" onClick={() => void handleCopy(result.txHash)} aria-label="copy tx hash">
-                  <CopyOutlined />
-                </button>
-              ) : null}
-            </div>
-          </div>
         </div>
-      </Modal>
-
-      <Modal
-        open={failureOpen}
-        footer={null}
-        onCancel={() => {
-          setClosedFailureAttempt(attemptCount)
-          resetSubmitState()
-        }}
-        centered
-        className="token-result-modal"
-      >
-        <Result
-          status="error"
-          title={t('tokenCreation.modal.errorTitle')}
-          subTitle={submitError || t('tokenCreation.modal.errorDescription')}
-          extra={
-            <div className="result-actions">
-              <Button
-                onClick={() => {
-                  setClosedFailureAttempt(attemptCount)
-                  resetSubmitState()
-                }}
-              >
-                {t('tokenCreation.actions.close')}
-              </Button>
-              <Button
-                type="primary"
-                onClick={() => {
-                  setClosedFailureAttempt(attemptCount)
-                  resetSubmitState()
-                }}
-              >
-                {t('tokenCreation.actions.retry')}
-              </Button>
-            </div>
-          }
-        />
-      </Modal>
+      </AppModal>
+      <OperationWarning
+        open={failureModalOpen}
+        title={t('tokenCreation.modal.errorTitle')}
+        labelText={t('common.exception.possibleReasons')}
+        contents={[
+          t('common.exception.errorReason1', { chain: chainDefinition.fullName }),
+          t('common.exception.errorReason2'),
+        ]}
+        noteText={t('common.exception.contactOfficialSupport')}
+        footer={
+          <>
+            <Button onClick={onCloseFailureModal}>{t('tokenCreation.actions.close')}</Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                onCloseFailureModal()
+                void onSubmit()
+              }}
+            >
+              {t('tokenCreation.actions.retry')}
+            </Button>
+          </>
+        }
+        onClose={onCloseFailureModal}
+      />
     </section>
   )
 }

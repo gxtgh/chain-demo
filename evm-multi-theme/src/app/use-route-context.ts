@@ -56,6 +56,7 @@ export function useRouteContext() {
       nextChain?: SupportedChainKey
       nextTheme?: ThemeModeId
       nextThemeColor?: ThemeColorId
+      replace?: boolean
     },
   ) {
     navigate(
@@ -63,6 +64,7 @@ export function useRouteContext() {
         theme: options?.nextTheme ?? theme,
         themeColor: options?.nextThemeColor ?? themeColor,
       }),
+      { replace: options?.replace ?? false },
     )
   }
 

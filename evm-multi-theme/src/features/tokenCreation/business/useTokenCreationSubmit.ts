@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { message } from 'antd'
 import { useAccount, useSwitchChain } from 'wagmi'
 import type { ChainDefinition } from '@/config/chains'
 import { readCreationFee, submitTokenCreation } from './tokenCreationService'
-import type { TokenCreationFormValues, TokenCreationSubmitPhase, TokenCreationSubmitResult } from './types'
+import type { TokenCreationSubmitResult, TokenCreationSubmitStep, TokenCreationSubmitValues } from './model'
+
+const defaultStep: TokenCreationSubmitStep | null = null
 
 export function useTokenCreationSubmit(
   chainDefinition: ChainDefinition,
@@ -13,29 +16,65 @@ export function useTokenCreationSubmit(
   const { switchChainAsync } = useSwitchChain()
   const [creationFee, setCreationFee] = useState<bigint | null>(null)
   const [feeLoading, setFeeLoading] = useState(true)
-  const [attemptCount, setAttemptCount] = useState(0)
-  const [submitPhase, setSubmitPhase] = useState<TokenCreationSubmitPhase>('idle')
-  const [submitError, setSubmitError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [submitStep, setSubmitStep] = useState<TokenCreationSubmitStep | null>(defaultStep)
   const [result, setResult] = useState<TokenCreationSubmitResult | null>(null)
+  const [successModalOpen, setSuccessModalOpen] = useState(false)
+  const [failureModalOpen, setFailureModalOpen] = useState(false)
+  const flowIdRef = useRef(0)
+  const modalTimerRef = useRef<number | null>(null)
+
+  function clearModalTimer() {
+    if (modalTimerRef.current !== null) {
+      window.clearTimeout(modalTimerRef.current)
+      modalTimerRef.current = null
+    }
+  }
+
+  function isFlowActive(flowId: number) {
+    return flowIdRef.current === flowId
+  }
+
+  function clearResult() {
+    clearModalTimer()
+    setLoading(false)
+    setResult(null)
+    setSuccessModalOpen(false)
+    setFailureModalOpen(false)
+    setSubmitStep(defaultStep)
+  }
+
+  function cancelFlow() {
+    flowIdRef.current += 1
+    clearModalTimer()
+    setLoading(false)
+    setResult(null)
+    setSuccessModalOpen(false)
+    setFailureModalOpen(false)
+    setSubmitStep(defaultStep)
+  }
 
   useEffect(() => {
     let active = true
 
+    flowIdRef.current += 1
+    clearModalTimer()
+    setLoading(false)
+    setCreationFee(null)
+    setResult(null)
+    setSuccessModalOpen(false)
+    setFailureModalOpen(false)
+    setSubmitStep(defaultStep)
+
     async function loadFee() {
       setFeeLoading(true)
-      setSubmitPhase('loading_fee')
-      setSubmitError('')
-
       try {
         const fee = await readCreationFee(chainDefinition)
         if (!active) return
         setCreationFee(fee)
-        setSubmitPhase('idle')
       } catch {
         if (!active) return
         setCreationFee(null)
-        setSubmitPhase('error')
-        setSubmitError(t('tokenCreation.errors.factoryUnavailable'))
       } finally {
         if (active) {
           setFeeLoading(false)
@@ -48,63 +87,96 @@ export function useTokenCreationSubmit(
     return () => {
       active = false
     }
-  }, [chainDefinition, t])
+  }, [chainDefinition])
 
-  async function submit(values: TokenCreationFormValues) {
-    setSubmitError('')
+  useEffect(() => {
+    return () => {
+      clearModalTimer()
+    }
+  }, [])
+
+  async function submit(values: TokenCreationSubmitValues) {
+    clearModalTimer()
     setResult(null)
+    setFailureModalOpen(false)
+    setSuccessModalOpen(false)
 
     if (!validateBeforeSubmit()) {
       return
     }
 
     if (!isConnected) {
-      setSubmitPhase('error')
-      setSubmitError(t('tokenCreation.errors.walletRequired'))
+      message.warning(t('tokenCreation.errors.walletRequired'))
       return
     }
 
-    try {
-      setAttemptCount((count) => count + 1)
-      setSubmitPhase('preparing')
+    const flowId = flowIdRef.current + 1
+    flowIdRef.current = flowId
+    setLoading(true)
+    setSubmitStep({ id: 1, status: 'loading' })
 
+    try {
       if (chainId !== chainDefinition.chainId) {
         await switchChainAsync({ chainId: chainDefinition.chainId })
       }
 
+      if (!isFlowActive(flowId)) return
+
       const nextResult = await submitTokenCreation(chainDefinition, values, {
-        onWaitingWallet: () => setSubmitPhase('waiting_wallet'),
-        onPending: () => setSubmitPhase('pending'),
+        onWaitingWallet: () => {
+          if (!isFlowActive(flowId)) return
+          setSubmitStep({ id: 2, status: 'loading' })
+        },
+        onPending: () => {
+          if (!isFlowActive(flowId)) return
+          setSubmitStep({ id: 3, status: 'loading' })
+        },
       })
 
+      if (!isFlowActive(flowId)) return
+
+      setLoading(false)
       setResult(nextResult)
-      setSubmitPhase('success')
-    } catch (error) {
-      setSubmitPhase('error')
-      const message =
-        error instanceof Error && error.message.startsWith('tokenCreation.errors.')
-          ? t(error.message)
-          : error instanceof Error && error.message
-            ? error.message
-            : t('tokenCreation.errors.txFailed')
-      setSubmitError(message)
+      setSubmitStep({ id: 4, status: 'success' })
+      modalTimerRef.current = window.setTimeout(() => {
+        if (!isFlowActive(flowId)) return
+        setSubmitStep(defaultStep)
+        setSuccessModalOpen(true)
+      }, 600)
+    } catch {
+      if (!isFlowActive(flowId)) return
+
+      setLoading(false)
+      setSubmitStep({ id: 4, status: 'failed' })
+      modalTimerRef.current = window.setTimeout(() => {
+        if (!isFlowActive(flowId)) return
+        setSubmitStep(defaultStep)
+        setFailureModalOpen(true)
+      }, 300)
     }
   }
 
-  function resetSubmitState() {
-    setSubmitError('')
-    setResult(null)
-    setSubmitPhase(feeLoading ? 'loading_fee' : 'idle')
+  function closeSuccessModal() {
+    setSuccessModalOpen(false)
+  }
+
+  function closeFailureModal() {
+    setFailureModalOpen(false)
+    setSubmitStep(defaultStep)
   }
 
   return {
     creationFee,
     feeLoading,
-    attemptCount,
-    submitPhase,
-    submitError,
+    loading,
+    submitStep,
     result,
+    successModalOpen,
+    failureModalOpen,
     submit,
-    resetSubmitState,
+    cancelFlow,
+    clearResult,
+    closeSuccessModal,
+    closeFailureModal,
   }
 }

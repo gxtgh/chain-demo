@@ -3,6 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/img/common/favicon-orange.ico" data-app-favicon="true" />
+    <script>
+      ;(() => {
+        const themeColor = new URLSearchParams(window.location.search).get('themeColor')
+        const supportedThemeColors = ['orange', 'purple', 'green']
+        const faviconThemeColor = supportedThemeColors.includes(themeColor ?? '') ? themeColor : 'orange'
+        const faviconLink = document.querySelector('link[data-app-favicon]')
+
+        if (faviconLink) {
+          faviconLink.href = `/img/common/favicon-${faviconThemeColor}.ico`
+        }
+      })()
+    </script>
     <title>EVM Multi Theme</title>
   </head>
   <body>
