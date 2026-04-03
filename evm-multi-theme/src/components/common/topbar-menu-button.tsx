@@ -15,9 +15,20 @@ type TopbarMenuButtonProps = {
   value: string
   options: TopbarMenuOption[]
   onChange: (value: string) => void
+  showValue?: boolean
+  className?: string
 }
 
-export function TopbarMenuButton({ ariaLabel, icon, value, options, onChange }: TopbarMenuButtonProps) {
+export function TopbarMenuButton({
+  ariaLabel,
+  icon,
+  value,
+  options,
+  onChange,
+  showValue = false,
+  className = '',
+}: TopbarMenuButtonProps) {
+  const activeOption = options.find((option) => option.key === value)
   const items: MenuProps['items'] = options.map((option) => ({
     key: option.key,
     label: (
@@ -42,8 +53,11 @@ export function TopbarMenuButton({ ariaLabel, icon, value, options, onChange }: 
         onClick: ({ key }) => onChange(key),
       }}
     >
-      <button type="button" className="topbar-menu-button" aria-label={ariaLabel}>
-        <span className="topbar-menu-button-icon">{icon}</span>
+      <button type="button" className={`topbar-menu-button ${className}`.trim()} aria-label={ariaLabel}>
+        <span className="topbar-menu-button-main">
+          <span className="topbar-menu-button-icon">{icon}</span>
+          {showValue ? <span className="topbar-menu-button-value">{activeOption?.label ?? ariaLabel}</span> : null}
+        </span>
         <span className="topbar-menu-button-arrow" aria-hidden="true">
           ▾
         </span>

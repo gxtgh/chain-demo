@@ -8,6 +8,7 @@ const messages = {
   'en-us': {
     common: {
       overview: 'Overview',
+      backToTop: 'Back to top',
       exception: {
         possibleReasons: 'Reasons for failure',
         errorReason1: 'The {{chain}} network is congested. Please try again later.',
@@ -23,7 +24,7 @@ const messages = {
     },
     app: {
       name: 'Web3 Token',
-      tagline: 'Token Tool Site',
+      tagline: 'Professional Token Toolkit',
     },
     footer: {
       copyright: 'Web3 Token © 2026',
@@ -293,6 +294,7 @@ const messages = {
   'zh-cn': {
     common: {
       overview: '概览',
+      backToTop: '回到顶部',
       exception: {
         possibleReasons: '失败的原因',
         errorReason1: '{{chain}}链上拥堵，请稍后再试。',
@@ -308,7 +310,7 @@ const messages = {
     },
     app: {
       name: 'Web3 代币',
-      tagline: '代币工具站',
+      tagline: '专业代币工具',
     },
     footer: {
       copyright: 'Web3 Token © 2026',
@@ -340,7 +342,7 @@ const messages = {
     },
     tokenCreation: {
       eyebrow: '',
-      title: '创建普通代币',
+      title: '创建标准代币',
       description:
         '{{symbol}}标准代币创建，一分钟快速创建{{tokenType}}代币，快速简单且便宜，无需任何编程，干净合约，无税无功能，一键发行你的专属代币。',
       seo: {

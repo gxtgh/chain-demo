@@ -87,3 +87,12 @@ export function SettingsIcon(props: IconProps) {
     </BaseIcon>
   )
 }
+
+export function ArrowUpIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M12 19V5" />
+      <path d="M6 11l6-6 6 6" />
+    </BaseIcon>
+  )
+}
