@@ -8,6 +8,7 @@ const messages = {
   'en-us': {
     common: {
       overview: 'Overview',
+      backToTop: 'Back to top',
       exception: {
         possibleReasons: 'Reasons for failure',
         errorReason1: 'The {{chain}} network is congested. Please try again later.',
@@ -31,6 +32,7 @@ const messages = {
     },
     nav: {
       tokenCreation: 'Token Creation',
+      tokenTaxCreation: 'Tax Token',
       projectAcceptance: 'Project Acceptance',
     },
     topbar: {
@@ -228,6 +230,154 @@ const messages = {
         green: 'Forge theme',
       },
     },
+    tokenTaxCreation: {
+      eyebrow: '',
+      title: 'Create Tax Token',
+      description:
+        'Deploy a {{tokenType}} token with configurable buy and sell tax settings on {{chain}}. Reuse the current project UI, keep the chain-side contract flow intact, and complete deployment with one wallet confirmation flow.',
+      seo: {
+        title: 'Create {{chain}} Tax Token | Configure Buy & Sell Tax',
+        description:
+          'Create a tax token on {{chain}} with configurable buy tax, sell tax, receiver wallet, DEX pairing, and pool token settings.',
+        keywords: '{{chain}} tax token, buy tax token, sell tax token, token tax factory, EVM tax token creator',
+      },
+      fields: {
+        name: 'Token Full Name',
+        symbol: 'Token Symbol',
+        totalSupply: 'Supply',
+        decimals: 'Precision',
+        buyTax: 'Buy Tax',
+        sellTax: 'Sell Tax',
+        taxReceiver: 'Tax Receiver',
+        exchange: 'Liquidity Exchange',
+        poolToken: 'Pool Token',
+      },
+      labels: {
+        creationFee: 'Creation Fee',
+        taxToggle: 'Enable Trading Tax',
+        taxToggleNote: 'When enabled, buy and sell tax will be routed to the configured receiver wallet.',
+      },
+      placeholders: {
+        name: 'Please enter the token full name',
+        symbol: 'Please enter the token symbol',
+        totalSupply: 'Please enter the supply',
+        decimals: 'Please enter the precision',
+        buyTax: 'Enter buy tax',
+        sellTax: 'Enter sell tax',
+        taxReceiver: 'Leave empty to use the connected wallet',
+        poolToken: 'Select or search a token address',
+      },
+      tooltips: {
+        name: 'The full name displayed in wallets, explorers, and trading interfaces.',
+        symbol: 'The token symbol displayed in wallets and DEX interfaces.',
+        totalSupply: 'The initial token supply. Please confirm this matches the issuance plan before deployment.',
+        decimals: 'Defines the smallest divisible unit. In most cases, 18 decimals is the recommended default.',
+        buyTax: 'The buy tax percentage applied when users purchase the token through the configured pair.',
+        sellTax: 'The sell tax percentage applied when users sell the token through the configured pair.',
+        taxReceiver: 'Optional tax receiver address. If left empty, the current connected wallet will be used.',
+        exchange: 'Choose the DEX factory configuration that matches the tax token factory on the current chain.',
+        poolToken: 'Choose the pool token used later when creating the trading pair. If you enter a custom token address, the app will read its on-chain metadata.',
+        creationFee: 'The creation fee is read directly from the selected tax token factory contract. Gas is charged separately by the chain.',
+      },
+      actions: {
+        submit: 'Create Tax Token',
+        submitting: 'Submitting...',
+        close: 'Close',
+        retry: 'Try Again',
+      },
+      steps: {
+        preparing: 'Generate token information',
+        waitingWallet: 'Please sign the transaction',
+        pending: 'Tax token creation in progress',
+        completed: 'Creation completed',
+        failed: 'Creation failed',
+      },
+      errors: {
+        nameRequired: 'Token name is required.',
+        nameTooLong: 'Token name can be at most 100 characters.',
+        symbolRequired: 'Token symbol is required.',
+        symbolTooLong: 'Token symbol can be at most 100 characters.',
+        supplyRequired: 'Total supply is required.',
+        supplyInvalid: 'Total supply must be a positive integer.',
+        decimalsInvalid: 'Decimals must be between 0 and 18.',
+        buyTaxInvalid: 'Buy tax must be a number between 0 and 25 with up to 2 decimals.',
+        sellTaxInvalid: 'Sell tax must be a number between 0 and 25 with up to 2 decimals.',
+        taxReceiverInvalid: 'Enter a valid EVM address for the tax receiver.',
+        exchangeRequired: 'Select a liquidity exchange.',
+        poolTokenRequired: 'Select a pool token.',
+        walletRequired: 'Connect a wallet before submitting.',
+        walletUnavailable: 'Injected wallet was not found in this browser.',
+        factoryUnavailable: 'The tax token factory contract is not configured for this chain.',
+        insufficientBalance: 'Insufficient balance to pay gas and the creation fee.',
+        txFailed: 'Transaction failed. Please try again.',
+        tokenLookupFailed: 'The token address could not be read on-chain. Please confirm the address and try again.',
+      },
+      success: {
+        banner: 'Tax token created successfully',
+        tokenAddress: 'Token Address',
+        txHash: 'Transaction Hash',
+      },
+      overview: {
+        title: 'Tax Token',
+        description:
+          'Deploy a tax-enabled fungible token contract with configurable buy and sell tax, receiver wallet, and paired pool token settings.',
+        highlights: {
+          base: 'Tax-enabled token',
+          buy: 'Configurable buy tax',
+          sell: 'Configurable sell tax',
+          receiver: 'Receiver wallet setting',
+        },
+        cards: {
+          taxPlan: {
+            title: 'Tax Strategy',
+            description:
+              'Set buy tax and sell tax according to your token economy. The contract keeps the original source logic and applies tax values in basis points.',
+          },
+          receiver: {
+            title: 'Receiver & Pair Token',
+            description:
+              'Choose the tax receiver wallet and the pool token used for the trading pair. If no receiver is entered, the connected wallet will be used by default.',
+          },
+          trading: {
+            title: 'Trading Notes',
+            description:
+              'Successful deployment only means the contract is live on-chain. You still need to complete pair creation and market operations separately.',
+          },
+        },
+      },
+      successSummary: {
+        title: 'Creation Summary',
+        description:
+          'Your tax token has been created successfully. Keep the following configuration for wallet display, trading setup, and operational review.',
+        chain: 'Network',
+        name: 'Token Name',
+        symbol: 'Token Symbol',
+        totalSupply: 'Total Supply',
+        decimals: 'Decimals',
+        buyTax: 'Buy Tax',
+        sellTax: 'Sell Tax',
+        taxReceiver: 'Tax Receiver',
+        exchange: 'Liquidity Exchange',
+        poolToken: 'Pool Token',
+        tokenAddress: 'Token Address',
+        txHash: 'Transaction Hash',
+      },
+      modal: {
+        progressTitle: 'Creating tax token',
+        successTitle: 'Tax token created successfully',
+        errorTitle: 'Tax token creation failed',
+        errorDescription: 'The transaction did not complete on-chain. Check the wallet state, balance, and configuration, then try again.',
+      },
+      safety: {
+        title: 'Security Reminder',
+        tips: {
+          one: 'Protect your private key and seed phrase carefully to keep your assets safe.',
+          two: 'Review token parameters carefully before submitting. On-chain settings cannot be edited after deployment.',
+          three: 'Ensure your wallet has enough native-token balance for gas and the creation fee.',
+          four: 'Use only official links and official channels when operating the deployment flow.',
+        },
+      },
+    },
     acceptance: {
       eyebrow: 'Internal Workspace',
       title: 'Project Acceptance',
@@ -293,6 +443,7 @@ const messages = {
   'zh-cn': {
     common: {
       overview: '概览',
+      backToTop: '回到顶部',
       exception: {
         possibleReasons: '失败的原因',
         errorReason1: '{{chain}}链上拥堵，请稍后再试。',
@@ -316,6 +467,7 @@ const messages = {
     },
     nav: {
       tokenCreation: '标准代币',
+      tokenTaxCreation: '税费代币',
       projectAcceptance: '项目验收',
     },
     topbar: {
@@ -501,6 +653,152 @@ const messages = {
         orange: 'Atlas 工具主题',
         purple: 'Pulse 营销主题',
         green: 'Forge 控制台主题',
+      },
+    },
+    tokenTaxCreation: {
+      eyebrow: '',
+      title: '创建税费代币',
+      description:
+        '在 {{chain}} 上部署带有买卖税配置的 {{tokenType}} 代币。保留源码链上创建逻辑，并沿用当前项目的 UI 与布局风格完成二次改版。',
+      seo: {
+        title: '创建 {{chain}} 税费代币 | 配置买卖税',
+        description: '支持在 {{chain}} 上配置买税、卖税、税费接收地址、交易所和底池代币的一站式税费代币创建流程。',
+        keywords: '{{chain}} 税费代币, 买税代币, 卖税代币, tokenTaxFactory, EVM 税费代币创建',
+      },
+      fields: {
+        name: '代币全称',
+        symbol: '代币简称',
+        totalSupply: '发行量',
+        decimals: '精度',
+        buyTax: '买入税',
+        sellTax: '卖出税',
+        taxReceiver: '税费接收地址',
+        exchange: '交易所',
+        poolToken: '底池代币',
+      },
+      labels: {
+        creationFee: '创建费',
+        taxToggle: '开启交易税',
+        taxToggleNote: '开启后，买入税和卖出税会按配置自动转入税费接收钱包。',
+      },
+      placeholders: {
+        name: '请输入代币全称',
+        symbol: '请输入代币简称',
+        totalSupply: '请输入发行量',
+        decimals: '请输入精度',
+        buyTax: '请输入买入税',
+        sellTax: '请输入卖出税',
+        taxReceiver: '留空则默认使用当前连接钱包',
+        poolToken: '请选择或搜索代币地址',
+      },
+      tooltips: {
+        name: '代币在钱包、浏览器和交易界面中展示的完整名称。',
+        symbol: '代币在钱包和交易界面中展示的简称。',
+        totalSupply: '代币初始发行总量，创建前请再次确认是否符合你的发行计划。',
+        decimals: '决定代币最小可分割单位，常规场景下建议使用 18 位小数。',
+        buyTax: '用户通过配置的交易对买入代币时所收取的税率百分比。',
+        sellTax: '用户通过配置的交易对卖出代币时所收取的税率百分比。',
+        taxReceiver: '可选的税费接收地址。如果留空，默认使用当前连接的钱包地址。',
+        exchange: '选择当前链上与税费工厂合约匹配的交易所配置。',
+        poolToken: '选择后续建池时使用的底池代币。如果输入的是新地址，系统会尝试从链上读取代币元数据。',
+        creationFee: '创建费会直接从当前选择的税费工厂合约读取，链上 Gas 费用仍需单独支付。',
+      },
+      actions: {
+        submit: '创建税费代币',
+        submitting: '提交中...',
+        close: '关闭',
+        retry: '重试',
+      },
+      steps: {
+        preparing: '生成代币信息',
+        waitingWallet: '请签名确认交易',
+        pending: '正在创建税费代币',
+        completed: '创建完成',
+        failed: '创建失败',
+      },
+      errors: {
+        nameRequired: '请输入代币名称。',
+        nameTooLong: '代币名称最多 100 个字符。',
+        symbolRequired: '请输入代币符号。',
+        symbolTooLong: '代币符号最多 100 个字符。',
+        supplyRequired: '请输入总量。',
+        supplyInvalid: '总量必须是正整数。',
+        decimalsInvalid: '小数位必须在 0 到 18 之间。',
+        buyTaxInvalid: '买入税必须是 0 到 25 之间且最多保留两位小数的数字。',
+        sellTaxInvalid: '卖出税必须是 0 到 25 之间且最多保留两位小数的数字。',
+        taxReceiverInvalid: '请输入有效的 EVM 地址作为税费接收地址。',
+        exchangeRequired: '请选择交易所。',
+        poolTokenRequired: '请选择底池代币。',
+        walletRequired: '提交前请先连接钱包。',
+        walletUnavailable: '当前浏览器没有检测到注入钱包。',
+        factoryUnavailable: '当前链没有配置税费代币工厂合约。',
+        insufficientBalance: '当前余额不足以支付 gas 和创建费。',
+        txFailed: '交易执行失败，请稍后再试。',
+        tokenLookupFailed: '未能从链上读取该代币地址的信息，请确认地址后重试。',
+      },
+      success: {
+        banner: '税费代币创建成功',
+        tokenAddress: '代币地址',
+        txHash: '交易哈希',
+      },
+      overview: {
+        title: '税费代币',
+        description:
+          '部署支持买卖税配置的同质化代币合约，可设置税率、税费接收地址以及交易对底池代币等参数。',
+        highlights: {
+          base: '税费代币模板',
+          buy: '可配置买入税',
+          sell: '可配置卖出税',
+          receiver: '可配置接收钱包',
+        },
+        cards: {
+          taxPlan: {
+            title: '税费策略',
+            description:
+              '根据代币经济模型设置买入税和卖出税，链上合约仍保留源码中的基点换算与提交逻辑。',
+          },
+          receiver: {
+            title: '接收地址与底池代币',
+            description:
+              '可配置税费接收地址以及后续建池使用的底池代币；若未填写接收地址，则默认回落到当前连接钱包。',
+          },
+          trading: {
+            title: '交易说明',
+            description:
+              '创建成功仅表示合约已部署上链，后续建池、市场运营和资料完善仍需你手动继续处理。',
+          },
+        },
+      },
+      successSummary: {
+        title: '创建摘要',
+        description: '税费代币已创建成功，请保存以下配置与结果信息，便于后续复核与运营。',
+        chain: '所在网络',
+        name: '代币名称',
+        symbol: '代币简称',
+        totalSupply: '发行量',
+        decimals: '精度',
+        buyTax: '买入税',
+        sellTax: '卖出税',
+        taxReceiver: '税费接收地址',
+        exchange: '交易所',
+        poolToken: '底池代币',
+        tokenAddress: '代币地址',
+        txHash: '交易哈希',
+      },
+      modal: {
+        progressTitle: '正在创建税费代币',
+        successTitle: '税费代币创建成功',
+        errorTitle: '税费代币创建失败',
+        errorDescription: '本次交易没有在链上成功完成，请检查钱包状态、余额和参数配置后再试。',
+      },
+      safety: {
+        title: '安全提醒',
+        tips: {
+          one: '请妥善保管私钥和助记词，确保资产安全。',
+          two: '提交前请仔细核对代币参数，链上创建后大部分配置无法修改。',
+          three: '请确保钱包中有足够的原生代币余额，用于支付 gas 和创建费。',
+          four: '请通过官方入口进行操作，避免使用来源不明的链接。',
+        },
       },
     },
     acceptance: {

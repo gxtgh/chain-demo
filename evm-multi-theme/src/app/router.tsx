@@ -3,6 +3,7 @@ import { buildDefaultPath, buildPagePath } from '@/config/routes'
 import { DEFAULT_CHAIN, DEFAULT_LANG, isSupportedChain, isSupportedLang, isSupportedPage } from '@/config/chains'
 import { AppShell } from '@/components/layout/app-shell'
 import { TokenCreationPage } from '@/features/tokenCreation/shared/token-creation-page'
+import { TokenTaxCreationPage } from '@/features/tokenTaxCreation/shared/token-tax-creation-page'
 import { ProjectAcceptancePage } from '@/features/projectAcceptance/pages/project-acceptance-page'
 
 function RouteGate() {
@@ -27,6 +28,7 @@ export function AppRouter() {
       <Route path="/" element={<Navigate replace to={buildDefaultPath()} />} />
       <Route path="/:lang/:chain" element={<RouteGate />}>
         <Route path="token-creation" element={<TokenCreationPage />} />
+        <Route path="tax-token-creation" element={<TokenTaxCreationPage />} />
         <Route path="project-acceptance" element={<ProjectAcceptancePage />} />
         <Route path="*" element={<NestedFallback />} />
       </Route>

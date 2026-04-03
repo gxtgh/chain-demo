@@ -1,0 +1,104 @@
+.token-tax-creation-page {
+  .tax-form-card {
+    gap: 24px;
+  }
+
+  .tax-settings-panel {
+    display: grid;
+    gap: 16px;
+    padding: 20px;
+    border: 1px solid color-mix(in srgb, var(--theme-accent) 18%, var(--theme-line));
+    border-radius: 22px;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--theme-accent) 6%, transparent), transparent 72%),
+      color-mix(in srgb, var(--theme-surface-strong) 96%, transparent);
+  }
+
+  .tax-toggle-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .tax-toggle-copy {
+    display: grid;
+    gap: 6px;
+
+    strong {
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+  }
+
+  .tax-field-grid {
+    gap: 18px 16px;
+  }
+
+  .field-span-full {
+    grid-column: 1 / -1;
+  }
+
+  .tax-percent-suffix {
+    color: var(--theme-accent);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .tax-exchange-select.ant-select {
+    width: 100%;
+  }
+
+  .tax-exchange-select.ant-select .ant-select-selector {
+    min-height: 42px !important;
+    padding: 0 16px !important;
+    border: 1px solid var(--theme-line) !important;
+    border-radius: 16px !important;
+    background: color-mix(in srgb, var(--theme-surface-strong) 92%, white 8%) !important;
+    background-color: color-mix(in srgb, var(--theme-surface-strong) 92%, white 8%) !important;
+    box-shadow: none !important;
+    transition:
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      background 180ms ease;
+  }
+
+  .tax-exchange-select.ant-select:hover .ant-select-selector,
+  .tax-exchange-select.ant-select.ant-select-focused .ant-select-selector,
+  .tax-exchange-select.ant-select.ant-select-open .ant-select-selector {
+    border-color: color-mix(in srgb, var(--theme-accent) 42%, transparent) !important;
+    background: color-mix(in srgb, var(--theme-surface-strong) 96%, white 4%) !important;
+    background-color: color-mix(in srgb, var(--theme-surface-strong) 96%, white 4%) !important;
+  }
+
+  .tax-exchange-select.ant-select.ant-select-focused .ant-select-selector {
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--theme-accent) 11%, transparent) !important;
+  }
+
+  .tax-exchange-select.ant-select .ant-select-selection-wrap {
+    min-height: 40px;
+  }
+
+  .tax-exchange-select.ant-select .ant-select-selection-item,
+  .tax-exchange-select.ant-select .ant-select-selection-placeholder,
+  .tax-exchange-select.ant-select .ant-select-selection-search-input {
+    line-height: 40px !important;
+  }
+
+  .tax-exchange-select.ant-select .ant-select-selection-item {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .tax-exchange-select.ant-select .ant-select-selection-placeholder {
+    color: color-mix(in srgb, var(--muted) 52%, white 48%) !important;
+  }
+}

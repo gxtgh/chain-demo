@@ -31,6 +31,23 @@ export function getPageSeo(page: SupportedPageKey, context: SeoContext): SeoDefi
     }
   }
 
+  if (page === 'tax-token-creation') {
+    return {
+      title: context.t('tokenTaxCreation.seo.title', {
+        chain: context.chainName,
+        symbol: context.nativeSymbol,
+      }),
+      description: context.t('tokenTaxCreation.seo.description', {
+        chain: context.chainName,
+        symbol: context.nativeSymbol,
+      }),
+      keywords: context.t('tokenTaxCreation.seo.keywords', {
+        chain: context.chainName,
+        symbol: context.nativeSymbol,
+      }),
+    }
+  }
+
   return {
     title: context.t('acceptance.seo.title', { chain: context.chainName }),
     description: context.t('acceptance.seo.description', { chain: context.chainName }),
