@@ -1,4 +1,5 @@
 import { supportedChains } from '@/config/chains'
+import { useRenderMode } from '@/app/render-mode'
 import { useRouteContext } from '@/app/use-route-context'
 import { TopbarMenuButton } from '@/components/common/topbar-menu-button'
 import { useAccount, useSwitchChain } from 'wagmi'
@@ -8,6 +9,36 @@ function ChainLogo({ src, alt }: { src: string; alt: string }) {
 }
 
 export function ChainSwitcher() {
+  const mode = useRenderMode()
+  if (mode === 'static') {
+    return <StaticChainSwitcher />
+  }
+
+  return <InteractiveChainSwitcher />
+}
+
+function StaticChainSwitcher() {
+  const { t, chain } = useRouteContext()
+  const currentChain = supportedChains.find((chainOption) => chainOption.key === chain) ?? supportedChains[0]
+
+  return (
+    <TopbarMenuButton
+      ariaLabel={t('topbar.chain')}
+      icon={<ChainLogo src={currentChain.icon} alt={currentChain.fullName} />}
+      value={chain}
+      options={supportedChains.map((chainOption) => ({
+        value: chainOption.key,
+        key: chainOption.key,
+        label: chainOption.fullName,
+        code: chainOption.name,
+        prefix: <ChainLogo src={chainOption.icon} alt={chainOption.fullName} />,
+      }))}
+      onChange={() => undefined}
+    />
+  )
+}
+
+function InteractiveChainSwitcher() {
   const { t, chain, page, lang, theme, themeColor, navigateToPage } = useRouteContext()
   const { isConnected, chainId } = useAccount()
   const { switchChainAsync } = useSwitchChain()

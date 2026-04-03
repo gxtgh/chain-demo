@@ -23,17 +23,18 @@ export function FieldLabelWithTooltip({ label, tooltip }: FieldLabelWithTooltipP
     <div className="field-label-row">
       <span>{label}</span>
       <Tooltip
-        overlayClassName={`app-tooltip token-creation-tooltip token-creation-tooltip-${theme}`}
+        classNames={`app-tooltip token-creation-tooltip token-creation-tooltip-${theme}`}
         placement="topLeft"
         title={tooltip}
         trigger={['hover', 'click']}
         color={background}
-        overlayInnerStyle={{
+        styles={{container:{
           color,
           background,
           border: `1px solid ${borderColor}`,
           boxShadow: isDark ? '0 18px 46px rgba(0, 0, 0, 0.34)' : '0 18px 42px rgba(0, 0, 0, 0.14)',
-        }}
+
+        }}}
       >
         <button className="field-tooltip-trigger" type="button" aria-label={label}>
           <InfoCircleOutlined />

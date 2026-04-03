@@ -28,6 +28,10 @@ export function TokenNextSteps({ t }: TokenNextStepsProps) {
       <div className="token-success-copy">
         <h3>{t('tokenCreation.nextSteps.title')}</h3>
         <p>{t('tokenCreation.nextSteps.description')}</p>
+        <div className="next-steps-note">
+          <InfoCircleOutlined />
+          <span>{t('tokenCreation.nextSteps.note')}</span>
+        </div>
       </div>
 
       <div className="next-step-grid">
@@ -41,14 +45,8 @@ export function TokenNextSteps({ t }: TokenNextStepsProps) {
               </div>
             </div>
             <p>{t(`tokenCreation.nextSteps.${step}.description`)}</p>
-            <span className="next-step-hint">{t(`tokenCreation.nextSteps.${step}.action`)}</span>
           </article>
         ))}
-      </div>
-
-      <div className="next-steps-note">
-        <InfoCircleOutlined />
-        <span>{t('tokenCreation.nextSteps.note')}</span>
       </div>
     </section>
   )

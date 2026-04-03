@@ -30,7 +30,7 @@ export function AppModal({
       footer={
         footer === null ? null : <div className={joinClassNames('app-modal-footer-layout', footerClassName)}>{footer}</div>
       }
-      maskClosable={maskClosable ?? false}
+      mask={{closable: maskClosable ?? false}}
       title={title}
       width={width ?? 520}
     />

@@ -45,7 +45,7 @@ export function TopbarMenuButton({
     <Dropdown
       trigger={['click']}
       placement="bottom"
-      overlayClassName="topbar-menu-popup"
+      classNames={{root: "topbar-menu-popup"}}
       getPopupContainer={(triggerNode) => triggerNode.parentElement ?? document.body}
       menu={{
         items,

@@ -1,12 +1,8 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
-  DEFAULT_CHAIN,
-  DEFAULT_LANG,
   DEFAULT_PAGE,
   getChainDefinition,
-  isSupportedChain,
-  isSupportedLang,
   isSupportedPage,
   type SupportedChainKey,
   type SupportedLang,
@@ -14,15 +10,17 @@ import {
 } from '@/config/chains'
 import { buildPagePath } from '@/config/routes'
 import {
-  DEFAULT_THEME,
-  DEFAULT_THEME_COLOR,
   getThemeColorDefinition,
-  isThemeColorId,
-  isThemeModeId,
   type ThemeColorId,
   type ThemeModeId,
 } from '@/config/theme-registry'
 import { createTranslator } from '@/i18n/messages'
+import {
+  rememberSessionPreferences,
+  rememberUserPreferences,
+  resolveAppPreferences,
+  type PreferencePersistenceMode,
+} from './preferences'
 
 function getPageFromPathname(pathname: string): string | undefined {
   const segments = pathname.split('/').filter(Boolean)
@@ -34,20 +32,38 @@ export function useRouteContext() {
   const location = useLocation()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-
-  const lang: SupportedLang = isSupportedLang(params.lang) ? params.lang : DEFAULT_LANG
-  const chain: SupportedChainKey = isSupportedChain(params.chain) ? params.chain : DEFAULT_CHAIN
-  const rawPage = getPageFromPathname(location.pathname)
-  const page: SupportedPageKey = isSupportedPage(rawPage) ? rawPage : DEFAULT_PAGE
   const rawTheme = searchParams.get('theme')
   const rawThemeColor = searchParams.get('themeColor')
-  const theme: ThemeModeId = isThemeModeId(rawTheme ?? undefined) ? (rawTheme as ThemeModeId) : DEFAULT_THEME
-  const themeColor: ThemeColorId = isThemeColorId(rawThemeColor ?? undefined)
-    ? (rawThemeColor as ThemeColorId)
-    : DEFAULT_THEME_COLOR
+  const resolvedPreferences = useMemo(
+    () =>
+      resolveAppPreferences({
+        lang: params.lang,
+        chain: params.chain,
+        theme: rawTheme,
+        themeColor: rawThemeColor,
+      }),
+    [params.chain, params.lang, rawTheme, rawThemeColor],
+  )
+
+  const lang: SupportedLang = resolvedPreferences.lang
+  const chain: SupportedChainKey = resolvedPreferences.chain
+  const rawPage = getPageFromPathname(location.pathname)
+  const page: SupportedPageKey = isSupportedPage(rawPage) ? rawPage : DEFAULT_PAGE
+  const hasThemeQuery = Boolean(rawTheme || rawThemeColor)
+  const theme: ThemeModeId = resolvedPreferences.theme
+  const themeColor: ThemeColorId = resolvedPreferences.themeColor
   const chainDefinition = getChainDefinition(chain)
   const themeColorDefinition = getThemeColorDefinition(themeColor)
   const t = useMemo(() => createTranslator(lang), [lang])
+
+  useEffect(() => {
+    rememberSessionPreferences({
+      lang,
+      chain,
+      theme,
+      themeColor,
+    })
+  }, [chain, lang, theme, themeColor])
 
   function navigateToPage(
     nextPage: SupportedPageKey,
@@ -57,12 +73,26 @@ export function useRouteContext() {
       nextTheme?: ThemeModeId
       nextThemeColor?: ThemeColorId
       replace?: boolean
+      persist?: PreferencePersistenceMode
     },
   ) {
+    const nextPreferences = {
+      lang: options?.nextLang ?? lang,
+      chain: options?.nextChain ?? chain,
+      theme: options?.nextTheme ?? theme,
+      themeColor: options?.nextThemeColor ?? themeColor,
+    }
+
+    if (options?.persist === 'session') {
+      rememberSessionPreferences(nextPreferences)
+    } else if ((options?.persist ?? 'session+local') === 'session+local') {
+      rememberUserPreferences(nextPreferences)
+    }
+
     navigate(
-      buildPagePath(options?.nextLang ?? lang, options?.nextChain ?? chain, nextPage, {
-        theme: options?.nextTheme ?? theme,
-        themeColor: options?.nextThemeColor ?? themeColor,
+      buildPagePath(nextPreferences.lang, nextPreferences.chain, nextPage, {
+        theme: nextPreferences.theme,
+        themeColor: nextPreferences.themeColor,
       }),
       { replace: options?.replace ?? false },
     )
@@ -74,6 +104,7 @@ export function useRouteContext() {
     page,
     theme,
     themeColor,
+    hasThemeQuery,
     t,
     chainDefinition,
     themeColorDefinition,
