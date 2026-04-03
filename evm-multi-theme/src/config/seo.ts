@@ -19,6 +19,7 @@ export type SeoContext = {
   t: (key: string, vars?: Record<string, string | number>) => string
   chainName: string
   tokenType: string
+  nativeSymbol?: string
 }
 
 export function getPageSeo(page: SupportedPageKey, context: SeoContext): SeoDefinition {
@@ -43,15 +44,18 @@ export function getPageSeo(page: SupportedPageKey, context: SeoContext): SeoDefi
     return {
       title: context.t('tokenTaxCreation.seo.title', {
         chain: context.chainName,
-        symbol: context.nativeSymbol,
+        tokenType: context.tokenType,
+        symbol: context.nativeSymbol ?? '',
       }),
       description: context.t('tokenTaxCreation.seo.description', {
         chain: context.chainName,
-        symbol: context.nativeSymbol,
+        tokenType: context.tokenType,
+        symbol: context.nativeSymbol ?? '',
       }),
       keywords: context.t('tokenTaxCreation.seo.keywords', {
         chain: context.chainName,
-        symbol: context.nativeSymbol,
+        tokenType: context.tokenType,
+        symbol: context.nativeSymbol ?? '',
       }),
     }
   }

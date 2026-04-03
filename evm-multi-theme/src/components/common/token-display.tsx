@@ -1,11 +1,13 @@
 import { LoadingOutlined } from '@ant-design/icons'
 import { message, Select, Spin } from 'antd'
 import { getAddress, isAddress } from 'ethers'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { type ReactNode, type SyntheticEvent, useEffect, useMemo, useRef, useState } from 'react'
 import type { ChainDefinition } from '@/config/chains'
 import { readErc20Metadata } from '@/lib/token/erc20-metadata'
 import { formatText } from '@/utils'
 import './token-display.scss'
+
+const FALLBACK_ICON_SRC = '/img/common/icon-fallback.svg'
 
 export type TokenDisplayItem = {
   address: string
@@ -134,6 +136,7 @@ export function TokenDisplay({
       className="token-display-select"
       disabled={disabled || lookupLoading}
       filterOption={false}
+      popupClassName="token-display-dropdown"
       notFoundContent={
         lookupLoading ? (
           <div className="token-display-empty">
@@ -164,14 +167,9 @@ export function TokenDisplay({
           <div className="token-display-option">
             <div className="token-display-option-main">
               <TokenOptionIcon token={token} />
-              <div className="token-display-option-copy">
-                <span className="token-display-option-symbol">{token.symbol}</span>
-                <span className="token-display-option-name">{token.name ?? token.symbol}</span>
-              </div>
+              <span className="token-display-option-symbol">{token.symbol}</span>
             </div>
-            <span className="token-display-option-address">
-              {token.isNative ? 'Native' : formatText(token.address, 8, 6)}
-            </span>
+            <span className="token-display-option-meta">{getTokenMetaLabel(token)}</span>
           </div>
         </Select.Option>
       ))}
@@ -183,7 +181,7 @@ function TokenOptionIcon({ token }: { token: TokenDisplayItem }) {
   if (token.logo) {
     return (
       <span className="token-display-option-icon" aria-hidden="true">
-        <img alt={token.symbol} src={token.logo} />
+        <img alt={token.symbol} onError={handleAssetImageError} src={token.logo} />
       </span>
     )
   }
@@ -191,8 +189,29 @@ function TokenOptionIcon({ token }: { token: TokenDisplayItem }) {
   return <span className="token-display-option-icon">{token.symbol.slice(0, 2).toUpperCase()}</span>
 }
 
-function buildSelectedLabel(token: TokenDisplayItem) {
-  return token.isNative ? `${token.symbol} (Native)` : token.symbol
+function buildSelectedLabel(token: TokenDisplayItem): ReactNode {
+  return (
+    <span className="token-display-selected">
+      <TokenOptionIcon token={token} />
+      <span className="token-display-selected-symbol">{token.symbol}</span>
+      <span className="token-display-selected-divider">|</span>
+      <span className="token-display-selected-meta">{getTokenMetaLabel(token)}</span>
+    </span>
+  )
+}
+
+function getTokenMetaLabel(token: TokenDisplayItem) {
+  if (token.isNative) {
+    return 'Native'
+  }
+
+  return formatText(token.address, 6, 4)
+}
+
+function handleAssetImageError(event: SyntheticEvent<HTMLImageElement>) {
+  const target = event.currentTarget
+  target.onerror = null
+  target.src = FALLBACK_ICON_SRC
 }
 
 function normalizeTokenAddress(address: string) {

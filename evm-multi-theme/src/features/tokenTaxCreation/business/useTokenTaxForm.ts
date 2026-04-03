@@ -16,21 +16,7 @@ export function useTokenTaxForm(chainDefinition: ChainDefinition, t: (key: strin
   const errors = hasSubmitted ? allErrors : {}
 
   function updateField<Key extends keyof TokenTaxFormValues>(key: Key, value: TokenTaxFormValues[Key]) {
-    setFormValues((current) => {
-      if (key === 'isSetTax' && value === false) {
-        return {
-          ...current,
-          isSetTax: false,
-          buyTax: '',
-          sellTax: '',
-          taxFeeReceiveAddress: '',
-          exchange: defaults.exchange,
-          poolToken: defaults.poolToken,
-        }
-      }
-
-      return { ...current, [key]: value }
-    })
+    setFormValues((current) => ({ ...current, [key]: value }))
   }
 
   function markSubmitted() {

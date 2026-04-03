@@ -1,15 +1,18 @@
 import { CheckCircleFilled, CloseOutlined } from '@ant-design/icons'
-import { Button, Input, InputNumber, Select, Switch } from 'antd'
-import { CopyButton } from '@/components/common/copy-button'
+import { Button, Input, InputNumber, Select } from 'antd'
+import type { SyntheticEvent } from 'react'
 import { TokenDisplay } from '@/components/common/token-display'
 import { AppModal } from '@/components/common/modal'
 import { OperationStatus } from '@/components/common/operation-status'
 import { OperationWarning } from '@/components/common/operation-warning'
 import { formatEther } from 'ethers'
 import { formatText } from '@/utils'
+import { CopyButton } from '@/components/common/copy-button'
 import { FieldLabelWithTooltip } from '@/features/tokenCreation/shared/field-label-with-tooltip'
-import type { TokenTaxViewModel } from '../business/model'
+import type { TaxExchangeOption, TokenTaxViewModel } from '../business/model'
 import { TokenTaxSummary } from './token-tax-summary'
+
+const FALLBACK_ICON_SRC = '/img/common/icon-fallback.svg'
 
 export function TokenTaxFormPanel({ model }: { model: TokenTaxViewModel }) {
   const {
@@ -36,6 +39,7 @@ export function TokenTaxFormPanel({ model }: { model: TokenTaxViewModel }) {
   } = model
   const txExplorerUrl = result?.txExplorerUrl ?? ''
   const tokenExplorerUrl = result?.tokenExplorerUrl ?? ''
+  const defaultStableSymbol = chainDefinition.stableCoins?.[0]?.symbol ?? chainDefinition.nativeToken.symbol
 
   return (
     <section className="surface-card form-card tax-form-card">
@@ -106,88 +110,95 @@ export function TokenTaxFormPanel({ model }: { model: TokenTaxViewModel }) {
       </div>
 
       <section className="tax-settings-panel">
-        <div className="tax-toggle-row">
-          <div className="tax-toggle-copy">
-            <strong>{t('tokenTaxCreation.labels.taxToggle')}</strong>
-            <p>{t('tokenTaxCreation.labels.taxToggleNote')}</p>
-          </div>
-          <Switch checked={formValues.isSetTax} onChange={(checked) => updateField('isSetTax', checked)} />
+        <div className="tax-section-copy">
+          <strong>{t('tokenTaxCreation.labels.taxConfiguration')}</strong>
+          <p>{t('tokenTaxCreation.labels.taxConfigurationNote')}</p>
         </div>
 
-        {formValues.isSetTax ? (
-          <div className="field-grid tax-field-grid">
-            <label className="field">
-              <FieldLabelWithTooltip label={t('tokenTaxCreation.fields.buyTax')} tooltip={t('tokenTaxCreation.tooltips.buyTax')} />
-              <Input
-                className="token-form-input tax-percent-input"
-                placeholder={t('tokenTaxCreation.placeholders.buyTax')}
-                suffix={<span className="tax-percent-suffix">%</span>}
-                value={formValues.buyTax}
-                onChange={(event) => updateField('buyTax', event.target.value)}
-                status={errors.buyTax ? 'error' : undefined}
-              />
-              {errors.buyTax ? <small className="field-error">{errors.buyTax}</small> : null}
-            </label>
+        <div className="field-grid tax-field-grid">
+          <label className="field">
+            <FieldLabelWithTooltip label={t('tokenTaxCreation.fields.buyTax')} tooltip={t('tokenTaxCreation.tooltips.buyTax')} />
+            <Input
+              className="token-form-input tax-percent-input"
+              placeholder={t('tokenTaxCreation.placeholders.buyTax')}
+              suffix={<span className="tax-percent-suffix">%</span>}
+              value={formValues.buyTax}
+              onChange={(event) => updateField('buyTax', event.target.value)}
+              status={errors.buyTax ? 'error' : undefined}
+            />
+            {errors.buyTax ? <small className="field-error">{errors.buyTax}</small> : null}
+          </label>
 
-            <label className="field">
-              <FieldLabelWithTooltip label={t('tokenTaxCreation.fields.sellTax')} tooltip={t('tokenTaxCreation.tooltips.sellTax')} />
-              <Input
-                className="token-form-input tax-percent-input"
-                placeholder={t('tokenTaxCreation.placeholders.sellTax')}
-                suffix={<span className="tax-percent-suffix">%</span>}
-                value={formValues.sellTax}
-                onChange={(event) => updateField('sellTax', event.target.value)}
-                status={errors.sellTax ? 'error' : undefined}
-              />
-              {errors.sellTax ? <small className="field-error">{errors.sellTax}</small> : null}
-            </label>
+          <label className="field">
+            <FieldLabelWithTooltip label={t('tokenTaxCreation.fields.sellTax')} tooltip={t('tokenTaxCreation.tooltips.sellTax')} />
+            <Input
+              className="token-form-input tax-percent-input"
+              placeholder={t('tokenTaxCreation.placeholders.sellTax')}
+              suffix={<span className="tax-percent-suffix">%</span>}
+              value={formValues.sellTax}
+              onChange={(event) => updateField('sellTax', event.target.value)}
+              status={errors.sellTax ? 'error' : undefined}
+            />
+            {errors.sellTax ? <small className="field-error">{errors.sellTax}</small> : null}
+          </label>
 
-            <label className="field">
-              <FieldLabelWithTooltip
-                label={t('tokenTaxCreation.fields.taxReceiver')}
-                tooltip={t('tokenTaxCreation.tooltips.taxReceiver')}
-              />
-              <Input
-                className="token-form-input"
-                placeholder={t('tokenTaxCreation.placeholders.taxReceiver')}
-                value={formValues.taxFeeReceiveAddress}
-                allowClear
-                onChange={(event) => updateField('taxFeeReceiveAddress', event.target.value)}
-                status={errors.taxFeeReceiveAddress ? 'error' : undefined}
-              />
-              {errors.taxFeeReceiveAddress ? <small className="field-error">{errors.taxFeeReceiveAddress}</small> : null}
-            </label>
+          <label className="field">
+            <FieldLabelWithTooltip
+              label={t('tokenTaxCreation.fields.taxReceiver')}
+              tooltip={t('tokenTaxCreation.tooltips.taxReceiver')}
+            />
+            <Input
+              className="token-form-input"
+              placeholder={t('tokenTaxCreation.placeholders.taxReceiver')}
+              value={formValues.taxFeeReceiveAddress}
+              allowClear
+              onChange={(event) => updateField('taxFeeReceiveAddress', event.target.value)}
+              status={errors.taxFeeReceiveAddress ? 'error' : undefined}
+            />
+            {errors.taxFeeReceiveAddress ? <small className="field-error">{errors.taxFeeReceiveAddress}</small> : null}
+          </label>
 
-            <label className="field">
-              <FieldLabelWithTooltip label={t('tokenTaxCreation.fields.exchange')} tooltip={t('tokenTaxCreation.tooltips.exchange')} />
-              <Select
-                className="tax-exchange-select"
-                disabled={exchanges.length <= 1}
-                options={exchanges.map((item) => ({ label: item.label, value: item.value }))}
-                placeholder={t('tokenTaxCreation.fields.exchange')}
-                value={formValues.exchange || undefined}
-                onChange={(value) => updateField('exchange', value)}
-              />
-              {errors.exchange ? <small className="field-error">{errors.exchange}</small> : null}
-            </label>
+          <label className="field">
+            <FieldLabelWithTooltip label={t('tokenTaxCreation.fields.exchange')} tooltip={t('tokenTaxCreation.tooltips.exchange')} />
+            <Select
+              className="tax-exchange-select"
+              optionLabelProp="label"
+              popupClassName="tax-exchange-dropdown"
+              placeholder={t('tokenTaxCreation.fields.exchange')}
+              value={formValues.exchange || undefined}
+              onChange={(value) => updateField('exchange', value)}
+            >
+              {exchanges.map((item) => (
+                <Select.Option key={item.value} label={buildExchangeSelectedLabel(item)} value={item.value}>
+                  {buildExchangeOptionLabel(item)}
+                </Select.Option>
+              ))}
+            </Select>
+            {errors.exchange ? <small className="field-error">{errors.exchange}</small> : null}
+          </label>
 
-            <label className="field field-span-full">
-              <FieldLabelWithTooltip label={t('tokenTaxCreation.fields.poolToken')} tooltip={t('tokenTaxCreation.tooltips.poolToken')} />
-              <TokenDisplay
-                allowCustomAddress
-                chainDefinition={chainDefinition}
-                emptyText={t('tokenTaxCreation.placeholders.poolToken')}
-                lookupErrorText={t('tokenTaxCreation.errors.tokenLookupFailed')}
-                onChange={(nextValue) => updateField('poolToken', nextValue)}
-                onTokenResolved={onPoolTokenResolved}
-                placeholder={t('tokenTaxCreation.placeholders.poolToken')}
-                tokens={poolTokens}
-                value={formValues.poolToken}
-              />
-              {errors.poolToken ? <small className="field-error">{errors.poolToken}</small> : null}
-            </label>
-          </div>
-        ) : null}
+          <label className="field field-span-full">
+            <FieldLabelWithTooltip
+              label={t('tokenTaxCreation.fields.poolToken')}
+              tooltip={t('tokenTaxCreation.tooltips.poolToken', {
+                nativeSymbol: chainDefinition.nativeToken.symbol,
+                stableSymbol: defaultStableSymbol,
+              })}
+            />
+            <TokenDisplay
+              allowCustomAddress
+              chainDefinition={chainDefinition}
+              emptyText={t('tokenTaxCreation.placeholders.poolToken')}
+              lookupErrorText={t('tokenTaxCreation.errors.tokenLookupFailed')}
+              onChange={(nextValue) => updateField('poolToken', nextValue)}
+              onTokenResolved={onPoolTokenResolved}
+              placeholder={t('tokenTaxCreation.placeholders.poolToken')}
+              tokens={poolTokens}
+              value={formValues.poolToken}
+            />
+            {errors.poolToken ? <small className="field-error">{errors.poolToken}</small> : null}
+          </label>
+        </div>
       </section>
 
       <Button
@@ -258,6 +269,7 @@ export function TokenTaxFormPanel({ model }: { model: TokenTaxViewModel }) {
               <CheckCircleFilled />
               <span>{t('tokenTaxCreation.success.banner')}</span>
             </div>
+            <p>{t('tokenTaxCreation.successSummary.description')}</p>
           </div>
           <div className="result-modal-card">
             <div className="result-modal-row">
@@ -318,4 +330,39 @@ export function TokenTaxFormPanel({ model }: { model: TokenTaxViewModel }) {
       />
     </section>
   )
+}
+
+function buildExchangeSelectedLabel(exchange: TaxExchangeOption) {
+  return (
+    <span className="tax-exchange-selected">
+      <span className="tax-exchange-badge" aria-hidden="true">
+        {exchange.logo ? <img alt={exchange.label} onError={handleAssetImageError} src={exchange.logo} /> : getExchangeBadgeText(exchange)}
+      </span>
+      <span className="tax-exchange-selected-name">{exchange.label}</span>
+    </span>
+  )
+}
+
+function buildExchangeOptionLabel(exchange: TaxExchangeOption) {
+  return (
+    <div className="tax-exchange-option">
+      <div className="tax-exchange-option-main">
+        <span className="tax-exchange-badge" aria-hidden="true">
+          {exchange.logo ? <img alt={exchange.label} onError={handleAssetImageError} src={exchange.logo} /> : getExchangeBadgeText(exchange)}
+        </span>
+        <span className="tax-exchange-option-name">{exchange.label}</span>
+      </div>
+      <span className="tax-exchange-option-meta">{exchange.version?.toUpperCase() ?? exchange.dex}</span>
+    </div>
+  )
+}
+
+function getExchangeBadgeText(exchange: TaxExchangeOption) {
+  return exchange.dex.slice(0, 2).toUpperCase()
+}
+
+function handleAssetImageError(event: SyntheticEvent<HTMLImageElement>) {
+  const target = event.currentTarget
+  target.onerror = null
+  target.src = FALLBACK_ICON_SRC
 }

@@ -35,7 +35,7 @@ export function TokenTaxSummary({
     {
       key: 'poolToken',
       label: t('tokenTaxCreation.successSummary.poolToken'),
-      value: selectedPoolToken?.symbol ?? formatValue(formValues.poolToken),
+      value: selectedPoolToken?.symbol ?? formatValue(formValues.poolToken, chainDefinition.nativeToken.symbol),
     },
   ]
 
@@ -111,13 +111,13 @@ function formatSupply(value: string) {
   return value.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
-function formatValue(value: string) {
+function formatValue(value: string, nativeSymbol: string) {
   if (!value) {
     return '--'
   }
 
   if (value === '0x0000000000000000000000000000000000000000') {
-    return 'Native'
+    return `${nativeSymbol} (Native)`
   }
 
   return formatText(value)

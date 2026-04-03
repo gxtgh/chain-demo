@@ -12,6 +12,7 @@ type TokenTaxOverviewCardProps = {
 }
 
 export function TokenTaxOverviewCard({ chainDefinition, t }: TokenTaxOverviewCardProps) {
+  const vars = { tokenType: chainDefinition.tokenType }
   const highlights = [
     chainDefinition.tokenType,
     t('tokenTaxCreation.overview.highlights.base'),
@@ -53,7 +54,7 @@ export function TokenTaxOverviewCard({ chainDefinition, t }: TokenTaxOverviewCar
           <div className="permission-hero-content">
             <div className="token-section-copy">
               <h3>{t('tokenTaxCreation.overview.title')}</h3>
-              <p>{t('tokenTaxCreation.overview.description')}</p>
+              <p>{t('tokenTaxCreation.overview.description', vars)}</p>
             </div>
           </div>
         </div>

@@ -33,6 +33,7 @@ export const zhCnMessages = {
   },
   nav: {
     tokenCreation: '标准代币',
+    tokenTaxCreation: '税费代币',
     projectAcceptance: '项目验收',
   },
   topbar: {
@@ -255,6 +256,221 @@ export const zhCnMessages = {
       orange: 'Atlas 工具主题',
       purple: 'Pulse 营销主题',
       green: 'Forge 控制台主题',
+    },
+  },
+  tokenTaxCreation: {
+    eyebrow: '',
+    title: '创建税费代币',
+    description:
+      '在 {{chain}} 上快速创建 {{tokenType}} 税费代币模板，支持买入税、卖出税、税费接收地址以及默认交易对配置，无需编写合约代码。',
+    seo: {
+      title: '创建 {{chain}} {{tokenType}} 税费代币 | 买卖税模板快速部署',
+      description:
+        '一页完成 {{chain}} {{tokenType}} 税费代币创建，支持买入税、卖出税、税费接收地址和交易对底池币设置，适合需要交易税逻辑的代币发行场景。',
+      keywords: '创建 {{tokenType}} 税费代币, 买卖税代币模板, {{chain}} Tax Token Maker, Token Tax Creator',
+    },
+    fields: {
+      name: '代币全称',
+      symbol: '代币简称',
+      totalSupply: '发行量',
+      decimals: '精度',
+      buyTax: '买入税',
+      sellTax: '卖出税',
+      taxReceiver: '税费接收地址',
+      exchange: '添加流动性的交易所',
+      poolToken: '底池配对币种',
+    },
+    labels: {
+      creationFee: '创建费',
+      taxConfiguration: '税费配置',
+      taxConfigurationNote: '税费代币模式下，交易产生的税费将自动转入至代币创建者的钱包地址中。',
+      taxReceiverDefault: '留空时默认使用当前连接钱包地址作为税费接收地址。',
+      poolTokenNote: '用于记录默认配对币种信息，支持从预设币种中选择，也支持输入自定义代币地址。',
+    },
+    placeholders: {
+      name: '请输入代币全称',
+      symbol: '请输入代币简称',
+      totalSupply: '请输入发行量',
+      decimals: '请输入精度',
+      buyTax: '请输入买入税，例如 5',
+      sellTax: '请输入卖出税，例如 5',
+      taxReceiver: '请输入税费接收地址，留空默认当前钱包地址',
+      poolToken: '请选择或输入底池币种地址',
+    },
+    tooltips: {
+      name: '代币在钱包、区块浏览器和交易界面中展示的完整名称，建议与项目品牌名称保持一致。',
+      symbol: '代币在钱包和交易界面中展示的简称，通常由字母或数字组成。',
+      totalSupply: '代币的初始总发行量，创建前请确认是否符合你的发行计划。',
+      decimals: '决定代币最小可分割单位，常规场景下建议使用 18 作为默认值。',
+      buyTax: '买入税按百分比填写，支持最多两位小数，当前模板限制在 0 到 25 之间。',
+      sellTax: '卖出税按百分比填写，支持最多两位小数，当前模板限制在 0 到 25 之间。',
+      taxReceiver: '税费接收地址用于接收买卖产生的税费；如果留空，则默认使用当前提交交易的钱包地址。',
+      exchange: '税费代币部署后，支持在该交易所执行税费模式。',
+      poolToken:
+        '请选择交易底池代币（如 {{nativeSymbol}}、{{stableSymbol}} 等），后续流动性必须使用相同底池代币，确保代币交易正常运行。',
+      creationFee: '创建费会从当前所选税费工厂中读取，提交交易时仍需另外支付链上 Gas。',
+    },
+    actions: {
+      submit: '创建税费代币',
+      submitting: '提交中...',
+      close: '关闭',
+      retry: '重试',
+    },
+    steps: {
+      preparing: '生成税费代币参数',
+      waitingWallet: '请签名确认交易',
+      pending: '正在创建税费代币',
+      completed: '创建完成',
+      failed: '创建失败',
+    },
+    errors: {
+      nameRequired: '请输入代币名称。',
+      nameTooLong: '代币名称最多 100 个字符。',
+      symbolRequired: '请输入代币符号。',
+      symbolTooLong: '代币符号最多 100 个字符。',
+      supplyRequired: '请输入总量。',
+      supplyInvalid: '总量必须是正整数。',
+      decimalsInvalid: '小数位必须在 0 到 18 之间。',
+      buyTaxInvalid: '买入税必须是 0 到 25 之间、最多两位小数的数值。',
+      sellTaxInvalid: '卖出税必须是 0 到 25 之间、最多两位小数的数值。',
+      taxReceiverInvalid: '请输入有效的 EVM 地址。',
+      exchangeRequired: '请选择默认交易所。',
+      poolTokenRequired: '请选择或输入底池币种。',
+      tokenLookupFailed: '代币地址解析失败，请确认该地址为有效 ERC20 合约。',
+      walletRequired: '提交前请先连接钱包。',
+      walletUnavailable: '当前浏览器没有检测到注入钱包。',
+      factoryUnavailable: '当前链没有配置税费代币工厂合约。',
+      insufficientBalance: '当前余额不足以支付 gas 和创建费。',
+    },
+    success: {
+      title: '税费代币已创建',
+      banner: '税费代币创建成功',
+      tokenAddress: '代币地址',
+      txHash: '交易哈希',
+    },
+    overview: {
+      title: '税费代币模板',
+      description:
+        '该模板适用于需要链上买卖税配置的 {{tokenType}} 代币发行场景。创建完成后，页面会返回代币地址、交易哈希和当前使用的税费参数摘要。',
+      highlights: {
+        base: '税费模板',
+        buy: '买入税配置',
+        sell: '卖出税配置',
+        receiver: '税费接收地址',
+      },
+      cards: {
+        taxPlan: {
+          title: '税率计划',
+          description:
+            '买入税和卖出税在部署时一并写入工厂模板，适合需要明确手续费路径和费率展示的项目发行场景。',
+        },
+        receiver: {
+          title: '接收地址',
+          description:
+            '税费接收地址支持单独指定；如未填写，则默认使用当前连接钱包地址，便于快速完成首次部署。',
+        },
+        trading: {
+          title: '交易配置记录',
+          description:
+            '页面会记录当前选择的工厂、默认交易所和底池配对币种，便于部署后继续核对模板参数和后续运营资料。',
+        },
+      },
+    },
+    successSummary: {
+      title: '创建摘要',
+      description: '税费代币已创建成功，请保存以下参数和链上信息，便于后续核对费率设置、钱包展示和资料补充。',
+      chain: '所在网络',
+      name: '代币名称',
+      symbol: '代币简称',
+      totalSupply: '发行量',
+      decimals: '精度',
+      buyTax: '买入税',
+      sellTax: '卖出税',
+      exchange: '默认交易所',
+      poolToken: '底池配对币种',
+      taxReceiver: '税费接收地址',
+      tokenAddress: '代币地址',
+      txHash: '交易哈希',
+    },
+    nextSteps: {
+      title: '下一步建议',
+      description: '税费代币部署完成后，建议先完成参数核对与展示准备，确保后续资料同步和沟通成本更低。',
+      addWallet: {
+        title: '添加到钱包',
+        description: '将代币地址、简称和精度添加到常用钱包，确认代币信息显示正常。',
+      },
+      verifyFees: {
+        title: '复核税率与接收地址',
+        description: '再次确认买入税、卖出税和税费接收地址是否与本次部署记录一致，避免后续宣传和实际配置不一致。',
+      },
+      reviewPairing: {
+        title: '确认默认配对设置',
+        description: '保存本次选择的默认交易所与底池币种，便于团队后续核对市场上线准备资料。',
+      },
+      metadata: {
+        title: '完善 Logo 与代币资料',
+        description: '补充 Logo、简介、官网和社媒等资料，提升钱包、浏览器和资料页的展示完整度。',
+      },
+      note: '当前页面只负责部署税费代币模板，不包含创建流动性、加池或做市操作。',
+    },
+    seoBody: {
+      highlights: {
+        title: '适用场景',
+        template: {
+          title: '需要税费逻辑的发币场景',
+          description:
+            '如果你的 {{tokenType}} 代币发行需要明确的买卖税设置，这个模板比标准代币流程更适合，因为它会在创建阶段就确定税率相关参数。',
+        },
+        control: {
+          title: '需要更清晰的参数交付',
+          description:
+            '对代发团队、工作室或运营团队来说，税率、税费接收地址、默认工厂与配对币种能在单页里集中确认，减少沟通成本。',
+        },
+        receiver: {
+          title: '需要明确税费接收路径',
+          description:
+            '如果项目需要将交易税统一归集到指定地址，这个模板可以在部署时直接记录税费接收地址，而不需要后续再切换页面处理。',
+        },
+      },
+      faq: {
+        title: '常见问题',
+        noCode: {
+          question: '在 {{chain}} 上创建税费代币需要自己写合约吗？',
+          answer:
+            '不需要自己编写 Solidity 合约。当前流程基于预设税费工厂模板完成部署，但你仍需要确认代币名称、发行量、税率和税费接收地址等关键参数。',
+        },
+        fee: {
+          question: '创建费里包含 Gas 吗？',
+          answer:
+            '不包含。创建费来自税费工厂合约本身，而链上 Gas 由钱包在提交交易时单独估算和支付。',
+        },
+        template: {
+          question: '这个页面创建的是标准代币还是税费代币？',
+          answer:
+            '当前页面固定为税费代币模板，不提供切换到标准代币模板的开关。买入税、卖出税、税费接收地址和默认配对设置都属于当前部署流程的一部分。',
+        },
+        receiver: {
+          question: '税费接收地址可以留空吗？',
+          answer:
+            '可以。留空时系统会默认使用当前提交交易的钱包地址作为税费接收地址。如果你的项目有单独的运营或归集地址，建议在创建前直接填入。',
+        },
+        poolToken: {
+          question: '为什么要选择底池配对币种？',
+          answer:
+            '底池币种用于记录这个税费模板默认面向哪种配对资产，常见选择包括链原生币和稳定币。它不会替你自动创建流动性，但能帮助你保存当前模板的市场配置意图。',
+        },
+        liquidity: {
+          question: '页面会自动帮我创建流动性或交易池吗？',
+          answer:
+            '不会。当前页面仅负责部署税费代币模板，并展示部署结果与参数摘要，不包含创建流动性、加池或做市功能。',
+        },
+      },
+    },
+    modal: {
+      progressTitle: '正在创建税费代币',
+      successTitle: '税费代币创建成功',
+      errorTitle: '税费代币创建失败',
+      errorDescription: '本次交易没有在链上成功完成，请检查钱包状态、网络和余额后再试。',
     },
   },
   acceptance: {

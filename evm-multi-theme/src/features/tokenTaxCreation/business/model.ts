@@ -7,6 +7,7 @@ export type TaxExchangeOption = {
   label: string
   dex: string
   version?: string
+  logo?: string
 }
 
 export type TokenTaxFormValues = {
@@ -14,7 +15,6 @@ export type TokenTaxFormValues = {
   symbol: string
   totalSupply: string
   decimals: number | null
-  isSetTax: boolean
   buyTax: string
   sellTax: string
   taxFeeReceiveAddress: string
@@ -79,6 +79,7 @@ export function getTaxExchangeOptions(chainDefinition: ChainDefinition): TaxExch
         label: dex?.name ?? `${contract.dex ?? 'Factory'} ${(contract.version ?? '').toUpperCase()}`.trim(),
         dex: contract.dex ?? dex?.type ?? 'Factory',
         version: contract.version ?? dex?.version,
+        logo: dex?.logo,
       }
     })
 }
@@ -114,7 +115,6 @@ export function getDefaultTokenTaxValues(chainDefinition: ChainDefinition): Toke
     symbol: '',
     totalSupply: '',
     decimals: 18,
-    isSetTax: true,
     buyTax: '',
     sellTax: '',
     taxFeeReceiveAddress: '',
@@ -156,14 +156,12 @@ export function validateTokenTax(values: TokenTaxFormValues, t: (key: string) =>
     errors.decimals = t('tokenTaxCreation.errors.decimalsInvalid')
   }
 
-  if (values.isSetTax) {
-    if (!isValidTaxRate(values.buyTax)) {
-      errors.buyTax = t('tokenTaxCreation.errors.buyTaxInvalid')
-    }
+  if (!isValidTaxRate(values.buyTax)) {
+    errors.buyTax = t('tokenTaxCreation.errors.buyTaxInvalid')
+  }
 
-    if (!isValidTaxRate(values.sellTax)) {
-      errors.sellTax = t('tokenTaxCreation.errors.sellTaxInvalid')
-    }
+  if (!isValidTaxRate(values.sellTax)) {
+    errors.sellTax = t('tokenTaxCreation.errors.sellTaxInvalid')
   }
 
   if (values.taxFeeReceiveAddress.trim() && !isAddress(values.taxFeeReceiveAddress.trim())) {
@@ -182,7 +180,7 @@ export function validateTokenTax(values: TokenTaxFormValues, t: (key: string) =>
 }
 
 export function formatTaxRate(value: string) {
-  return value.trim() ? `${value}%` : '0%'
+  return value.trim() ? `${value}%` : '--'
 }
 
 export function mergeTokenOptions(...lists: TokenDisplayItem[][]) {

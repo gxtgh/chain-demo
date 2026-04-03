@@ -14,14 +14,7 @@
       color-mix(in srgb, var(--theme-surface-strong) 96%, transparent);
   }
 
-  .tax-toggle-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    align-items: center;
-  }
-
-  .tax-toggle-copy {
+  .tax-section-copy {
     display: grid;
     gap: 6px;
 
@@ -43,6 +36,13 @@
     gap: 18px 16px;
   }
 
+  .field-hint {
+    margin-top: -2px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
   .field-span-full {
     grid-column: 1 / -1;
   }
@@ -55,9 +55,12 @@
 
   .tax-exchange-select.ant-select {
     width: 100%;
+    height: 42px !important;
   }
 
+  .tax-exchange-select.ant-select.ant-select-single.ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector,
   .tax-exchange-select.ant-select .ant-select-selector {
+    height: 42px !important;
     min-height: 42px !important;
     padding: 0 16px !important;
     border: 1px solid var(--theme-line) !important;
@@ -80,11 +83,31 @@
   }
 
   .tax-exchange-select.ant-select.ant-select-focused .ant-select-selector {
-    box-shadow: 0 0 0 5px color-mix(in srgb, var(--theme-accent) 11%, transparent) !important;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--theme-accent) 11%, transparent) !important;
+  }
+
+  .tax-exchange-select.ant-select.ant-select-disabled {
+    opacity: 1;
+  }
+
+  .tax-exchange-select.ant-select.ant-select-disabled .ant-select-selector {
+    border-color: color-mix(in srgb, var(--theme-line) 82%, white 18%) !important;
+    background: color-mix(in srgb, var(--theme-surface-strong) 98%, white 2%) !important;
+    background-color: color-mix(in srgb, var(--theme-surface-strong) 98%, white 2%) !important;
+    box-shadow: none !important;
+  }
+
+  .tax-exchange-select.ant-select.ant-select-disabled .ant-select-arrow,
+  .tax-exchange-select.ant-select.ant-select-disabled .tax-exchange-selected-name,
+  .tax-exchange-select.ant-select.ant-select-disabled .tax-exchange-option-meta {
+    color: color-mix(in srgb, var(--muted) 62%, white 38%) !important;
   }
 
   .tax-exchange-select.ant-select .ant-select-selection-wrap {
+    display: flex;
+    align-items: center;
     min-height: 40px;
+    height: 40px;
   }
 
   .tax-exchange-select.ant-select .ant-select-selection-item,
@@ -93,12 +116,179 @@
     line-height: 40px !important;
   }
 
+  .tax-exchange-select.ant-select .ant-select-selection-search {
+    display: flex;
+    align-items: center;
+  }
+
+  .tax-exchange-select.ant-select .ant-select-selection-search-input {
+    height: 40px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--text) !important;
+    box-shadow: none !important;
+  }
+
   .tax-exchange-select.ant-select .ant-select-selection-item {
+    display: flex;
+    align-items: center;
     color: var(--text);
     font-weight: 600;
+    line-height: normal !important;
   }
 
   .tax-exchange-select.ant-select .ant-select-selection-placeholder {
     color: color-mix(in srgb, var(--muted) 52%, white 48%) !important;
+  }
+
+  .tax-exchange-selected,
+  .tax-exchange-option-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .tax-exchange-selected-name,
+  .tax-exchange-option-name {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .tax-exchange-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .tax-exchange-option-meta {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .tax-exchange-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    overflow: hidden;
+    flex: 0 0 auto;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--theme-accent) 16%, transparent),
+      color-mix(in srgb, var(--theme-accent-strong) 8%, transparent)
+    );
+    color: color-mix(in srgb, var(--theme-accent) 86%, var(--text));
+    font-size: 10px;
+    font-weight: 800;
+  }
+
+  .tax-exchange-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tax-exchange-dropdown.ant-select-dropdown {
+    padding: 6px;
+    border-radius: 18px;
+  }
+
+  .tax-exchange-dropdown.ant-select-dropdown .ant-select-item-option {
+    min-height: 40px;
+    padding: 5px 10px;
+    border-radius: 14px;
+  }
+
+  .tax-exchange-dropdown.ant-select-dropdown .ant-select-item-option-content {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.app-shell.theme-dark,
+body.app-theme.app-theme-dark {
+  .token-tax-creation-page {
+    .tax-exchange-select.ant-select.ant-select-single.ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector,
+    .tax-exchange-select.ant-select .ant-select-selector {
+      border-color: rgba(255, 255, 255, 0.12) !important;
+      background: rgba(28, 28, 36, 0.94) !important;
+      background-color: rgba(28, 28, 36, 0.94) !important;
+      box-shadow: none !important;
+    }
+
+    .tax-exchange-select.ant-select:hover .ant-select-selector,
+    .tax-exchange-select.ant-select.ant-select-focused .ant-select-selector,
+    .tax-exchange-select.ant-select.ant-select-open .ant-select-selector {
+      border-color: color-mix(in srgb, var(--theme-accent) 42%, rgba(255, 255, 255, 0.12)) !important;
+      background: rgba(31, 31, 41, 0.98) !important;
+      background-color: rgba(31, 31, 41, 0.98) !important;
+    }
+
+    .tax-exchange-select.ant-select.ant-select-focused .ant-select-selector {
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--theme-accent) 12%, transparent) !important;
+    }
+
+    .tax-exchange-select.ant-select .ant-select-selection-item,
+    .tax-exchange-select.ant-select .tax-exchange-selected-name,
+    .tax-exchange-select.ant-select .ant-select-selection-search-input {
+      color: var(--text) !important;
+      background: transparent !important;
+      background-color: transparent !important;
+    }
+
+    .tax-exchange-select.ant-select .ant-select-selection-placeholder,
+    .tax-exchange-select.ant-select .tax-exchange-option-meta {
+      color: color-mix(in srgb, var(--muted) 62%, #ffffff 38%) !important;
+    }
+
+    .tax-exchange-select.ant-select .ant-select-arrow {
+      color: color-mix(in srgb, var(--muted) 82%, white 18%) !important;
+    }
+
+    .tax-exchange-select.ant-select.ant-select-disabled {
+      opacity: 1;
+    }
+
+    .tax-exchange-select.ant-select.ant-select-disabled .ant-select-selector {
+      border-color: rgba(255, 255, 255, 0.08) !important;
+      background: rgba(24, 24, 31, 0.92) !important;
+      background-color: rgba(24, 24, 31, 0.92) !important;
+      box-shadow: none !important;
+    }
+
+    .tax-exchange-select.ant-select.ant-select-disabled .ant-select-arrow,
+    .tax-exchange-select.ant-select.ant-select-disabled .tax-exchange-selected-name,
+    .tax-exchange-select.ant-select.ant-select-disabled .tax-exchange-option-meta {
+      color: color-mix(in srgb, var(--muted) 52%, #ffffff 48%) !important;
+    }
+
+    .tax-exchange-dropdown.ant-select-dropdown {
+      background: rgba(24, 24, 31, 0.98) !important;
+      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.34) !important;
+    }
+
+    .tax-exchange-dropdown.ant-select-dropdown .ant-select-item-option {
+      color: var(--text);
+    }
+
+    .tax-exchange-dropdown.ant-select-dropdown .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+      background: color-mix(in srgb, var(--theme-accent) 10%, transparent) !important;
+    }
+
+    .tax-exchange-dropdown.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+      background: color-mix(in srgb, var(--theme-accent) 14%, transparent) !important;
+    }
   }
 }

@@ -4,10 +4,10 @@ import { AppRouter } from './router'
 
 export function App() {
   return (
-    <AppFrame mode="interactive">
-      <BrowserRouter>
+    <BrowserRouter>
+      <AppFrame mode="interactive">
         <AppRouter />
-      </BrowserRouter>
-    </AppFrame>
+      </AppFrame>
+    </BrowserRouter>
   )
 }
