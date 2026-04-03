@@ -1,13 +1,13 @@
 import { BrowserRouter } from 'react-router-dom'
-import { AppProviders } from './providers'
+import { AppFrame } from './app-frame'
 import { AppRouter } from './router'
 
 export function App() {
   return (
-    <AppProviders>
+    <AppFrame mode="interactive">
       <BrowserRouter>
         <AppRouter />
       </BrowserRouter>
-    </AppProviders>
+    </AppFrame>
   )
 }

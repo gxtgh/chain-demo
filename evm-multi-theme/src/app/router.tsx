@@ -1,10 +1,38 @@
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
-import { buildDefaultPath, buildPagePath } from '@/config/routes'
-import { DEFAULT_CHAIN, DEFAULT_LANG, isSupportedChain, isSupportedLang, isSupportedPage } from '@/config/chains'
+import { buildPagePath } from '@/config/routes'
+import { DEFAULT_PAGE, isSupportedChain, isSupportedLang, isSupportedPage } from '@/config/chains'
 import { AppShell } from '@/components/layout/app-shell'
 import { TokenCreationPage } from '@/features/tokenCreation/shared/token-creation-page'
 import { TokenTaxCreationPage } from '@/features/tokenTaxCreation/shared/token-tax-creation-page'
 import { ProjectAcceptancePage } from '@/features/projectAcceptance/pages/project-acceptance-page'
+import { resolveAppPreferences } from './preferences'
+
+function buildPreferredPath(pathname: string, search: string, fallbackPage = DEFAULT_PAGE) {
+  const segments = pathname.split('/').filter(Boolean)
+  const [lang, chain, page] = segments
+  const searchParams = new URLSearchParams(search)
+  const resolvedPreferences = resolveAppPreferences({
+    lang,
+    chain,
+    theme: searchParams.get('theme'),
+    themeColor: searchParams.get('themeColor'),
+  })
+
+  return buildPagePath(
+    resolvedPreferences.lang,
+    resolvedPreferences.chain,
+    isSupportedPage(page) ? page : fallbackPage,
+    {
+      theme: resolvedPreferences.theme,
+      themeColor: resolvedPreferences.themeColor,
+    },
+  )
+}
+
+function RootRedirect() {
+  const location = useLocation()
+  return <Navigate replace to={buildPreferredPath(location.pathname, location.search)} />
+}
 
 function RouteGate() {
   const location = useLocation()
@@ -12,27 +40,28 @@ function RouteGate() {
   const [lang, chain, page] = segments
 
   if (!isSupportedLang(lang) || !isSupportedChain(chain) || !isSupportedPage(page)) {
-    return <Navigate replace to={buildDefaultPath()} />
+    return <Navigate replace to={buildPreferredPath(location.pathname, location.search)} />
   }
 
   return <AppShell><Outlet /></AppShell>
 }
 
 function NestedFallback() {
-  return <Navigate replace to={buildPagePath(DEFAULT_LANG, DEFAULT_CHAIN, 'token-creation')} />
+  const location = useLocation()
+  return <Navigate replace to={buildPreferredPath(location.pathname, location.search)} />
 }
 
 export function AppRouter() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate replace to={buildDefaultPath()} />} />
+      <Route path="/" element={<RootRedirect />} />
       <Route path="/:lang/:chain" element={<RouteGate />}>
         <Route path="token-creation" element={<TokenCreationPage />} />
         <Route path="tax-token-creation" element={<TokenTaxCreationPage />} />
         <Route path="project-acceptance" element={<ProjectAcceptancePage />} />
         <Route path="*" element={<NestedFallback />} />
       </Route>
-      <Route path="*" element={<Navigate replace to={buildDefaultPath()} />} />
+      <Route path="*" element={<RootRedirect />} />
     </Routes>
   )
 }

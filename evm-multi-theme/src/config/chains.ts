@@ -36,6 +36,7 @@ export type DexDefinition = {
 
 export type ChainDefinition = {
   isEnable: boolean
+  seoIndex: boolean
   key: SupportedChainKey
   chainId: number
   network: Chain
@@ -69,6 +70,7 @@ export const supportedLanguages: Array<{ key: SupportedLang; label: string }> = 
 export const supportedChains: ChainDefinition[] = [
   {
     isEnable: true,
+    seoIndex: true,
     key: 'bsc',
     chainId: 56,
     network: bsc,
@@ -149,6 +151,7 @@ export const supportedChains: ChainDefinition[] = [
   },
   {
     isEnable: true,
+    seoIndex: false,
     key: 'bsc-testnet',
     chainId: 97,
     network: bscTestnet,
@@ -222,6 +225,7 @@ export const supportedChains: ChainDefinition[] = [
   },
   {
     isEnable: true,
+    seoIndex: true,
     key: 'eth',
     chainId: 1,
     network: mainnet,
@@ -295,6 +299,7 @@ export const supportedChains: ChainDefinition[] = [
   },
   {
     isEnable: true,
+    seoIndex: true,
     key: 'base',
     chainId: 8453,
     network: base,

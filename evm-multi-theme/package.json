@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "seo:generate": "node ./scripts/generate-seo-files.mjs",
+    "prerender:ssr": "vite build --ssr src/prerender/entry-server.tsx --outDir .prerender",
+    "prerender:pages": "node ./scripts/prerender-pages.mjs",
+    "build": "npm run seo:generate && tsc -b && vite build && npm run prerender:ssr && npm run prerender:pages",
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"

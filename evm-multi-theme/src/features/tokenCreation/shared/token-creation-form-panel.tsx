@@ -9,7 +9,6 @@ import type { TokenCreationViewModel } from '../business/model'
 import { formatText } from '@/utils'
 import { FieldLabelWithTooltip } from './field-label-with-tooltip'
 import { TokenCreationSummary } from './token-creation-summary'
-import { TokenNextSteps } from './token-next-steps'
 
 export function TokenCreationFormPanel({ model }: { model: TokenCreationViewModel }) {
   const {
@@ -134,7 +133,6 @@ export function TokenCreationFormPanel({ model }: { model: TokenCreationViewMode
             </button>
           </div>
           <TokenCreationSummary chainDefinition={chainDefinition} formValues={formValues} result={result} t={t} />
-          <TokenNextSteps t={t} />
         </div>
       ) : null}
 

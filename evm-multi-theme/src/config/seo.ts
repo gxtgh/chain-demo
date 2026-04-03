@@ -4,12 +4,20 @@ export type SeoDefinition = {
   title: string
   description: string
   keywords?: string
+  robots?: string
+  canonicalUrl?: string
+  image?: string
+  type?: 'website' | 'article'
+  locale?: string
+  alternates?: Array<{
+    hrefLang: string
+    href: string
+  }>
 }
 
 export type SeoContext = {
   t: (key: string, vars?: Record<string, string | number>) => string
   chainName: string
-  nativeSymbol: string
   tokenType: string
 }
 
@@ -18,15 +26,15 @@ export function getPageSeo(page: SupportedPageKey, context: SeoContext): SeoDefi
     return {
       title: context.t('tokenCreation.seo.title', {
         chain: context.chainName,
-        symbol: context.nativeSymbol,
+        tokenType: context.tokenType,
       }),
       description: context.t('tokenCreation.seo.description', {
         chain: context.chainName,
-        symbol: context.nativeSymbol,
+        tokenType: context.tokenType,
       }),
       keywords: context.t('tokenCreation.seo.keywords', {
         chain: context.chainName,
-        symbol: context.nativeSymbol,
+        tokenType: context.tokenType,
       }),
     }
   }

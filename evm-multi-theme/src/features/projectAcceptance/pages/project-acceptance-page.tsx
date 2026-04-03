@@ -4,6 +4,7 @@ import { PageSeo } from '@/components/common/page-seo'
 import { getChainFullName } from '@/config/chains'
 import { getPageSeo } from '@/config/seo'
 import { buildPagePath } from '@/config/routes'
+import { buildCanonicalPageUrl, normalizeLocaleTag } from '@/config/site'
 import {
   AcceptanceFunctionTable,
   AcceptanceHero,
@@ -24,7 +25,6 @@ export function ProjectAcceptancePage() {
   const seo = getPageSeo('project-acceptance', {
     t,
     chainName: chainLabel,
-    nativeSymbol: chainDefinition.nativeToken.symbol,
     tokenType: chainDefinition.tokenType,
   })
 
@@ -52,7 +52,12 @@ export function ProjectAcceptancePage() {
 
   return (
     <section className="page-stack project-acceptance-page">
-      <PageSeo {...seo} />
+      <PageSeo
+        {...seo}
+        canonicalUrl={buildCanonicalPageUrl(lang, chain, 'project-acceptance')}
+        locale={normalizeLocaleTag(lang)}
+        robots="noindex,nofollow"
+      />
       <AcceptanceHero
         eyebrow={t('acceptance.eyebrow')}
         title={t('acceptance.title')}

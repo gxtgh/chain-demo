@@ -12,7 +12,7 @@ export function CopyButton({
   ariaLabel: string
 }) {
   const [copied, setCopied] = useState(false)
-  const { theme } = useRouteContext()
+  const { theme, t } = useRouteContext()
 
   const isDark = theme === 'dark'
   const background = isDark ? 'rgba(28, 28, 36, 0.96)' : 'rgba(255, 255, 255, 0.98)'
@@ -29,17 +29,18 @@ export function CopyButton({
     try {
       await navigator.clipboard.writeText(value)
       setCopied(true)
-      message.success('复制成功')
+      message.success(t('common.copy.success'))
     } catch {
-      message.error('复制失败')
+      message.error(t('common.copy.failed'))
     }
   }
 
   return (
     <Tooltip
-      overlayClassName={`app-tooltip copy-button-tooltip copy-button-tooltip-${theme}`}
-      title={copied ? '已复制' : '复制'}
+      className={`app-tooltip copy-button-tooltip copy-button-tooltip-${theme}`}
+      title={copied ? t('common.copy.copied') : t('common.copy.idle')}
       color={background}
+      
       overlayInnerStyle={{
         color,
         background,

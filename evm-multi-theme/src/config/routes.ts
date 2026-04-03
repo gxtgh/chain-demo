@@ -15,10 +15,10 @@ export function buildPagePath(
   options?: { theme?: ThemeModeId; themeColor?: ThemeColorId },
 ) {
   const search = new URLSearchParams()
-  if (options?.theme) {
+  if (options?.theme && options.theme !== DEFAULT_THEME) {
     search.set('theme', options.theme)
   }
-  if (options?.themeColor) {
+  if (options?.themeColor && options.themeColor !== DEFAULT_THEME_COLOR) {
     search.set('themeColor', options.themeColor)
   }
   const query = search.toString()
@@ -26,8 +26,5 @@ export function buildPagePath(
 }
 
 export function buildDefaultPath() {
-  return buildPagePath(DEFAULT_LANG, DEFAULT_CHAIN, DEFAULT_PAGE, {
-    theme: DEFAULT_THEME,
-    themeColor: DEFAULT_THEME_COLOR,
-  })
+  return buildPagePath(DEFAULT_LANG, DEFAULT_CHAIN, DEFAULT_PAGE)
 }

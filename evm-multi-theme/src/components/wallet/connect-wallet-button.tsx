@@ -1,6 +1,7 @@
 import { useAppKit, useAppKitAccount, useAppKitNetwork, useWalletInfo } from '@reown/appkit/react'
 import { bsc, bscTestnet, base, mainnet } from '@reown/appkit/networks'
 import { useLayoutEffect, useMemo } from 'react'
+import { useRenderMode } from '@/app/render-mode'
 import { useRouteContext } from '@/app/use-route-context'
 import { supportedChains } from '@/config/chains'
 
@@ -24,6 +25,25 @@ function SwitchNetworkIcon() {
 }
 
 export function ConnectWalletButton() {
+  const mode = useRenderMode()
+  if (mode === 'static') {
+    return <StaticConnectWalletButton />
+  }
+
+  return <InteractiveConnectWalletButton />
+}
+
+function StaticConnectWalletButton() {
+  const { t } = useRouteContext()
+
+  return (
+    <button className="wallet-button" type="button">
+      {t('wallet.connect')}
+    </button>
+  )
+}
+
+function InteractiveConnectWalletButton() {
   const { t, chain, page, lang, theme, themeColor, chainDefinition, navigateToPage } = useRouteContext()
   const { open } = useAppKit()
   const { address, isConnected, status } = useAppKitAccount()
@@ -60,6 +80,7 @@ export function ConnectWalletButton() {
       nextChain: walletChain.key,
       nextTheme: theme,
       nextThemeColor: themeColor,
+      persist: 'session',
       replace: true,
     })
   }, [chain, isConnected, lang, navigateToPage, page, theme, themeColor, walletChain])
