@@ -31,10 +31,10 @@ export function Topbar({
           <LanguageSwitcher />
           <ThemeSwitcher />
         </div>
+        <ConnectWalletButton />
         <button className="topbar-utility-button mobile-only" onClick={onOpenMobileControls} type="button" aria-label={t('mobile.controls')}>
           <SettingsIcon />
         </button>
-        <ConnectWalletButton />
       </div>
     </div>
   )

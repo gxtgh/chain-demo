@@ -1,6 +1,6 @@
 import { useAppKit, useAppKitAccount, useAppKitNetwork, useWalletInfo } from '@reown/appkit/react'
 import { bsc, bscTestnet, base, mainnet } from '@reown/appkit/networks'
-import { useEffect } from 'react'
+import { useLayoutEffect, useMemo } from 'react'
 import { useRouteContext } from '@/app/use-route-context'
 import { supportedChains } from '@/config/chains'
 
@@ -29,8 +29,14 @@ export function ConnectWalletButton() {
   const { address, isConnected, status } = useAppKitAccount()
   const { chainId, switchNetwork } = useAppKitNetwork()
   const { walletInfo } = useWalletInfo()
-  const isWrongChain = isConnected && chainId !== chainDefinition.chainId
   const isConnecting = status === 'connecting'
+  const walletChain = useMemo(
+    () => (chainId == null ? undefined : supportedChains.find((item) => item.chainId === chainId)),
+    [chainId],
+  )
+  const isRouteSyncPending = isConnected && walletChain != null && walletChain.key !== chain
+  const isNetworkSettling = isConnected && address != null && chainId == null
+  const isWrongChain = isConnected && !isRouteSyncPending && !isNetworkSettling && chainId !== chainDefinition.chainId
   const targetNetwork =
     chainDefinition.key === 'bsc'
       ? bsc
@@ -40,24 +46,23 @@ export function ConnectWalletButton() {
           ? base
           : mainnet
 
-  useEffect(() => {
-    if (!isConnected || !chainId) {
+  useLayoutEffect(() => {
+    if (!isConnected || walletChain == null) {
       return
     }
 
-    const matchedChain = supportedChains.find((item) => item.chainId === chainId)
-    if (!matchedChain || matchedChain.key === chain) {
+    if (walletChain.key === chain) {
       return
     }
 
     navigateToPage(page, {
       nextLang: lang,
-      nextChain: matchedChain.key,
+      nextChain: walletChain.key,
       nextTheme: theme,
       nextThemeColor: themeColor,
       replace: true,
     })
-  }, [chain, chainId, isConnected, lang, navigateToPage, page, theme, themeColor])
+  }, [chain, isConnected, lang, navigateToPage, page, theme, themeColor, walletChain])
 
   if (isConnected && address) {
     if (isWrongChain) {

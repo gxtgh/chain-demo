@@ -43,10 +43,8 @@ export function TokenPermissionCard({ chainDefinition, t }: TokenPermissionCardP
     <section className="surface-card token-permission-card">
       <div className="permission-hero">
         <div className="permission-hero-layout">
-          <div className="permission-hero-badge">
-            <div className="token-section-icon">
-              <SafetyCertificateOutlined />
-            </div>
+          <div className="token-section-icon">
+            <SafetyCertificateOutlined />
           </div>
           <div className="permission-hero-content">
             <div className="token-section-copy">

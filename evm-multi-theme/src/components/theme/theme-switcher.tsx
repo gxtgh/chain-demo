@@ -3,15 +3,17 @@ import { PaletteIcon, SunIcon, ThemeIcon } from '@/components/common/topbar-icon
 import { TopbarMenuButton } from '@/components/common/topbar-menu-button'
 import { themeColorRegistry, themeModeRegistry, type ThemeColorId, type ThemeModeId } from '@/config/theme-registry'
 
-export function ThemeSwitcher() {
+export function ThemeSwitcher({ showValue = false, className }: { showValue?: boolean; className?: string } = {}) {
   const { t, page, theme, themeColor, navigateToPage } = useRouteContext()
 
   return (
     <>
       <TopbarMenuButton
         ariaLabel={t('topbar.theme')}
+        className={className}
         icon={theme === 'light' ? <SunIcon /> : <ThemeIcon />}
         value={theme}
+        showValue={showValue}
         options={themeModeRegistry.map((themeOption) => ({
           key: themeOption.id,
           label: t(`theme.${themeOption.id}`),
@@ -23,8 +25,10 @@ export function ThemeSwitcher() {
 
       <TopbarMenuButton
         ariaLabel={t('topbar.themeColor')}
+        className={className}
         icon={<PaletteIcon />}
         value={themeColor}
+        showValue={showValue}
         options={themeColorRegistry.map((themeOption) => ({
           key: themeOption.id,
           label: t(`theme.${themeOption.id}`),
