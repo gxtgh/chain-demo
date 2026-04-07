@@ -146,7 +146,7 @@ export function TokenDisplay({
   }, [allowCustomAddress, chainDefinition, hasLocalAddressMatch, lookupErrorText, normalizedSearchAddress])
 
   const visibleTokens = useMemo(() => {
-    const nextSearch = searchValue.trim()
+    const nextSearch:any = searchValue.trim()
     if (!nextSearch) {
       return resolvedTokens
     }
@@ -156,7 +156,7 @@ export function TokenDisplay({
       return resolvedTokens.filter((item) => normalizeTokenAddress(item.address) === normalizedAddress)
     }
 
-    const loweredSearch = nextSearch.toLowerCase()
+    const loweredSearch = nextSearch?.toLowerCase()
 
     return resolvedTokens.filter((item) => {
       const haystacks = [item.symbol, item.name, item.address]
