@@ -4,6 +4,7 @@ export const enUsMessages = {
   common: {
     overview: 'Overview',
     backToTop: 'Back to top',
+    nativeToken: 'Native Token',
     copy: {
       idle: 'Copy',
       copied: 'Copied',
@@ -149,7 +150,7 @@ export const enUsMessages = {
         permissions: {
           title: 'Permissions',
           description:
-            'This template is positioned as a base standard token and does not include additional admin-control modules. It does not provide mint, pause, blacklist, whitelist, trading tax, fee receiver, auto-liquidity, or buyback logic.',
+            'This flow is positioned as a base standard token and does not include additional admin-control modules. It does not provide mint, pause, blacklist, whitelist, trading tax, fee receiver, auto-liquidity, or buyback logic.',
         },
         tradingFlow: {
           title: 'Trading Enablement Flow',
@@ -231,7 +232,7 @@ export const enUsMessages = {
         standard: {
           question: 'What kind of token contract is deployed?',
           answer:
-            'The current flow is positioned for a standard fungible token template on {{chain}}. It is suitable for straightforward issuance, but it does not add advanced admin modules by default.',
+            'The current flow is positioned for a standard fungible token on {{chain}}. It is suitable for straightforward issuance, but it does not add advanced admin modules by default.',
         },
         trade: {
           question: 'Can people trade the token immediately after creation?',
@@ -270,12 +271,12 @@ export const enUsMessages = {
     eyebrow: '',
     title: 'Create Tax Token',
     description:
-      'Create a {{tokenType}} tax-token template on {{chain}} with buy tax, sell tax, fee receiver, and default pairing settings in a single guided flow, without writing contract code.',
+      'Create a {{tokenType}} tax token on {{chain}} with buy tax, sell tax, fee receiver, and default pairing settings in a single guided flow, without writing contract code.',
     seo: {
-      title: 'Create {{tokenType}} Tax Token on {{chain}} | Buy & Sell Tax Template',
+      title: 'Create {{tokenType}} Tax Token on {{chain}} | Buy & Sell Tax Setup',
       description:
-        'Launch a {{tokenType}} tax-token template on {{chain}} with configurable buy tax, sell tax, fee receiver, exchange selection, and paired token defaults.',
-      keywords: 'Create Tax Token, {{tokenType}} Tax Token Creator, {{chain}} Tax Token Maker, Buy Sell Tax Token Template',
+        'Launch a {{tokenType}} tax token on {{chain}} with configurable buy tax, sell tax, fee receiver, exchange selection, and paired token defaults.',
+      keywords: 'Create Tax Token, {{tokenType}} Tax Token Creator, {{chain}} Tax Token Maker, Buy Sell Tax Token',
     },
     fields: {
       name: 'Token Full Name',
@@ -312,8 +313,8 @@ export const enUsMessages = {
       symbol: 'The short token symbol displayed in wallets and trading interfaces. It is usually made up of letters or numbers.',
       totalSupply: 'The initial total supply of the token. Please confirm it matches your issuance plan before creation.',
       decimals: 'Defines the smallest divisible unit of the token. In most cases, 18 is the recommended default setting.',
-      buyTax: 'Enter the buy tax as a percentage with up to two decimal places. The current template supports values between 0 and 25.',
-      sellTax: 'Enter the sell tax as a percentage with up to two decimal places. The current template supports values between 0 and 25.',
+      buyTax: 'Enter the buy tax as a percentage with up to two decimal places. The current flow supports values between 0 and 25.',
+      sellTax: 'Enter the sell tax as a percentage with up to two decimal places. The current flow supports values between 0 and 25.',
       taxReceiver:
         'The fee receiver address collects the trading-tax proceeds. If it is left empty, the connected wallet address is used by default.',
       exchange: 'After the tax token is deployed, tax-mode trading is supported on this exchange.',
@@ -326,6 +327,10 @@ export const enUsMessages = {
       submitting: 'Submitting...',
       close: 'Close',
       retry: 'Try Again',
+    },
+    status: {
+      searchingToken: 'Searching token on-chain...',
+      noTokenInfo: 'No token information found',
     },
     steps: {
       preparing: 'Prepare tax-token parameters',
@@ -360,11 +365,11 @@ export const enUsMessages = {
       txHash: 'Transaction Hash',
     },
     overview: {
-      title: 'Tax Token Template',
+      title: 'Tax Token',
       description:
-        'This template is designed for {{tokenType}} launches that require on-chain buy and sell tax settings. After deployment, the page returns the token address, transaction hash, and a summary of the tax configuration used.',
+        'This flow is designed for {{tokenType}} launches that require on-chain buy and sell tax settings, making it easier to confirm rates, receiver settings, and the default pairing setup during deployment.',
       highlights: {
-        base: 'Tax template',
+        base: 'Tax launch',
         buy: 'Buy tax',
         sell: 'Sell tax',
         receiver: 'Fee receiver',
@@ -373,17 +378,17 @@ export const enUsMessages = {
         taxPlan: {
           title: 'Tax Plan',
           description:
-            'Buy tax and sell tax are written into the deployment template together, making the flow suitable for launches that need a clear fee structure from the start.',
+            'Buy tax and sell tax are written into the initial contract configuration during deployment, which fits launches that need clear rate communication, route validation, and later operations tracking.',
         },
         receiver: {
           title: 'Receiver Address',
           description:
-            'You can set a dedicated fee receiver address during deployment. If you leave it blank, the connected wallet address is used for a faster first launch.',
+            'You can set a dedicated fee receiver address during deployment. If you leave it blank, the connected wallet address is used, which works for quick launches and later migration to a dedicated operations wallet.',
         },
         trading: {
-          title: 'Trading Configuration Record',
+          title: 'Trading Preparation',
           description:
-            'The selected factory, exchange, and paired token are all captured in the flow so the team can review the intended market setup after deployment.',
+            'This page deploys the token and records the default exchange plus paired token, but it does not create liquidity, add a pool, or handle market making. You still need to complete pair setup and initial liquidity separately.',
         },
       },
     },
@@ -407,45 +412,45 @@ export const enUsMessages = {
     nextSteps: {
       title: 'Next Steps',
       description:
-        'After deployment, it is best to review the template parameters and prepare the surrounding token information before moving to the next launch stage.',
+        'After deployment, we recommend completing the following steps so the team can move more smoothly into wallet display, liquidity setup, and live trading checks.',
       addWallet: {
         title: 'Add to Wallet',
         description: 'Import the token into common wallets using the contract address, symbol, and decimals and confirm it displays correctly.',
       },
       verifyFees: {
-        title: 'Verify Tax Rates',
+        title: 'Create Liquidity (DEX)',
         description:
-          'Double-check that the deployed buy tax, sell tax, and fee receiver address match the values agreed on by the team.',
+          'Create the trading pair on your target DEX with the selected paired token and add the initial liquidity for follow-up trading checks.',
       },
       reviewPairing: {
-        title: 'Review Pairing Setup',
+        title: 'Verify Tax & Trade Path',
         description:
-          'Record the selected default exchange and paired token so the team can align on the intended market configuration later.',
+          'After liquidity is added, run small buy and sell tests to confirm the tax rates, fee receiver, and default trading route behave as expected.',
       },
       metadata: {
         title: 'Complete Logo & Metadata',
         description:
           'Prepare the logo, description, website, and social links to improve how the token appears across wallets, explorers, and documentation pages.',
       },
-      note: 'This page only deploys the tax-token template. It does not create liquidity, add a pool, or handle market-making steps.',
+      note: 'This page only deploys the tax token. It does not create liquidity, add a pool, or handle market-making steps.',
     },
     seoBody: {
       highlights: {
         title: 'Best-fit scenarios',
         template: {
-          title: 'Launches that need tax logic',
+          title: 'Projects that need trading-tax logic',
           description:
-            'If your {{tokenType}} launch requires explicit buy and sell tax settings, this template is a better fit than the standard-token flow because those parameters are fixed during deployment.',
+            'If your {{tokenType}} launch requires explicit buy and sell tax settings, this flow is a better fit than the standard-token flow because those rate-related parameters are confirmed during deployment.',
         },
         control: {
-          title: 'Teams that need clearer delivery parameters',
+          title: 'Agencies and operations teams',
           description:
-            'For agencies, launch teams, or operators, collecting the tax rates, fee receiver, default exchange, and paired token in one flow reduces handoff mistakes.',
+            'For agencies, launch teams, or operators, collecting the tax rates, fee receiver, default exchange, and paired token in one flow reduces handoff mistakes and makes delivery clearer.',
         },
         receiver: {
-          title: 'Projects with a dedicated fee receiver',
+          title: 'Projects with a dedicated treasury path',
           description:
-            'If trading-tax proceeds need to be routed to a specific operations or treasury wallet, the template lets you set that address during deployment instead of managing it elsewhere.',
+            'If trading-tax proceeds need to be routed to a specific operations or treasury wallet, this flow lets you set that address during deployment instead of handling it elsewhere later.',
         },
       },
       faq: {
@@ -453,7 +458,7 @@ export const enUsMessages = {
         noCode: {
           question: 'Do I need to write a contract to create a tax token on {{chain}}?',
           answer:
-            'No custom Solidity contract is required for this flow. The deployment uses a preconfigured tax-token factory template, but you still need to confirm the token name, supply, tax rates, and fee receiver settings.',
+            'No custom Solidity contract is required for this flow. The deployment uses a preconfigured tax-token factory, but you still need to confirm the token name, supply, tax rates, and fee receiver settings.',
         },
         fee: {
           question: 'Does the creation fee include gas?',
@@ -463,7 +468,7 @@ export const enUsMessages = {
         template: {
           question: 'Is this page for standard tokens or tax tokens?',
           answer:
-            'This page is fixed to the tax-token template. There is no toggle to fall back to the standard-token flow here. Buy tax, sell tax, fee receiver, and default pairing settings are all part of this deployment path.',
+            'This page is fixed to the tax-token creation flow. There is no toggle to fall back to the standard-token flow here. Buy tax, sell tax, fee receiver, and default pairing settings are all part of this deployment path.',
         },
         receiver: {
           question: 'Can I leave the fee receiver address empty?',
@@ -473,12 +478,12 @@ export const enUsMessages = {
         poolToken: {
           question: 'Why do I need to choose a paired token?',
           answer:
-            'The paired token records the market asset this template is intended to work with, such as the native token or a stablecoin. It does not create liquidity for you, but it preserves the intended market-setup context.',
+            'The paired token records the market asset this tax token is intended to trade against, such as the native token or a stablecoin. It does not create liquidity for you, but it preserves the intended market setup and should usually match your later liquidity plan.',
         },
         liquidity: {
           question: 'Will this page create liquidity or a trading pool automatically?',
           answer:
-            'No. The current page only deploys the tax-token template and displays the deployment result plus parameter summary. It does not create liquidity, add a pool, or perform market-making tasks.',
+            'No. The current page only deploys the tax token and returns the token address plus transaction hash. It does not create liquidity, add a pool, or perform market-making tasks.',
         },
       },
     },

@@ -56,6 +56,15 @@
   .tax-exchange-select.ant-select {
     width: 100%;
     height: 42px !important;
+    --ant-select-border-color: var(--theme-line);
+    --ant-select-background-color: color-mix(in srgb, var(--theme-surface-strong) 92%, white 8%);
+    --ant-select-color: var(--text);
+    --ant-select-hover-border-color: color-mix(in srgb, var(--theme-accent) 42%, transparent);
+    --ant-select-active-border-color: color-mix(in srgb, var(--theme-accent) 42%, transparent);
+    --ant-select-active-outline-color: color-mix(in srgb, var(--theme-accent) 11%, transparent);
+  }
+  .tax-exchange-select.ant-select .ant-select-content{
+    display: flex;
   }
 
   .tax-exchange-select.ant-select.ant-select-single.ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector,
@@ -84,6 +93,14 @@
 
   .tax-exchange-select.ant-select.ant-select-focused .ant-select-selector {
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--theme-accent) 11%, transparent) !important;
+  }
+
+  .tax-exchange-select.ant-select.ant-select-status-error .ant-select-selector,
+  .tax-exchange-select.ant-select.ant-select-status-error:hover .ant-select-selector,
+  .tax-exchange-select.ant-select.ant-select-status-error.ant-select-focused .ant-select-selector,
+  .tax-exchange-select.ant-select.ant-select-status-error.ant-select-open .ant-select-selector {
+    border-color: color-mix(in srgb, var(--warning) 72%, transparent) !important;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--warning) 12%, transparent) !important;
   }
 
   .tax-exchange-select.ant-select.ant-select-disabled {
@@ -141,8 +158,7 @@
     color: color-mix(in srgb, var(--muted) 52%, white 48%) !important;
   }
 
-  .tax-exchange-selected,
-  .tax-exchange-option-main {
+  .tax-exchange-selected{
     display: inline-flex;
     align-items: center;
     gap: 10px;
@@ -199,27 +215,53 @@
     height: 100%;
     object-fit: cover;
   }
+}
+.tax-exchange-dropdown.ant-select-dropdown {
+  padding: 6px;
+  border-radius: 18px;
+}
 
-  .tax-exchange-dropdown.ant-select-dropdown {
-    padding: 6px;
-    border-radius: 18px;
+.tax-exchange-dropdown.ant-select-dropdown .ant-select-item-option {
+  min-height: 40px;
+  padding: 5px 10px;
+  border-radius: 14px;
+}
+
+.tax-exchange-dropdown.ant-select-dropdown .ant-select-item-option-content {
+  display: flex;
+  align-items: center;
+}
+.tax-exchange-option-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  .tax-exchange-badge{
+    width: 24px;
+    height: 24px;
+    img{
+      width: 100%;
+      height: 100%;
+
+    }
   }
-
-  .tax-exchange-dropdown.ant-select-dropdown .ant-select-item-option {
-    min-height: 40px;
-    padding: 5px 10px;
-    border-radius: 14px;
-  }
-
-  .tax-exchange-dropdown.ant-select-dropdown .ant-select-item-option-content {
-    display: flex;
-    align-items: center;
+  .tax-exchange-option-name{
+    font-size: 14px;
   }
 }
 
 .app-shell.theme-dark,
 body.app-theme.app-theme-dark {
   .token-tax-creation-page {
+    .tax-exchange-select.ant-select {
+      --ant-select-border-color: rgba(255, 255, 255, 0.12);
+      --ant-select-background-color: rgba(28, 28, 36, 0.94);
+      --ant-select-color: var(--text);
+      --ant-select-hover-border-color: color-mix(in srgb, var(--theme-accent) 42%, rgba(255, 255, 255, 0.12));
+      --ant-select-active-border-color: color-mix(in srgb, var(--theme-accent) 42%, rgba(255, 255, 255, 0.12));
+      --ant-select-active-outline-color: color-mix(in srgb, var(--theme-accent) 12%, transparent);
+    }
+
     .tax-exchange-select.ant-select.ant-select-single.ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector,
     .tax-exchange-select.ant-select .ant-select-selector {
       border-color: rgba(255, 255, 255, 0.12) !important;
@@ -238,6 +280,14 @@ body.app-theme.app-theme-dark {
 
     .tax-exchange-select.ant-select.ant-select-focused .ant-select-selector {
       box-shadow: 0 0 0 4px color-mix(in srgb, var(--theme-accent) 12%, transparent) !important;
+    }
+
+    .tax-exchange-select.ant-select.ant-select-status-error .ant-select-selector,
+    .tax-exchange-select.ant-select.ant-select-status-error:hover .ant-select-selector,
+    .tax-exchange-select.ant-select.ant-select-status-error.ant-select-focused .ant-select-selector,
+    .tax-exchange-select.ant-select.ant-select-status-error.ant-select-open .ant-select-selector {
+      border-color: color-mix(in srgb, var(--warning) 72%, transparent) !important;
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--warning) 12%, transparent) !important;
     }
 
     .tax-exchange-select.ant-select .ant-select-selection-item,
@@ -274,21 +324,22 @@ body.app-theme.app-theme-dark {
       color: color-mix(in srgb, var(--muted) 52%, #ffffff 48%) !important;
     }
 
-    .tax-exchange-dropdown.ant-select-dropdown {
-      background: rgba(24, 24, 31, 0.98) !important;
-      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.34) !important;
-    }
+  }
 
-    .tax-exchange-dropdown.ant-select-dropdown .ant-select-item-option {
-      color: var(--text);
-    }
+  .tax-exchange-dropdown.ant-select-dropdown {
+    background: rgba(24, 24, 31, 0.98) !important;
+    box-shadow: 0 18px 46px rgba(0, 0, 0, 0.34) !important;
+  }
 
-    .tax-exchange-dropdown.ant-select-dropdown .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
-      background: color-mix(in srgb, var(--theme-accent) 10%, transparent) !important;
-    }
+  .tax-exchange-dropdown.ant-select-dropdown .ant-select-item-option {
+    color: var(--text);
+  }
 
-    .tax-exchange-dropdown.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-      background: color-mix(in srgb, var(--theme-accent) 14%, transparent) !important;
-    }
+  .tax-exchange-dropdown.ant-select-dropdown .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+    background: color-mix(in srgb, var(--theme-accent) 10%, transparent) !important;
+  }
+
+  .tax-exchange-dropdown.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    background: color-mix(in srgb, var(--theme-accent) 14%, transparent) !important;
   }
 }

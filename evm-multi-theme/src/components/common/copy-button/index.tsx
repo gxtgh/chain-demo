@@ -37,15 +37,16 @@ export function CopyButton({
 
   return (
     <Tooltip
-      className={`app-tooltip copy-button-tooltip copy-button-tooltip-${theme}`}
+      rootClassName={`app-tooltip copy-button-tooltip copy-button-tooltip-${theme}`}
       title={copied ? t('common.copy.copied') : t('common.copy.idle')}
       color={background}
-      
-      overlayInnerStyle={{
-        color,
-        background,
-        border: `1px solid ${borderColor}`,
-        boxShadow: isDark ? '0 18px 46px rgba(0, 0, 0, 0.34)' : '0 18px 42px rgba(0, 0, 0, 0.14)',
+      styles={{
+        container: {
+          color,
+          background,
+          border: `1px solid ${borderColor}`,
+          boxShadow: isDark ? '0 18px 46px rgba(0, 0, 0, 0.34)' : '0 18px 42px rgba(0, 0, 0, 0.14)',
+        }
       }}
     >
       <button className={`copy-button ${copied ? 'copied' : ''}`} onClick={() => void handleCopy()} type="button" aria-label={ariaLabel}>

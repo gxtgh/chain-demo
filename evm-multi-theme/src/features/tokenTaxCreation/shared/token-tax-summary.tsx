@@ -1,5 +1,5 @@
 import { CopyButton } from '@/components/common/copy-button'
-import type { ChainDefinition } from '@/config/chains'
+import { getExplorerUrl, type ChainDefinition } from '@/config/chains'
 import { formatText } from '@/utils'
 import { formatTaxRate, type TaxExchangeOption, type TokenTaxFormValues, type TokenTaxSubmitResult } from '../business/model'
 import type { TokenDisplayItem } from '@/components/common/token-display'
@@ -50,14 +50,14 @@ export function TokenTaxSummary({
       key: 'tokenAddress',
       label: t('tokenTaxCreation.successSummary.tokenAddress'),
       value: result.tokenAddress,
-      link: result.tokenExplorerUrl,
+      link: getExplorerUrl(chainDefinition, 'token', result.tokenAddress),
       copyLabel: 'copy token address',
     },
     {
       key: 'txHash',
       label: t('tokenTaxCreation.successSummary.txHash'),
       value: result.txHash,
-      link: result.txExplorerUrl,
+      link: getExplorerUrl(chainDefinition, 'hash', result.txHash),
       copyLabel: 'copy tx hash',
     },
   ]

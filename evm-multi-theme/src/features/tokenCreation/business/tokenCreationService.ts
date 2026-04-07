@@ -76,7 +76,5 @@ export async function submitTokenCreation(
   return {
     txHash: transaction.hash,
     tokenAddress,
-    txExplorerUrl: `${chainDefinition.explorerBaseUrl}/tx/${transaction.hash}`,
-    tokenExplorerUrl: tokenAddress ? `${chainDefinition.explorerBaseUrl}/address/${tokenAddress}` : undefined,
   }
 }

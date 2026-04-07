@@ -23,8 +23,6 @@ export type TokenCreationSubmitStep = {
 export type TokenCreationSubmitResult = {
   txHash: string
   tokenAddress?: string
-  txExplorerUrl: string
-  tokenExplorerUrl?: string
 }
 
 export type TokenCreationViewModel = {

@@ -2,6 +2,7 @@ import { CheckCircleFilled, CloseOutlined } from '@ant-design/icons'
 import { Button, Input, InputNumber, Select } from 'antd'
 import type { SyntheticEvent } from 'react'
 import { TokenDisplay } from '@/components/common/token-display'
+import { getExplorerUrl } from '@/config/chains'
 import { AppModal } from '@/components/common/modal'
 import { OperationStatus } from '@/components/common/operation-status'
 import { OperationWarning } from '@/components/common/operation-warning'
@@ -9,8 +10,8 @@ import { formatEther } from 'ethers'
 import { formatText } from '@/utils'
 import { CopyButton } from '@/components/common/copy-button'
 import { FieldLabelWithTooltip } from '@/features/tokenCreation/shared/field-label-with-tooltip'
+import { TokenCreationSummary } from '@/features/tokenCreation/shared/token-creation-summary'
 import type { TaxExchangeOption, TokenTaxViewModel } from '../business/model'
-import { TokenTaxSummary } from './token-tax-summary'
 
 const FALLBACK_ICON_SRC = '/img/common/icon-fallback.svg'
 
@@ -37,8 +38,8 @@ export function TokenTaxFormPanel({ model }: { model: TokenTaxViewModel }) {
     onCloseFailureModal,
     onClearResult,
   } = model
-  const txExplorerUrl = result?.txExplorerUrl ?? ''
-  const tokenExplorerUrl = result?.tokenExplorerUrl ?? ''
+  const txExplorerUrl = getExplorerUrl(chainDefinition, 'hash', result?.txHash)
+  const tokenExplorerUrl = getExplorerUrl(chainDefinition, 'token', result?.tokenAddress)
   const defaultStableSymbol = chainDefinition.stableCoins?.[0]?.symbol ?? chainDefinition.nativeToken.symbol
 
   return (
@@ -163,9 +164,14 @@ export function TokenTaxFormPanel({ model }: { model: TokenTaxViewModel }) {
             <Select
               className="tax-exchange-select"
               optionLabelProp="label"
-              popupClassName="tax-exchange-dropdown"
               placeholder={t('tokenTaxCreation.fields.exchange')}
+              status={errors.exchange ? 'error' : undefined}
               value={formValues.exchange || undefined}
+              classNames={{
+                popup: {
+                  root: 'tax-exchange-dropdown',
+                },
+              }}
               onChange={(value) => updateField('exchange', value)}
             >
               {exchanges.map((item) => (
@@ -189,10 +195,15 @@ export function TokenTaxFormPanel({ model }: { model: TokenTaxViewModel }) {
               allowCustomAddress
               chainDefinition={chainDefinition}
               emptyText={t('tokenTaxCreation.placeholders.poolToken')}
+              key={chainDefinition.key}
               lookupErrorText={t('tokenTaxCreation.errors.tokenLookupFailed')}
+              noTokenInfoText={t('tokenTaxCreation.status.noTokenInfo')}
+              nativeLabel={t('common.nativeToken')}
               onChange={(nextValue) => updateField('poolToken', nextValue)}
               onTokenResolved={onPoolTokenResolved}
               placeholder={t('tokenTaxCreation.placeholders.poolToken')}
+              searchingText={t('tokenTaxCreation.status.searchingToken')}
+              status={errors.poolToken ? 'error' : undefined}
               tokens={poolTokens}
               value={formValues.poolToken}
             />
@@ -231,14 +242,7 @@ export function TokenTaxFormPanel({ model }: { model: TokenTaxViewModel }) {
               <CloseOutlined />
             </button>
           </div>
-          <TokenTaxSummary
-            chainDefinition={chainDefinition}
-            exchanges={exchanges}
-            formValues={formValues}
-            poolTokens={poolTokens}
-            result={result}
-            t={t}
-          />
+          <TokenCreationSummary chainDefinition={chainDefinition} result={result} t={t} />
         </div>
       ) : null}
 
@@ -264,13 +268,6 @@ export function TokenTaxFormPanel({ model }: { model: TokenTaxViewModel }) {
         title={<div className="token-result-modal-heading">{t('tokenTaxCreation.modal.successTitle')}</div>}
       >
         <div className="result-modal-shell">
-          <div className="result-modal-success">
-            <div className="success-banner">
-              <CheckCircleFilled />
-              <span>{t('tokenTaxCreation.success.banner')}</span>
-            </div>
-            <p>{t('tokenTaxCreation.successSummary.description')}</p>
-          </div>
           <div className="result-modal-card">
             <div className="result-modal-row">
               <span>{t('tokenTaxCreation.success.tokenAddress')}</span>
@@ -307,7 +304,7 @@ export function TokenTaxFormPanel({ model }: { model: TokenTaxViewModel }) {
           t('common.exception.errorReason1', { chain: chainDefinition.fullName }),
           t('common.exception.errorReason2'),
         ]}
-        description={t('tokenTaxCreation.modal.errorDescription')}
+        // description={t('tokenTaxCreation.modal.errorDescription')}
         footer={
           <>
             <Button onClick={onCloseFailureModal}>{t('tokenTaxCreation.actions.close')}</Button>
@@ -352,7 +349,7 @@ function buildExchangeOptionLabel(exchange: TaxExchangeOption) {
         </span>
         <span className="tax-exchange-option-name">{exchange.label}</span>
       </div>
-      <span className="tax-exchange-option-meta">{exchange.version?.toUpperCase() ?? exchange.dex}</span>
+      {/* <span className="tax-exchange-option-meta">{exchange.version?.toUpperCase() ?? exchange.dex}</span> */}
     </div>
   )
 }

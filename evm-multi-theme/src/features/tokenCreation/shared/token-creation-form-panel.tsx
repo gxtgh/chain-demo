@@ -1,6 +1,7 @@
 import { CheckCircleFilled, CloseOutlined } from '@ant-design/icons'
 import { Button, Input, InputNumber } from 'antd'
 import { CopyButton } from '@/components/common/copy-button'
+import { getExplorerUrl } from '@/config/chains'
 import { AppModal } from '@/components/common/modal'
 import { formatEther } from 'ethers'
 import { OperationStatus } from '@/components/common/operation-status'
@@ -30,8 +31,8 @@ export function TokenCreationFormPanel({ model }: { model: TokenCreationViewMode
     onCloseFailureModal,
     onClearResult,
   } = model
-  const txExplorerUrl = result?.txExplorerUrl ?? ''
-  const tokenExplorerUrl = result?.tokenExplorerUrl ?? ''
+  const txExplorerUrl = getExplorerUrl(chainDefinition, 'hash', result?.txHash)
+  const tokenExplorerUrl = getExplorerUrl(chainDefinition, 'token', result?.tokenAddress)
 
   return (
     <section className="surface-card form-card">
@@ -132,7 +133,7 @@ export function TokenCreationFormPanel({ model }: { model: TokenCreationViewMode
               <CloseOutlined />
             </button>
           </div>
-          <TokenCreationSummary chainDefinition={chainDefinition} formValues={formValues} result={result} t={t} />
+          <TokenCreationSummary chainDefinition={chainDefinition} result={result} t={t} />
         </div>
       ) : null}
 
@@ -151,7 +152,7 @@ export function TokenCreationFormPanel({ model }: { model: TokenCreationViewMode
           },
         ]}
         // tipsText={t('tokenCreation.modal.progressTip')}
-        cancelBtnShow={submitStep?.id === 1 || submitStep?.id === 2}
+        cancelBtnShow={false}
         onClose={onCancelFlow}
       />
 
@@ -163,13 +164,6 @@ export function TokenCreationFormPanel({ model }: { model: TokenCreationViewMode
         title={<div className="token-result-modal-heading">{t('tokenCreation.modal.successTitle')}</div>}
       >
         <div className="result-modal-shell">
-          <div className="result-modal-success">
-            <div className="success-banner">
-              <CheckCircleFilled />
-              <span>{t('tokenCreation.success.banner')}</span>
-            </div>
-            <p>{t('tokenCreation.successSummary.description')}</p>
-          </div>
           <div className="result-modal-card">
             <div className="result-modal-row">
               <span>{t('tokenCreation.success.tokenAddress')}</span>

@@ -1,6 +1,15 @@
 .token-display-select.ant-select {
   width: 100%;
   height: 42px !important;
+  --ant-select-border-color: var(--theme-line);
+  --ant-select-background-color: color-mix(in srgb, var(--theme-surface-strong) 92%, white 8%);
+  --ant-select-color: var(--text);
+  --ant-select-hover-border-color: color-mix(in srgb, var(--theme-accent) 42%, transparent);
+  --ant-select-active-border-color: color-mix(in srgb, var(--theme-accent) 42%, transparent);
+  --ant-select-active-outline-color: color-mix(in srgb, var(--theme-accent) 11%, transparent);
+}
+.token-display-select.ant-select .ant-select-content{
+  display: flex;
 }
 
 .token-display-select.ant-select.ant-select-single.ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector,
@@ -29,6 +38,14 @@
 
 .token-display-select.ant-select.ant-select-focused .ant-select-selector {
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--theme-accent) 11%, transparent) !important;
+}
+
+.token-display-select.ant-select.ant-select-status-error .ant-select-selector,
+.token-display-select.ant-select.ant-select-status-error:hover .ant-select-selector,
+.token-display-select.ant-select.ant-select-status-error.ant-select-focused .ant-select-selector,
+.token-display-select.ant-select.ant-select-status-error.ant-select-open .ant-select-selector {
+  border-color: color-mix(in srgb, var(--warning) 72%, transparent) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--warning) 12%, transparent) !important;
 }
 
 .token-display-select.ant-select .ant-select-selection-wrap {
@@ -152,6 +169,10 @@
   padding: 6px;
   border-radius: 18px;
 }
+.token-display-dropdown.ant-select-dropdown .ant-select-item-empty{
+ padding: 0;
+ min-height: auto;
+}
 
 .token-display-dropdown.ant-select-dropdown .ant-select-item-option {
   min-height: 40px;
@@ -175,6 +196,15 @@
 
 .app-shell.theme-dark,
 body.app-theme.app-theme-dark {
+  .token-display-select.ant-select {
+    --ant-select-border-color: rgba(255, 255, 255, 0.12);
+    --ant-select-background-color: rgba(28, 28, 36, 0.94);
+    --ant-select-color: var(--text);
+    --ant-select-hover-border-color: color-mix(in srgb, var(--theme-accent) 42%, rgba(255, 255, 255, 0.12));
+    --ant-select-active-border-color: color-mix(in srgb, var(--theme-accent) 42%, rgba(255, 255, 255, 0.12));
+    --ant-select-active-outline-color: color-mix(in srgb, var(--theme-accent) 12%, transparent);
+  }
+
   .token-display-select.ant-select.ant-select-single.ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector,
   .token-display-select.ant-select .ant-select-selector {
     border-color: rgba(255, 255, 255, 0.12) !important;
@@ -193,6 +223,14 @@ body.app-theme.app-theme-dark {
 
   .token-display-select.ant-select.ant-select-focused .ant-select-selector {
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--theme-accent) 12%, transparent) !important;
+  }
+
+  .token-display-select.ant-select.ant-select-status-error .ant-select-selector,
+  .token-display-select.ant-select.ant-select-status-error:hover .ant-select-selector,
+  .token-display-select.ant-select.ant-select-status-error.ant-select-focused .ant-select-selector,
+  .token-display-select.ant-select.ant-select-status-error.ant-select-open .ant-select-selector {
+    border-color: color-mix(in srgb, var(--warning) 72%, transparent) !important;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--warning) 12%, transparent) !important;
   }
 
   .token-display-select.ant-select .ant-select-selection-item,

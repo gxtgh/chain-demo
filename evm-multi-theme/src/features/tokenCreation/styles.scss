@@ -201,7 +201,7 @@
         box-shadow: 0 0 0 5px color-mix(in srgb, var(--theme-accent) 11%, transparent) !important;
       }
 
-      &.ant-input-affix-wrapper-status-error {
+      &.ant-input-status-error {
         border-color: color-mix(in srgb, var(--warning) 72%, transparent) !important;
         box-shadow: 0 0 0 4px color-mix(in srgb, var(--warning) 12%, transparent) !important;
       }
@@ -702,19 +702,25 @@
   }
 
   .value-link {
-    color: var(--theme-accent);
+    color: var(--text);
     font-size: 14px;
-    // font-weight: 600;
     text-decoration: none;
     overflow-wrap: anywhere;
     transition:
       color 180ms ease,
-      text-decoration-color 180ms ease;
+      opacity 180ms ease;
 
-    &:hover {
-      color: var(--theme-accent-strong);
-      // text-decoration: underline;
-      // text-decoration-color: color-mix(in srgb, var(--theme-accent-strong) 70%, transparent);
+    &:visited {
+      color: var(--text);
+    }
+
+    &:hover,
+    &:focus-visible,
+    &:visited:hover,
+    &:visited:focus-visible {
+      color: #4096ff;
+      text-decoration: none;
+      opacity: 0.92;
     }
   }
 
@@ -1290,9 +1296,6 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      .value-link{
-        color: var(--theme-accent);
-      }
       .ant-btn{
         width: auto;
         height: auto;

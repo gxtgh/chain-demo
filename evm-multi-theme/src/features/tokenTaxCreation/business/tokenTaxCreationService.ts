@@ -87,8 +87,6 @@ export async function submitTokenTaxCreation(
   return {
     txHash: transaction.hash,
     tokenAddress,
-    txExplorerUrl: `${chainDefinition.explorerBaseUrl}/tx/${transaction.hash}`,
-    tokenExplorerUrl: tokenAddress ? `${chainDefinition.explorerBaseUrl}/address/${tokenAddress}` : undefined,
     taxReceiverAddress: tokenParams.taxReceiver,
   }
 }

@@ -34,6 +34,12 @@ export type DexDefinition = {
   rates?: number[]
 }
 
+export type ExplorerPathTemplates = {
+  hash?: string
+  token?: string
+  address?: string
+}
+
 export type ChainDefinition = {
   isEnable: boolean
   seoIndex: boolean
@@ -51,6 +57,7 @@ export type ChainDefinition = {
   rpcList: string[]
   dexs?: DexDefinition[]
   explorerBaseUrl: string
+  explorer?: ExplorerPathTemplates
   nativeToken: TokenMeta
   wtoken: TokenMeta
   stableCoins?: TokenMeta[]
@@ -415,4 +422,30 @@ export function getChainRpcUrl(chain: ChainDefinition) {
 
 export function getChainContractAddress(chain: ChainDefinition, contractKey: string) {
   return chain.contractList.find((contract) => contract.key === contractKey)?.address
+}
+
+export function getExplorerUrl(
+  chain: ChainDefinition,
+  type: keyof ExplorerPathTemplates,
+  value?: string,
+) {
+  if (!value) {
+    return ''
+  }
+
+  const defaultTemplates: Required<ExplorerPathTemplates> = {
+    hash: '/tx/{value}',
+    token: '/token/{value}',
+    address: '/address/{value}',
+  }
+
+  const template = chain.explorer?.[type] ?? defaultTemplates[type]
+
+  if (/^https?:\/\//.test(template)) {
+    return template.replace('{value}', value)
+  }
+
+  const normalizedBaseUrl = chain.explorerBaseUrl.replace(/\/+$/, '')
+  const normalizedPath = template.startsWith('/') ? template : `/${template}`
+  return `${normalizedBaseUrl}${normalizedPath.replace('{value}', value)}`
 }

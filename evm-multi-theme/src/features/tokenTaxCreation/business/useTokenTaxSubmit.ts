@@ -158,7 +158,7 @@ export function useTokenTaxSubmit(
       }
 
       setLoading(false)
-      setSubmitStep({ id: 4, status: 'failed' })
+      setSubmitStep((prev: any)=>({ ...prev, status: 'failed' })) 
       modalTimerRef.current = window.setTimeout(() => {
         if (!isFlowActive(flowId)) return
         setSubmitStep(defaultStep)

@@ -38,8 +38,6 @@ export type TokenTaxSubmitStep = {
 export type TokenTaxSubmitResult = {
   txHash: string
   tokenAddress?: string
-  txExplorerUrl: string
-  tokenExplorerUrl?: string
   taxReceiverAddress: string
 }
 

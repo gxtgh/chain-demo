@@ -142,17 +142,17 @@ export function useTokenCreationSubmit(
         if (!isFlowActive(flowId)) return
         setSubmitStep(defaultStep)
         setSuccessModalOpen(true)
-      }, 600)
+      }, 1000)
     } catch {
       if (!isFlowActive(flowId)) return
 
       setLoading(false)
-      setSubmitStep({ id: 4, status: 'failed' })
+      setSubmitStep((prev:any)=>({ ...prev, status: 'failed' }))
       modalTimerRef.current = window.setTimeout(() => {
         if (!isFlowActive(flowId)) return
         setSubmitStep(defaultStep)
         setFailureModalOpen(true)
-      }, 300)
+      }, 1000)
     }
   }
 
