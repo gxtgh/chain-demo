@@ -2,6 +2,7 @@ import { supportedChains } from '@/config/chains'
 import { useRenderMode } from '@/app/render-mode'
 import { useRouteContext } from '@/app/use-route-context'
 import { TopbarMenuButton } from '@/components/common/topbar-menu-button'
+import { getPageSupportedChains } from '@/config/routes'
 import { useAccount, useSwitchChain } from 'wagmi'
 
 function ChainLogo({ src, alt }: { src: string; alt: string }) {
@@ -18,15 +19,16 @@ export function ChainSwitcher() {
 }
 
 function StaticChainSwitcher() {
-  const { t, chain } = useRouteContext()
-  const currentChain = supportedChains.find((chainOption) => chainOption.key === chain) ?? supportedChains[0]
+  const { t, chain, page } = useRouteContext()
+  const pageSupportedChains = getPageSupportedChains(page)
+  const currentChain = pageSupportedChains.find((chainOption) => chainOption.key === chain) ?? pageSupportedChains[0] ?? supportedChains[0]
 
   return (
     <TopbarMenuButton
       ariaLabel={t('topbar.chain')}
       icon={<ChainLogo src={currentChain.icon} alt={currentChain.fullName} />}
       value={chain}
-      options={supportedChains.map((chainOption) => ({
+      options={pageSupportedChains.map((chainOption) => ({
         value: chainOption.key,
         key: chainOption.key,
         label: chainOption.fullName,
@@ -42,14 +44,15 @@ function InteractiveChainSwitcher() {
   const { t, chain, page, lang, theme, themeColor, navigateToPage } = useRouteContext()
   const { isConnected, chainId } = useAccount()
   const { switchChainAsync } = useSwitchChain()
-  const currentChain = supportedChains.find((chainOption) => chainOption.key === chain) ?? supportedChains[0]
+  const pageSupportedChains = getPageSupportedChains(page)
+  const currentChain = pageSupportedChains.find((chainOption) => chainOption.key === chain) ?? pageSupportedChains[0] ?? supportedChains[0]
 
   return (
     <TopbarMenuButton
       ariaLabel={t('topbar.chain')}
       icon={<ChainLogo src={currentChain.icon} alt={currentChain.fullName} />}
       value={chain}
-      options={supportedChains.map((chainOption) => ({
+      options={pageSupportedChains.map((chainOption) => ({
         value: chainOption.key,
         key: chainOption.key,
         label: chainOption.fullName,
@@ -62,7 +65,7 @@ function InteractiveChainSwitcher() {
           return
         }
 
-        const target = supportedChains.find((item) => item.key === nextChainKey)
+        const target = pageSupportedChains.find((item) => item.key === nextChainKey)
 
         if (isConnected && target) {
           if (chainId === target.chainId) {
@@ -76,7 +79,18 @@ function InteractiveChainSwitcher() {
             return
           }
 
-          void switchChainAsync({ chainId: target.chainId }).catch(() => undefined)
+          void switchChainAsync({ chainId: target.chainId })
+            .then(() => {
+              navigateToPage(page, {
+                nextLang: lang,
+                nextChain: nextChainKey,
+                nextTheme: theme,
+                nextThemeColor: themeColor,
+                persist: 'session',
+                replace: true,
+              })
+            })
+            .catch(() => undefined)
           return
         }
 

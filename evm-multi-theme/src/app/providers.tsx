@@ -3,11 +3,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactNode, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { WagmiProvider } from 'wagmi'
-import { mainnet, bsc, bscTestnet, base } from '@reown/appkit/networks'
 import type { AppKitNetwork } from '@reown/appkit/networks'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { createAppKit } from '@reown/appkit/react'
 import { http } from 'viem'
+import { getChainRpcUrl, supportedChains } from '@/config/chains'
 import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, buildAbsoluteUrl } from '@/config/site'
 import { getThemeColorDefinition } from '@/config/theme-registry'
 import type { RenderMode } from './render-mode'
@@ -15,7 +15,7 @@ import { resolveAppPreferences } from './preferences'
 
 const queryClient = new QueryClient()
 const projectId = '630c648c23af10f1fe6798c3a8eb3e4e'
-const networks: [AppKitNetwork, ...AppKitNetwork[]] = [bsc, bscTestnet, mainnet, base]
+const networks = supportedChains.map((chain) => chain.network as AppKitNetwork) as [AppKitNetwork, ...AppKitNetwork[]]
 let walletRuntime: { wagmiAdapter: WagmiAdapter } | null = null
 
 const metadata = {
@@ -33,12 +33,9 @@ function getWalletRuntime() {
   const wagmiAdapter = new WagmiAdapter({
     projectId,
     networks,
-    transports: {
-      [bsc.id]: http(),
-      [bscTestnet.id]: http('https://data-seed-prebsc-1-s1.binance.org:8545'),
-      [mainnet.id]: http(),
-      [base.id]: http(),
-    },
+    transports: Object.fromEntries(
+      supportedChains.map((chain) => [chain.chainId, http(getChainRpcUrl(chain))]),
+    ),
   })
 
   createAppKit({

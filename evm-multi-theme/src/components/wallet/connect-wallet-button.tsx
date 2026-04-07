@@ -1,9 +1,10 @@
 import { useAppKit, useAppKitAccount, useAppKitNetwork, useWalletInfo } from '@reown/appkit/react'
-import { bsc, bscTestnet, base, mainnet } from '@reown/appkit/networks'
+import type { AppKitNetwork } from '@reown/appkit/networks'
 import { useLayoutEffect, useMemo } from 'react'
 import { useRenderMode } from '@/app/render-mode'
 import { useRouteContext } from '@/app/use-route-context'
 import { supportedChains } from '@/config/chains'
+import { isPageChainSupported } from '@/config/routes'
 
 function shortAddress(value: string) {
   return `${value.slice(0, 6)}...${value.slice(-4)}`
@@ -57,21 +58,14 @@ function InteractiveConnectWalletButton() {
   const isRouteSyncPending = isConnected && walletChain != null && walletChain.key !== chain
   const isNetworkSettling = isConnected && address != null && chainId == null
   const isWrongChain = isConnected && !isRouteSyncPending && !isNetworkSettling && chainId !== chainDefinition.chainId
-  const targetNetwork =
-    chainDefinition.key === 'bsc'
-      ? bsc
-      : chainDefinition.key === 'bsc-testnet'
-        ? bscTestnet
-        : chainDefinition.key === 'base'
-          ? base
-          : mainnet
+  const targetNetwork = chainDefinition.network as AppKitNetwork
 
   useLayoutEffect(() => {
     if (!isConnected || walletChain == null) {
       return
     }
 
-    if (walletChain.key === chain) {
+    if (walletChain.key === chain || !isPageChainSupported(page, walletChain.key)) {
       return
     }
 

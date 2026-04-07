@@ -4,22 +4,29 @@ import { useRouteContext } from '@/app/use-route-context'
 import { ArrowUpIcon } from '@/components/common/topbar-icons'
 import { LanguageSwitcher } from '@/components/language/language-switcher'
 import { navigationItems } from '@/config/navigation'
+import { isPageChainSupported } from '@/config/routes'
+import { ShareMenu } from '@/components/share/share-menu'
+import { ShareSiteModal } from '@/components/share/share-site-modal'
 import { ThemeSwitcher } from '@/components/theme/theme-switcher'
 import { AppFooter } from './app-footer'
+import { PageChainWatermark } from './page-chain-watermark'
 import { Topbar } from './topbar'
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { t, page, theme, themeColor, navigateToPage } = useRouteContext()
+  const { t, chain, page, theme, themeColor, navigateToPage } = useRouteContext()
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
   const logoSrc = `/img/common/logo-${themeColor}.png`
   const navItems = useMemo(
     () =>
-      navigationItems.map((item) => ({
-        ...item,
-        label: t(item.titleKey),
-      })),
-    [t],
+      navigationItems
+        .filter((item) => isPageChainSupported(item.page, chain))
+        .map((item) => ({
+          ...item,
+          label: t(item.titleKey),
+        })),
+    [chain, t],
   )
 
   useEffect(() => {
@@ -65,7 +72,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className={`app-shell theme-${theme} theme-color-${themeColor}`}>
-      <Topbar onOpenMobileControls={() => setMobileDrawerOpen(true)} />
+      <PageChainWatermark />
+      <Topbar onOpenMobileControls={() => setMobileDrawerOpen(true)} onOpenShare={() => setShareModalOpen(true)} />
       <Drawer
         className="mobile-drawer mobile-only"
         closeIcon={false}
@@ -110,10 +118,19 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="mobile-settings-grid">
               <LanguageSwitcher showValue className="mobile-settings-button" />
               <ThemeSwitcher showValue className="mobile-settings-button" />
+              <ShareMenu
+                showValue
+                className="mobile-settings-button"
+                onShare={() => {
+                  setMobileDrawerOpen(false)
+                  setShareModalOpen(true)
+                }}
+              />
             </div>
           </section>
         </div>
       </Drawer>
+      <ShareSiteModal open={shareModalOpen} onClose={() => setShareModalOpen(false)} />
       <div className="layout-grid">
         <aside className="sidebar-card">
           {navItems.map((item) => (
