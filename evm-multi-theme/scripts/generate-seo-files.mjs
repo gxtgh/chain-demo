@@ -10,7 +10,7 @@ const outputDir = path.resolve(process.cwd(), 'public')
 
 const languages = ['en-us', 'zh-cn']
 const publicChains = ['bsc', 'eth', 'base']
-const publicPages = ['token-creation']
+const publicPages = ['token-creation', 'tax-token-creation']
 
 function normalizeSiteUrl(value) {
   return value.replace(/\/+$/, '')

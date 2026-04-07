@@ -3,11 +3,10 @@ import { Button, Input, InputNumber } from 'antd'
 import { CopyButton } from '@/components/common/copy-button'
 import { getExplorerUrl } from '@/config/chains'
 import { AppModal } from '@/components/common/modal'
-import { formatEther } from 'ethers'
 import { OperationStatus } from '@/components/common/operation-status'
 import { OperationWarning } from '@/components/common/operation-warning'
 import type { TokenCreationViewModel } from '../business/model'
-import { formatText } from '@/utils'
+import { formatNativeAmount, formatText } from '@/utils'
 import { FieldLabelWithTooltip } from './field-label-with-tooltip'
 import { TokenCreationSummary } from './token-creation-summary'
 
@@ -118,7 +117,7 @@ export function TokenCreationFormPanel({ model }: { model: TokenCreationViewMode
           tooltip={t('tokenCreation.tooltips.creationFee')}
         />
         <strong>
-          {feeLoading || creationFee == null ? '...' : `${formatEther(creationFee)} ${chainDefinition.nativeToken.symbol}`}
+          {feeLoading || creationFee == null ? '...' : `${formatNativeAmount(creationFee)} ${chainDefinition.nativeToken.symbol}`}
         </strong>
       </div>
 

@@ -6,8 +6,7 @@ import { getExplorerUrl } from '@/config/chains'
 import { AppModal } from '@/components/common/modal'
 import { OperationStatus } from '@/components/common/operation-status'
 import { OperationWarning } from '@/components/common/operation-warning'
-import { formatEther } from 'ethers'
-import { formatText } from '@/utils'
+import { formatNativeAmount, formatText } from '@/utils'
 import { CopyButton } from '@/components/common/copy-button'
 import { FieldLabelWithTooltip } from '@/features/tokenCreation/shared/field-label-with-tooltip'
 import { TokenCreationSummary } from '@/features/tokenCreation/shared/token-creation-summary'
@@ -228,7 +227,7 @@ export function TokenTaxFormPanel({ model }: { model: TokenTaxViewModel }) {
           label={t('tokenTaxCreation.labels.creationFee')}
           tooltip={t('tokenTaxCreation.tooltips.creationFee')}
         />
-        <strong>{feeLoading || creationFee == null ? '...' : `${formatEther(creationFee)} ${chainDefinition.nativeToken.symbol}`}</strong>
+        <strong>{feeLoading || creationFee == null ? '...' : `${formatNativeAmount(creationFee)} ${chainDefinition.nativeToken.symbol}`}</strong>
       </div>
 
       {result ? (

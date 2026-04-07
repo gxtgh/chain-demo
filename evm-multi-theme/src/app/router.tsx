@@ -1,5 +1,5 @@
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
-import { buildPagePath } from '@/config/routes'
+import { buildPagePath, isPageChainSupported } from '@/config/routes'
 import { DEFAULT_PAGE, isSupportedChain, isSupportedLang, isSupportedPage } from '@/config/chains'
 import { AppShell } from '@/components/layout/app-shell'
 import { TokenCreationPage } from '@/features/tokenCreation/shared/token-creation-page'
@@ -18,15 +18,12 @@ function buildPreferredPath(pathname: string, search: string, fallbackPage = DEF
     themeColor: searchParams.get('themeColor'),
   })
 
-  return buildPagePath(
-    resolvedPreferences.lang,
-    resolvedPreferences.chain,
-    isSupportedPage(page) ? page : fallbackPage,
-    {
-      theme: resolvedPreferences.theme,
-      themeColor: resolvedPreferences.themeColor,
-    },
-  )
+  const resolvedPage = isSupportedPage(page) ? page : fallbackPage
+
+  return buildPagePath(resolvedPreferences.lang, resolvedPreferences.chain, resolvedPage, {
+    theme: resolvedPreferences.theme,
+    themeColor: resolvedPreferences.themeColor,
+  })
 }
 
 function RootRedirect() {
@@ -39,7 +36,7 @@ function RouteGate() {
   const segments = location.pathname.split('/').filter(Boolean)
   const [lang, chain, page] = segments
 
-  if (!isSupportedLang(lang) || !isSupportedChain(chain) || !isSupportedPage(page)) {
+  if (!isSupportedLang(lang) || !isSupportedChain(chain) || !isSupportedPage(page) || !isPageChainSupported(page, chain)) {
     return <Navigate replace to={buildPreferredPath(location.pathname, location.search)} />
   }
 

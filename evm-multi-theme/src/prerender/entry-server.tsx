@@ -7,18 +7,23 @@ import {
   getChainFullName,
   isSupportedChain,
   isSupportedLang,
-  supportedChains,
   supportedLanguages,
   type SupportedChainKey,
   type SupportedLang,
 } from '@/config/chains'
+import { getPageSupportedChains, isPageChainSupported } from '@/config/routes'
 import { getPageSeo } from '@/config/seo'
 import { DEFAULT_OG_IMAGE, SITE_NAME, buildAbsoluteUrl, buildAlternatePageLinks, buildCanonicalPageUrl, normalizeLocaleTag } from '@/config/site'
 import { buildTokenCreationFaqStructuredData, getTokenCreationFaqVars } from '@/features/tokenCreation/shared/token-creation-seo-data'
+import { buildTokenTaxFaqStructuredData, getTokenTaxFaqVars } from '@/features/tokenTaxCreation/shared/token-tax-seo-data'
 import { createTranslator } from '@/i18n/messages'
 
 export const prerenderRoutes = supportedLanguages.flatMap((language) =>
-  supportedChains.map((chain) => `/${language.key}/${chain.key}/token-creation`),
+  (['token-creation', 'tax-token-creation'] as const).flatMap((page) =>
+    getPageSupportedChains(page)
+      .filter((chain) => chain.seoIndex)
+      .map((chain) => `/${language.key}/${chain.key}/${page}`),
+  ),
 )
 
 export function render(url: string) {
@@ -39,7 +44,7 @@ export function render(url: string) {
 }
 
 function buildDocument(url: string) {
-  const route = resolveTokenCreationRoute(url)
+  const route = resolvePublicRoute(url)
 
   if (!route) {
     return {
@@ -52,15 +57,19 @@ function buildDocument(url: string) {
   const t = createTranslator(route.lang)
   const chainDefinition = getChainDefinition(route.chain)
   const chainLabel = getChainFullName(chainDefinition)
-  const seo = getPageSeo('token-creation', {
+  const seo = getPageSeo(route.page, {
     t,
     chainName: chainLabel,
     tokenType: chainDefinition.tokenType,
+    nativeSymbol: chainDefinition.nativeToken.symbol,
   })
-  const canonicalUrl = buildCanonicalPageUrl(route.lang, route.chain, 'token-creation')
+  const canonicalUrl = buildCanonicalPageUrl(route.lang, route.chain, route.page)
   const imageUrl = buildAbsoluteUrl(DEFAULT_OG_IMAGE)
-  const alternates = buildAlternatePageLinks(route.chain, 'token-creation')
-  const faqStructuredData = buildTokenCreationFaqStructuredData(t, getTokenCreationFaqVars(chainDefinition, chainLabel))
+  const alternates = buildAlternatePageLinks(route.chain, route.page)
+  const faqStructuredData =
+    route.page === 'tax-token-creation'
+      ? buildTokenTaxFaqStructuredData(t, getTokenTaxFaqVars(chainDefinition, chainLabel))
+      : buildTokenCreationFaqStructuredData(t, getTokenCreationFaqVars(chainDefinition, chainLabel))
 
   const headTags = [
     buildMetaTag('description', seo.description),
@@ -93,18 +102,23 @@ function buildDocument(url: string) {
   }
 }
 
-function resolveTokenCreationRoute(url: string) {
+function resolvePublicRoute(url: string) {
   const pathname = new URL(url, 'https://token-tools.pages.dev').pathname
   const segments = pathname.split('/').filter(Boolean)
   const [lang, chain, page] = segments
 
-  if (!isSupportedLang(lang) || !isSupportedChain(chain) || page !== 'token-creation') {
+  if (!isSupportedLang(lang) || !isSupportedChain(chain) || (page !== 'token-creation' && page !== 'tax-token-creation')) {
+    return null
+  }
+
+  if (!isPageChainSupported(page, chain)) {
     return null
   }
 
   return {
     lang: lang as SupportedLang,
     chain: chain as SupportedChainKey,
+    page,
   }
 }
 

@@ -109,7 +109,7 @@ function InteractiveTokenCreationPage() {
               canonicalUrl={buildCanonicalPageUrl(lang, chain, 'token-creation')}
               alternates={buildAlternatePageLinks(chain, 'token-creation')}
               locale={normalizeLocaleTag(lang)}
-              robots={hasThemeQuery ? 'noindex,follow' : 'index,follow'}
+              robots={hasThemeQuery || !chainDefinition.seoIndex ? 'noindex,follow' : 'index,follow'}
             />
             {hasThemeQuery ? null : <StructuredData id="token-creation-faq" data={faqStructuredData} />}
             <div id="token-creation-form">
@@ -214,7 +214,7 @@ function renderTokenCreationLayout({
               canonicalUrl={buildCanonicalPageUrl(lang as never, chain as never, 'token-creation')}
               alternates={buildAlternatePageLinks(chain as never, 'token-creation')}
               locale={normalizeLocaleTag(lang as never)}
-              robots={hasThemeQuery ? 'noindex,follow' : 'index,follow'}
+              robots={hasThemeQuery || !chainDefinition.seoIndex ? 'noindex,follow' : 'index,follow'}
             />
             {hasThemeQuery ? null : <StructuredData id="token-creation-faq" data={faqStructuredData} />}
             <div id="token-creation-form">

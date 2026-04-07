@@ -88,6 +88,28 @@ export function SettingsIcon(props: IconProps) {
   )
 }
 
+export function MoreIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <circle cx="5" cy="12" r="1.2" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" />
+      <circle cx="19" cy="12" r="1.2" fill="currentColor" stroke="none" />
+    </BaseIcon>
+  )
+}
+
+export function ShareIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <circle cx="18" cy="5" r="2.5" />
+      <circle cx="6" cy="12" r="2.5" />
+      <circle cx="18" cy="19" r="2.5" />
+      <path d="M8.25 10.9l7.5-4.7" />
+      <path d="M8.25 13.1l7.5 4.7" />
+    </BaseIcon>
+  )
+}
+
 export function ArrowUpIcon(props: IconProps) {
   return (
     <BaseIcon {...props}>

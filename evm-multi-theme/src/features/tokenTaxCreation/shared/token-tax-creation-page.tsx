@@ -213,7 +213,7 @@ function renderTokenTaxCreationLayout({
               canonicalUrl={buildCanonicalPageUrl(lang as never, chain as never, 'tax-token-creation')}
               alternates={buildAlternatePageLinks(chain as never, 'tax-token-creation')}
               locale={normalizeLocaleTag(lang as never)}
-              robots={hasThemeQuery ? 'noindex,follow' : 'index,follow'}
+              robots={hasThemeQuery || !chainDefinition.seoIndex ? 'noindex,follow' : 'index,follow'}
             />
             {hasThemeQuery ? null : <StructuredData id="token-tax-creation-faq" data={faqStructuredData} />}
             <div id="token-tax-creation-form">

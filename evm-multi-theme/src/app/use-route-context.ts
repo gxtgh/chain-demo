@@ -8,7 +8,7 @@ import {
   type SupportedLang,
   type SupportedPageKey,
 } from '@/config/chains'
-import { buildPagePath } from '@/config/routes'
+import { buildPagePath, resolvePageChain } from '@/config/routes'
 import {
   getThemeColorDefinition,
   type ThemeColorId,
@@ -46,9 +46,9 @@ export function useRouteContext() {
   )
 
   const lang: SupportedLang = resolvedPreferences.lang
-  const chain: SupportedChainKey = resolvedPreferences.chain
   const rawPage = getPageFromPathname(location.pathname)
   const page: SupportedPageKey = isSupportedPage(rawPage) ? rawPage : DEFAULT_PAGE
+  const chain: SupportedChainKey = resolvePageChain(page, resolvedPreferences.chain)
   const hasThemeQuery = Boolean(rawTheme || rawThemeColor)
   const theme: ThemeModeId = resolvedPreferences.theme
   const themeColor: ThemeColorId = resolvedPreferences.themeColor
@@ -78,7 +78,7 @@ export function useRouteContext() {
   ) {
     const nextPreferences = {
       lang: options?.nextLang ?? lang,
-      chain: options?.nextChain ?? chain,
+      chain: resolvePageChain(nextPage, options?.nextChain ?? chain),
       theme: options?.nextTheme ?? theme,
       themeColor: options?.nextThemeColor ?? themeColor,
     }
