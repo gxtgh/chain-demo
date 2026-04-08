@@ -1,6 +1,7 @@
 import { Dropdown } from 'antd'
 import type { MenuProps } from 'antd'
 import type { ReactNode } from 'react'
+import type { DropdownProps } from 'antd'
 
 type TopbarMenuOption = {
   key: string
@@ -15,6 +16,7 @@ type TopbarMenuButtonProps = {
   value: string
   options: TopbarMenuOption[]
   onChange: (value: string) => void
+  placement?: DropdownProps['placement']
   showValue?: boolean
   className?: string
 }
@@ -25,6 +27,7 @@ export function TopbarMenuButton({
   value,
   options,
   onChange,
+  placement = 'bottom',
   showValue = false,
   className = '',
 }: TopbarMenuButtonProps) {
@@ -44,7 +47,7 @@ export function TopbarMenuButton({
   return (
     <Dropdown
       trigger={['click']}
-      placement="bottom"
+      placement={placement}
       classNames={{root: "topbar-menu-popup"}}
       getPopupContainer={(triggerNode) => triggerNode.parentElement ?? document.body}
       menu={{

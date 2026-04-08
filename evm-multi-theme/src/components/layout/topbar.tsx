@@ -35,7 +35,7 @@ export function Topbar({
           <ThemeSwitcher />
         </div>
         <ConnectWalletButton />
-        <ShareMenu className="topbar-share-menu" onShare={onOpenShare} />
+        <ShareMenu className="topbar-share-menu" onShare={onOpenShare} placement="bottomRight" />
         <button className="topbar-utility-button mobile-only" onClick={onOpenMobileControls} type="button" aria-label={t('mobile.controls')}>
           <SettingsIcon />
         </button>

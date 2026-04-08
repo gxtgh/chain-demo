@@ -121,6 +121,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <ShareMenu
                 showValue
                 className="mobile-settings-button"
+                placement="bottom"
                 onShare={() => {
                   setMobileDrawerOpen(false)
                   setShareModalOpen(true)

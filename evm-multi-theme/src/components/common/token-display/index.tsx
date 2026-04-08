@@ -156,11 +156,15 @@ export function TokenDisplay({
       return resolvedTokens.filter((item) => normalizeTokenAddress(item.address) === normalizedAddress)
     }
 
-    const loweredSearch = nextSearch?.toLowerCase()
+    const loweredSearch = String(nextSearch).toLowerCase()
 
     return resolvedTokens.filter((item) => {
-      const haystacks = [item.symbol, item.name, item.address]
-      return haystacks.some((candidate) => candidate?.toLowerCase().includes(loweredSearch))
+      const haystacks: string[] = [item.symbol, item.address]
+      if (item.name) {
+        haystacks.push(item.name)
+      }
+
+      return haystacks.some((candidate) => candidate.toLowerCase().includes(loweredSearch))
     })
   }, [resolvedTokens, searchValue])
 

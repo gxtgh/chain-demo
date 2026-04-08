@@ -5,10 +5,11 @@ import { useRouteContext } from '@/app/use-route-context'
 type ShareMenuProps = {
   className?: string
   onShare: () => void
+  placement?: 'bottom' | 'bottomLeft' | 'bottomRight' | 'top' | 'topLeft' | 'topRight'
   showValue?: boolean
 }
 
-export function ShareMenu({ className, onShare, showValue = true }: ShareMenuProps) {
+export function ShareMenu({ className, onShare, placement = 'bottom', showValue = true }: ShareMenuProps) {
   const { t } = useRouteContext()
 
   return (
@@ -16,6 +17,7 @@ export function ShareMenu({ className, onShare, showValue = true }: ShareMenuPro
       ariaLabel={t('topbar.more')}
       className={className}
       icon={<MoreIcon />}
+      placement={placement}
       onChange={(key) => {
         if (key === 'share') {
           onShare()

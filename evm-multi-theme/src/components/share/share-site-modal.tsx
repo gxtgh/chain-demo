@@ -4,7 +4,7 @@ import { AppModal } from '@/components/common/modal'
 import { ShareIcon } from '@/components/common/topbar-icons'
 import { useRouteContext } from '@/app/use-route-context'
 import { supportedChains } from '@/config/chains'
-import { SITE_NAME, SITE_URL, SUPPORT_EMAIL } from '@/config/site'
+import { SITE_URL, SUPPORT_EMAIL } from '@/config/site'
 import './styles.scss'
 
 type ShareSiteModalProps = {
@@ -15,6 +15,7 @@ type ShareSiteModalProps = {
 export function ShareSiteModal({ onClose, open }: ShareSiteModalProps) {
   const { t, themeColor } = useRouteContext()
   const qrCodeRef = useRef<HTMLDivElement | null>(null)
+  const sharePanelRef = useRef<HTMLElement | null>(null)
   const shareUrl = SITE_URL
   const featuredChains = supportedChains
     .filter((item) => ['bsc', 'eth', 'base', 'x-layer', 'polygon', 'arbitrum'].includes(item.key))
@@ -33,40 +34,10 @@ export function ShareSiteModal({ onClose, open }: ShareSiteModalProps) {
     }
   }
 
-  async function shareOrDownloadImage() {
+  async function saveScreenshot() {
     try {
-      const imageBlob = await createSharePosterImage({
-        appName: t('app.name'),
-        chainSummary,
-        description: t('share.description'),
-        email: SUPPORT_EMAIL,
-        eyebrow: t('share.eyebrow'),
-        featureNoCode: t('share.featureNoCode'),
-        featureTokens: t('share.featureTokens'),
-        featuredChains: featuredChains.join(' / '),
-        qrSvg: qrCodeRef.current?.querySelector('svg') ?? null,
-        qrText: t('share.qrText'),
-        qrTitle: t('share.qrTitle'),
-        shareUrl,
-        themeColor,
-        title: t('share.title'),
-        toolsText: t('share.toolsText'),
-        toolsTitle: t('share.toolsTitle'),
-        visualLabel: t('share.visualLabel'),
-      })
-      const file = new File([imageBlob], 'web3-token-share.png', { type: imageBlob.type })
-      const shareData: ShareData = {
-        files: [file],
-        title: SITE_NAME,
-        text: t('share.description'),
-      }
-
-      if (navigator.canShare?.(shareData)) {
-        await navigator.share(shareData)
-        return
-      }
-
-      downloadBlob(imageBlob, file.name)
+      const imageBlob = await createElementScreenshot(sharePanelRef.current)
+      downloadBlob(imageBlob, 'web3-token-screenshot.png')
       message.success(t('share.downloadSuccess'))
     } catch {
       message.error(t('share.downloadFailed'))
@@ -84,14 +55,14 @@ export function ShareSiteModal({ onClose, open }: ShareSiteModalProps) {
       footer={
         <>
           <Button className="share-modal-close-button" onClick={onClose}>{t('share.close')}</Button>
-          <Button className="share-modal-screenshot-button" onClick={() => void shareOrDownloadImage()}>{t('share.downloadImage')}</Button>
+          <Button className="share-modal-screenshot-button" onClick={() => void saveScreenshot()}>{t('share.downloadImage')}</Button>
           <Button className="share-modal-copy-button" type="primary" onClick={() => void copyShareLink()}>
             {t('share.copyLink')}
           </Button>
         </>
       }
     >
-      <section className="share-site-panel">
+      <section className="share-site-panel" ref={sharePanelRef}>
         <div className="share-site-copy">
           <p className="share-site-eyebrow">{t('share.eyebrow')}</p>
           <h2>{t('share.title')}</h2>
@@ -120,6 +91,8 @@ export function ShareSiteModal({ onClose, open }: ShareSiteModalProps) {
         </div>
 
         <div className={`share-site-visual share-site-visual-${themeColor}`}>
+          <div aria-hidden="true" className="share-site-visual-grid" />
+          <div aria-hidden="true" className="share-site-visual-glow" />
           <div className="share-orbit share-orbit-a" />
           <div className="share-orbit share-orbit-b" />
           <div className="share-hero-card share-hero-card-main">
@@ -147,272 +120,185 @@ export function ShareSiteModal({ onClose, open }: ShareSiteModalProps) {
   )
 }
 
-type SharePosterData = {
-  appName: string
-  chainSummary: string
-  description: string
-  email: string
-  eyebrow: string
-  featureNoCode: string
-  featureTokens: string
-  featuredChains: string
-  qrSvg: SVGSVGElement | null
-  qrText: string
-  qrTitle: string
-  shareUrl: string
-  themeColor: string
-  title: string
-  toolsText: string
-  toolsTitle: string
-  visualLabel: string
-}
+async function createElementScreenshot(element: HTMLElement | null) {
+  if (!element) {
+    throw new Error('Missing screenshot element.')
+  }
 
-async function createSharePosterImage(data: SharePosterData) {
   await document.fonts?.ready
 
-  const width = 1200
-  const height = 760
+  const backgroundSource = element.closest('.ant-modal-content')
+  const canvas = await renderElementToCanvas(
+    element,
+    backgroundSource instanceof HTMLElement ? backgroundSource : null,
+  )
+  return await canvasToBlob(canvas)
+}
+
+async function renderElementToCanvas(element: HTMLElement, backgroundSource: HTMLElement | null) {
+  const rect = element.getBoundingClientRect()
   const scale = Math.min(window.devicePixelRatio || 1, 2)
+  const clonedElement = element.cloneNode(true) as HTMLElement
+
+  inlineComputedStyles(element, clonedElement)
+  stabilizeExportStyles(clonedElement)
+
+  const exportPadding = 28
+  const exportWidth = Math.ceil(rect.width + exportPadding * 2)
+  const exportHeight = Math.ceil(rect.height + exportPadding * 2)
+  const backgroundStyle = backgroundSource ? window.getComputedStyle(backgroundSource) : null
+  const exportBackground = getExportBackgroundStyle(backgroundSource)
+
+  const wrapper = document.createElement('div')
+  wrapper.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml')
+  wrapper.style.width = `${exportWidth}px`
+  wrapper.style.height = `${exportHeight}px`
+  wrapper.style.display = 'block'
+  wrapper.style.boxSizing = 'border-box'
+  wrapper.style.padding = `${exportPadding}px`
+  wrapper.style.overflow = 'hidden'
+  wrapper.style.background = exportBackground.background
+  wrapper.style.backgroundColor = exportBackground.backgroundColor
+  wrapper.style.borderRadius = backgroundStyle?.borderRadius || '28px'
+
+  clonedElement.style.width = `${Math.ceil(rect.width)}px`
+  clonedElement.style.height = `${Math.ceil(rect.height)}px`
+  clonedElement.style.margin = '0'
+  wrapper.appendChild(clonedElement)
+
+  const serialized = new XMLSerializer().serializeToString(wrapper)
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${exportWidth}" height="${exportHeight}" viewBox="0 0 ${exportWidth} ${exportHeight}">
+      <foreignObject width="100%" height="100%">${serialized}</foreignObject>
+    </svg>
+  `
+
+  const image = await loadImage(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`)
   const canvas = document.createElement('canvas')
-  canvas.width = width * scale
-  canvas.height = height * scale
+  canvas.width = Math.ceil(exportWidth * scale)
+  canvas.height = Math.ceil(exportHeight * scale)
   const context = canvas.getContext('2d')
 
   if (!context) {
     throw new Error('Canvas context unavailable.')
   }
 
-  const palette = getPosterPalette(data.themeColor)
   context.scale(scale, scale)
-  drawPosterBackground(context, width, height, palette)
-  drawPosterCopy(context, data, palette)
-  await drawPosterVisual(context, data, palette)
-
-  return await canvasToBlob(canvas)
+  context.drawImage(image, 0, 0, exportWidth, exportHeight)
+  return canvas
 }
 
-type PosterPalette = ReturnType<typeof getPosterPalette>
-
-function getPosterPalette(themeColor: string) {
-  const accentMap: Record<string, { accent: string; accentStrong: string; glow: string }> = {
-    green: { accent: '#00d18f', accentStrong: '#23f2bb', glow: 'rgba(0, 209, 143, 0.28)' },
-    purple: { accent: '#a974ff', accentStrong: '#c59cff', glow: 'rgba(169, 116, 255, 0.28)' },
-    orange: { accent: '#ff6b2d', accentStrong: '#ff9a63', glow: 'rgba(255, 107, 45, 0.28)' },
-  }
+function getExportBackgroundStyle(backgroundSource: HTMLElement | null) {
+  const themeHost = document.body
+  const themeStyle = window.getComputedStyle(themeHost)
+  const backgroundStyle = backgroundSource ? window.getComputedStyle(backgroundSource) : null
+  const themeAccent = themeStyle.getPropertyValue('--theme-accent').trim() || '#ff6b2d'
+  const themeAccentStrong = themeStyle.getPropertyValue('--theme-accent-strong').trim() || '#ff9d67'
+  const themeSurfaceStrong =
+    themeStyle.getPropertyValue('--theme-surface-strong').trim() ||
+    backgroundStyle?.backgroundColor ||
+    'rgba(255, 255, 255, 0.96)'
 
   return {
-    ...(accentMap[themeColor] ?? accentMap.orange),
-    bg: '#10101a',
-    card: '#292a34',
-    cardSoft: '#242630',
-    line: 'rgba(255, 255, 255, 0.16)',
-    muted: 'rgba(246, 239, 233, 0.68)',
-    text: '#fff7ef',
+    background: [
+      `radial-gradient(circle at 18% 12%, ${withAlpha(themeAccent, 0.16)}, transparent 28%)`,
+      `radial-gradient(circle at 82% 4%, ${withAlpha(themeAccentStrong, 0.12)}, transparent 26%)`,
+      themeSurfaceStrong,
+    ].join(', '),
+    backgroundColor: themeSurfaceStrong,
   }
 }
 
-function drawPosterBackground(context: CanvasRenderingContext2D, width: number, height: number, palette: PosterPalette) {
-  context.fillStyle = palette.bg
-  context.fillRect(0, 0, width, height)
+function withAlpha(color: string, alpha: number) {
+  const normalized = color.trim()
 
-  const glow = context.createRadialGradient(850, 130, 20, 850, 130, 420)
-  glow.addColorStop(0, palette.glow)
-  glow.addColorStop(1, 'rgba(0, 0, 0, 0)')
-  context.fillStyle = glow
-  context.fillRect(0, 0, width, height)
+  if (normalized.startsWith('#')) {
+    const hex = normalized.slice(1)
+    const isShort = hex.length === 3
+    const isLong = hex.length === 6
 
-  const lowerGlow = context.createRadialGradient(280, 640, 20, 280, 640, 360)
-  lowerGlow.addColorStop(0, palette.glow)
-  lowerGlow.addColorStop(1, 'rgba(0, 0, 0, 0)')
-  context.fillStyle = lowerGlow
-  context.fillRect(0, 0, width, height)
-
-  context.strokeStyle = 'rgba(255, 255, 255, 0.04)'
-  context.lineWidth = 1
-  for (let x = 0; x <= width; x += 56) {
-    context.beginPath()
-    context.moveTo(x, 0)
-    context.lineTo(x + 80, height)
-    context.stroke()
-  }
-  for (let y = 0; y <= height; y += 56) {
-    context.beginPath()
-    context.moveTo(0, y)
-    context.lineTo(width, y - 80)
-    context.stroke()
-  }
-}
-
-function drawPosterCopy(context: CanvasRenderingContext2D, data: SharePosterData, palette: PosterPalette) {
-  context.fillStyle = palette.accent
-  context.font = '700 18px "SF Pro Display", "PingFang SC", sans-serif'
-  context.fillText(data.eyebrow.toUpperCase(), 72, 82)
-
-  context.fillStyle = palette.text
-  context.font = '800 78px "SF Pro Display", "PingFang SC", sans-serif'
-  drawWrappedText(context, data.title, 72, 160, 430, 78, 2)
-
-  context.fillStyle = palette.muted
-  context.font = '500 20px "SF Pro Display", "PingFang SC", sans-serif'
-  drawWrappedText(context, data.description, 72, 330, 470, 34, 3)
-
-  const points = [data.featureTokens, data.chainSummary, data.featureNoCode]
-  points.forEach((point, index) => {
-    const y = 440 + index * 72
-    drawRoundRect(context, 72, y, 470, 54, 18, 'rgba(255, 255, 255, 0.08)', palette.line)
-    context.fillStyle = palette.accent
-    context.beginPath()
-    context.arc(94, y + 27, 6, 0, Math.PI * 2)
-    context.fill()
-    context.fillStyle = palette.text
-    context.font = '700 17px "SF Pro Display", "PingFang SC", sans-serif'
-    drawWrappedText(context, point, 114, y + 22, 400, 23, 2)
-  })
-
-  drawRoundRect(context, 72, 662, 470, 58, 18, 'rgba(255, 255, 255, 0.08)', palette.line)
-  context.fillStyle = palette.accent
-  context.font = '800 13px "SF Pro Display", "PingFang SC", sans-serif'
-  context.fillText(data.qrTitle.toUpperCase(), 98, 688)
-  context.fillStyle = palette.text
-  context.font = '700 18px "SF Pro Display", "PingFang SC", sans-serif'
-  context.fillText(data.shareUrl, 98, 713)
-}
-
-async function drawPosterVisual(context: CanvasRenderingContext2D, data: SharePosterData, palette: PosterPalette) {
-  drawRoundRect(context, 610, 96, 520, 560, 34, 'rgba(255, 255, 255, 0.06)', palette.line)
-  context.strokeStyle = 'rgba(255, 255, 255, 0.07)'
-  context.lineWidth = 1
-  for (let x = 630; x < 1120; x += 54) {
-    context.beginPath()
-    context.moveTo(x, 112)
-    context.lineTo(x - 70, 640)
-    context.stroke()
-  }
-  for (let y = 126; y < 640; y += 54) {
-    context.beginPath()
-    context.moveTo(626, y)
-    context.lineTo(1110, y - 46)
-    context.stroke()
-  }
-
-  drawRoundRect(context, 660, 152, 410, 76, 22, 'rgba(255, 255, 255, 0.1)', palette.line)
-  context.fillStyle = palette.muted
-  context.font = '800 14px "SF Pro Display", sans-serif'
-  context.fillText(data.visualLabel.toUpperCase(), 684, 195)
-  context.fillStyle = palette.text
-  context.font = '800 24px "SF Pro Display", "PingFang SC", sans-serif'
-  context.fillText(data.appName, 884, 195)
-  drawShareGlyph(context, 1035, 190, palette.accent)
-
-  drawRoundRect(context, 775, 320, 350, 118, 22, 'rgba(255, 255, 255, 0.1)', palette.line)
-  context.fillStyle = palette.text
-  context.font = '800 25px "SF Pro Display", "PingFang SC", sans-serif'
-  context.fillText(data.toolsTitle, 802, 366)
-  context.fillStyle = palette.muted
-  context.font = '700 16px "SF Pro Display", "PingFang SC", sans-serif'
-  drawWrappedText(context, data.toolsText, 802, 396, 286, 24, 2)
-
-  drawRoundRect(context, 678, 506, 346, 110, 22, 'rgba(255, 255, 255, 0.1)', palette.line)
-  context.fillStyle = palette.text
-  context.font = '800 24px "SF Pro Display", "PingFang SC", sans-serif'
-  context.fillText(data.qrTitle, 706, 548)
-  context.fillStyle = palette.muted
-  context.font = '700 15px "SF Pro Display", sans-serif'
-  drawWrappedText(context, data.featuredChains, 706, 580, 280, 24, 2)
-
-  if (data.qrSvg) {
-    const qrImage = await loadSvgImage(data.qrSvg)
-    drawRoundRect(context, 882, 520, 118, 118, 18, '#ffffff', 'rgba(255, 255, 255, 0.32)')
-    context.drawImage(qrImage, 892, 530, 98, 98)
-  }
-}
-
-function drawShareGlyph(context: CanvasRenderingContext2D, x: number, y: number, color: string) {
-  context.strokeStyle = color
-  context.fillStyle = color
-  context.lineWidth = 4
-  context.beginPath()
-  context.moveTo(x - 18, y)
-  context.lineTo(x + 12, y - 18)
-  context.moveTo(x - 18, y)
-  context.lineTo(x + 12, y + 18)
-  context.stroke()
-  ;[
-    [x - 20, y],
-    [x + 14, y - 20],
-    [x + 14, y + 20],
-  ].forEach(([cx, cy]) => {
-    context.beginPath()
-    context.arc(cx, cy, 6, 0, Math.PI * 2)
-    context.fill()
-  })
-}
-
-function drawRoundRect(
-  context: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  radius: number,
-  fill: string,
-  stroke?: string,
-) {
-  context.beginPath()
-  context.roundRect(x, y, width, height, radius)
-  context.fillStyle = fill
-  context.fill()
-  if (stroke) {
-    context.strokeStyle = stroke
-    context.stroke()
-  }
-}
-
-function drawWrappedText(
-  context: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number,
-  maxLines = Number.POSITIVE_INFINITY,
-) {
-  const segments = segmentText(text)
-  let line = ''
-  let lines = 0
-
-  for (const segment of segments) {
-    const testLine = line ? `${line}${segment}` : segment
-    if (context.measureText(testLine).width > maxWidth && line) {
-      context.fillText(line.trim(), x, y + lines * lineHeight)
-      line = segment
-      lines += 1
-      if (lines >= maxLines) return
-    } else {
-      line = testLine
+    if (!isShort && !isLong) {
+      return normalized
     }
+
+    const expanded = isShort
+      ? hex.split('').map((char) => `${char}${char}`).join('')
+      : hex
+    const red = Number.parseInt(expanded.slice(0, 2), 16)
+    const green = Number.parseInt(expanded.slice(2, 4), 16)
+    const blue = Number.parseInt(expanded.slice(4, 6), 16)
+
+    return `rgba(${red}, ${green}, ${blue}, ${alpha})`
   }
 
-  if (line && lines < maxLines) {
-    context.fillText(line.trim(), x, y + lines * lineHeight)
+  const rgbMatch = normalized.match(/^rgba?\(([^)]+)\)$/i)
+  if (!rgbMatch) {
+    return normalized
   }
+
+  const [red = '255', green = '255', blue = '255'] = rgbMatch[1]
+    .split(',')
+    .map((part) => part.trim())
+
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`
 }
 
-function segmentText(text: string) {
-  const segments = text.match(/[\u4e00-\u9fa5]|[^\u4e00-\u9fa5\s]+|\s+/g)
-  return segments ?? [text]
+function stabilizeExportStyles(root: HTMLElement) {
+  const themeStyle = window.getComputedStyle(document.body)
+  const isDark = document.body.classList.contains('app-theme-dark')
+  const themeSurfaceStrong = themeStyle.getPropertyValue('--theme-surface-strong').trim() || 'rgba(255, 255, 255, 0.96)'
+  const themeLine = themeStyle.getPropertyValue('--theme-line').trim() || 'rgba(76, 40, 20, 0.1)'
+  const exportCardBackground = isDark ? themeSurfaceStrong : 'rgba(255, 255, 255, 0.96)'
+  const exportCardShadow = isDark
+    ? '0 24px 56px rgba(0, 0, 0, 0.34), 0 10px 24px rgba(0, 0, 0, 0.2)'
+    : '0 18px 42px rgba(83, 45, 23, 0.08)'
+
+  root.querySelectorAll<HTMLElement>('.share-hero-card').forEach((card) => {
+    card.style.backdropFilter = 'none'
+    card.style.setProperty('-webkit-backdrop-filter', 'none')
+    card.style.backgroundColor = exportCardBackground
+    card.style.backgroundImage = 'none'
+    card.style.borderColor = themeLine
+    card.style.boxShadow = exportCardShadow
+  })
 }
 
-async function loadSvgImage(svgElement: SVGSVGElement) {
-  const serializedSvg = new XMLSerializer().serializeToString(svgElement)
-  const blob = new Blob([serializedSvg], { type: 'image/svg+xml;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
+function inlineComputedStyles(source: Element, target: Element) {
+  const sourceElements = [source, ...Array.from(source.querySelectorAll('*'))]
+  const targetElements = [target, ...Array.from(target.querySelectorAll('*'))]
 
-  try {
-    return await loadImage(url)
-  } finally {
-    URL.revokeObjectURL(url)
-  }
+  sourceElements.forEach((sourceElement, index) => {
+    const targetElement = targetElements[index]
+    if (!(sourceElement instanceof HTMLElement || sourceElement instanceof SVGElement) || !targetElement) {
+      return
+    }
+
+    const sourceStyle = window.getComputedStyle(sourceElement)
+    const targetStyle = targetElement instanceof HTMLElement || targetElement instanceof SVGElement ? targetElement.style : null
+
+    if (!targetStyle) {
+      return
+    }
+
+    for (const propertyName of sourceStyle) {
+      targetStyle.setProperty(
+        propertyName,
+        sourceStyle.getPropertyValue(propertyName),
+        sourceStyle.getPropertyPriority(propertyName),
+      )
+    }
+  })
+}
+
+function loadImage(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image()
+    image.crossOrigin = 'anonymous'
+    image.decoding = 'sync'
+    image.onload = () => resolve(image)
+    image.onerror = () => reject(new Error(`Failed to load image: ${src}`))
+    image.src = src
+  })
 }
 
 function loadImage(src: string) {
