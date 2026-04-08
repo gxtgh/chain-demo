@@ -10,6 +10,7 @@ import {
   supportedLanguages,
   type SupportedChainKey,
   type SupportedLang,
+  type SupportedPageKey,
 } from '@/config/chains'
 import { getPageSupportedChains, isPageChainSupported } from '@/config/routes'
 import { getPageSeo } from '@/config/seo'
@@ -118,7 +119,7 @@ function resolvePublicRoute(url: string) {
   return {
     lang: lang as SupportedLang,
     chain: chain as SupportedChainKey,
-    page,
+    page: page as SupportedPageKey,
   }
 }
 
