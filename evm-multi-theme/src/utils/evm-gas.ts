@@ -37,3 +37,18 @@ export async function getDynamicGasOverrides(
 
   return overrides
 }
+
+export function estimateMaxTransactionCost(gasOverrides: Partial<GasOverrides>) {
+  const creationFee = gasOverrides.value ?? 0n
+  const gasLimit = gasOverrides.gasLimit ?? 0n
+
+  if (gasOverrides.maxFeePerGas) {
+    return creationFee + gasLimit * gasOverrides.maxFeePerGas
+  }
+
+  if (gasOverrides.gasPrice) {
+    return creationFee + gasLimit * gasOverrides.gasPrice
+  }
+
+  return creationFee
+}

@@ -4,6 +4,7 @@ import { DEFAULT_PAGE, isSupportedChain, isSupportedLang, isSupportedPage } from
 import { AppShell } from '@/components/layout/app-shell'
 import { TokenCreationPage } from '@/features/tokenCreation/shared/token-creation-page'
 import { TokenTaxCreationPage } from '@/features/tokenTaxCreation/shared/token-tax-creation-page'
+import { TokenVanityCreationPage } from '@/features/tokenVanityCreation/shared/token-vanity-creation-page'
 import { ProjectAcceptancePage } from '@/features/projectAcceptance/pages/project-acceptance-page'
 import { resolveAppPreferences } from './preferences'
 
@@ -55,6 +56,7 @@ export function AppRouter() {
       <Route path="/:lang/:chain" element={<RouteGate />}>
         <Route path="token-creation" element={<TokenCreationPage />} />
         <Route path="tax-token-creation" element={<TokenTaxCreationPage />} />
+        <Route path="token-vanity-creation" element={<TokenVanityCreationPage />} />
         <Route path="project-acceptance" element={<ProjectAcceptancePage />} />
         <Route path="*" element={<NestedFallback />} />
       </Route>

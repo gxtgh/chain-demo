@@ -238,6 +238,7 @@ body.app-theme.app-theme-dark {
 .operation-warning-footer {
   display: flex;
   gap: 0.75rem;
+  width: 100%;
 }
 
 .operation-warning-footer .ant-btn {
@@ -261,6 +262,85 @@ body.app-theme.app-theme-dark {
   background: color-mix(in srgb, var(--theme-surface) 98%, transparent) !important;
 }
 
+@media (max-width: 768px) {
+  .operation-warning-modal {
+    .ant-modal {
+      max-width: calc(100vw - 24px);
+      margin: 0 auto;
+    }
+
+    .ant-modal-content {
+      max-height: calc(100vh - 24px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ant-modal-header {
+      padding: 1rem 1rem 0.875rem;
+      margin: -20px -20px 0;
+    }
+
+    .ant-modal-body {
+      padding-top: 1rem;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .ant-modal-close {
+      top: 12px;
+      right: 16px;
+    }
+  }
+
+  .operation-warning-title {
+    align-items: flex-start;
+  }
+
+  .operation-warning-icon {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.95rem;
+  }
+
+  .operation-warning-title-copy {
+    padding-right: 1.5rem;
+  }
+
+  .operation-warning-title-text {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .operation-warning-body {
+    gap: 0.75rem;
+  }
+
+  .operation-warning-label {
+    font-size: 0.8125rem;
+  }
+
+  .operation-warning-item {
+    gap: 0.625rem;
+    font-size: 0.8125rem;
+    line-height: 1.55;
+  }
+
+  .operation-warning-note {
+    font-size: 0.8125rem;
+  }
+
+  .operation-warning-footer {
+    flex-direction: column-reverse;
+    padding-top: 0.25rem;
+  }
+
+  .operation-warning-footer .ant-btn {
+    flex: 0 0 auto;
+    height: 3.125rem;
+    border-radius: 0.95rem;
+  }
+}
+
 .operation-warning-footer .ant-btn-primary {
   border: none;
   background: linear-gradient(135deg, var(--theme-accent), var(--theme-accent-strong));
@@ -271,7 +351,7 @@ body.app-theme.app-theme-dark {
   background: linear-gradient(135deg, var(--theme-accent-strong), var(--theme-accent)) !important;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .operation-warning-modal {
     .ant-modal {
       max-width: calc(100vw - 24px);
@@ -286,7 +366,7 @@ body.app-theme.app-theme-dark {
     }
 
     .ant-modal-footer {
-      padding: 0.875rem 1rem 1rem;
+      padding: 0.875rem 0 1rem;
     }
   }
 

@@ -60,6 +60,23 @@ export function getPageSeo(page: SupportedPageKey, context: SeoContext): SeoDefi
     }
   }
 
+  if (page === 'token-vanity-creation') {
+    return {
+      title: context.t('tokenVanityCreation.seo.title', {
+        chain: context.chainName,
+        tokenType: context.tokenType,
+      }),
+      description: context.t('tokenVanityCreation.seo.description', {
+        chain: context.chainName,
+        tokenType: context.tokenType,
+      }),
+      keywords: context.t('tokenVanityCreation.seo.keywords', {
+        chain: context.chainName,
+        tokenType: context.tokenType,
+      }),
+    }
+  }
+
   return {
     title: context.t('acceptance.seo.title', { chain: context.chainName }),
     description: context.t('acceptance.seo.description', { chain: context.chainName }),

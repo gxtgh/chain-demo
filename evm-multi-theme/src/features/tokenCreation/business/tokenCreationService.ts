@@ -1,7 +1,7 @@
 import { BrowserProvider, Contract, Interface, JsonRpcProvider } from 'ethers'
 import { getChainContractAddress, getChainRpcUrl, type ChainDefinition } from '@/config/chains'
 import tokenFactoryAbi from '@/assets/abi/TokenFactory.json'
-import { getDynamicGasOverrides } from '@/utils/evm-gas'
+import { estimateMaxTransactionCost, getDynamicGasOverrides } from '@/utils/evm-gas'
 import type { TokenCreationSubmitResult, TokenCreationSubmitValues } from './model'
 
 const factoryInterface = new Interface(tokenFactoryAbi)
@@ -33,6 +33,7 @@ export async function submitTokenCreation(
 
   const browserProvider = new BrowserProvider(window.ethereum as never)
   const signer = await browserProvider.getSigner()
+  const signerAddress = await signer.getAddress()
   const tokenFactoryAddress = getChainContractAddress(chainDefinition, 'tokenFactory')
 
   if (!tokenFactoryAddress) {
@@ -42,6 +43,7 @@ export async function submitTokenCreation(
   const contract = new Contract(tokenFactoryAddress, tokenFactoryAbi, signer)
   const creationFee = (await contract.creationFee()) as bigint
   const totalSupply = BigInt(values.totalSupply)
+  const walletBalance = await browserProvider.getBalance(signerAddress)
 
   const gasEstimate = (await contract.createToken.estimateGas(
     values.name,
@@ -54,6 +56,11 @@ export async function submitTokenCreation(
   const gasLimit = (gasEstimate * 12n) / 10n
   options?.onWaitingWallet?.()
   const gasOverrides = await getDynamicGasOverrides(browserProvider, chainDefinition, gasLimit, creationFee)
+  const estimatedMaxCost = estimateMaxTransactionCost(gasOverrides)
+
+  if (walletBalance < estimatedMaxCost) {
+    throw new Error('tokenCreation.errors.insufficientBalance')
+  }
 
   const transaction = await contract.createToken(values.name, values.symbol, values.decimals, totalSupply, gasOverrides)
 

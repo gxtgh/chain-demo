@@ -161,7 +161,7 @@ body.app-theme.app-theme-dark {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .app-modal {
     .ant-modal {
       max-width: calc(100vw - 24px);
@@ -182,5 +182,9 @@ body.app-theme.app-theme-dark {
 
   .app-modal-footer-layout {
     flex-direction: column-reverse;
+  }
+
+  .app-modal-footer-layout > .ant-btn {
+    flex: 0 0 auto;
   }
 }

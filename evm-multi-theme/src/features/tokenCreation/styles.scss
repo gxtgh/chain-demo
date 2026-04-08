@@ -735,12 +735,12 @@
   .token-success-section {
     display: grid;
     gap: 14px;
-    padding: 18px;
-    border: 1px solid color-mix(in srgb, var(--theme-accent) 16%, var(--theme-line));
-    border-radius: 20px;
-    background:
-      linear-gradient(180deg, color-mix(in srgb, var(--theme-accent) 4%, transparent), transparent 100%),
-      color-mix(in srgb, var(--theme-surface) 90%, transparent);
+    // padding: 18px;
+    // border: 1px solid color-mix(in srgb, var(--theme-accent) 16%, var(--theme-line));
+    // border-radius: 20px;
+    // background:
+    //   linear-gradient(180deg, color-mix(in srgb, var(--theme-accent) 4%, transparent), transparent 100%),
+    //   color-mix(in srgb, var(--theme-surface) 90%, transparent);
   }
 
   .token-success-copy {

@@ -35,6 +35,7 @@ export const zhCnMessages = {
   nav: {
     tokenCreation: '标准代币',
     tokenTaxCreation: '税费代币',
+    tokenVanityCreation: '靓号代币',
     projectAcceptance: '项目验收',
   },
   topbar: {
@@ -501,6 +502,229 @@ export const zhCnMessages = {
       successTitle: '税费代币创建成功',
       errorTitle: '税费代币创建失败',
       errorDescription: '本次交易没有在链上成功完成，请检查钱包状态、网络和余额后再试。',
+    },
+  },
+  tokenVanityCreation: {
+    eyebrow: '',
+    title: '创建靓号代币',
+    description: '创建 {{chain}} 靓号代币，选择独特且吸引人的数字组合使您的代币更加突出，让您的代币在众多项目中脱颖而出！',
+    seo: {
+      title: '创建 {{chain}} {{tokenType}} 靓号代币 | 自定义合约地址',
+      description: '读取工厂的 tokenCreationCode，本地搜索前缀或后缀靓号地址，再发起 {{chain}} {{tokenType}} 靓号代币创建。',
+      keywords: '靓号代币, CREATE2 发币, 合约地址定制, {{chain}} {{tokenType}}',
+    },
+    fields: {
+      name: '代币全称',
+      symbol: '代币简称',
+      totalSupply: '发行量',
+      decimals: '精度',
+      prefix: '地址前缀',
+      suffix: '地址后缀',
+    },
+    labels: {
+      creationFee: '创建费',
+      generation: '靓号生成',
+      generationDescription:
+        '靓号地址（Vanity Address）是基于 {{chainFullName}}（{{chainName}}）底层地址生成机制的一种定制化扩展功能。{{chainName}} 地址遵循 EVM 标准，由 0x 前缀及 40 位十六进制字符组成，其生成过程源于公钥哈希，具备高度随机性与唯一性。',
+      preview: '地址预览',
+      difficulty: '难度',
+      generated: '已尝试',
+      estimated: '预计耗时',
+      speed: '生成速度',
+      status: '当前状态',
+      predictedAddress: '靓号地址',
+      salt: '部署盐值',
+    },
+    placeholders: {
+      name: '请输入代币全称',
+      symbol: '请输入代币简称',
+      totalSupply: '请输入发行量',
+      decimals: '请输入精度',
+      prefix: '前缀',
+      suffix: '后缀',
+    },
+    tooltips: {
+      name: '靓号地址会绑定当前代币参数，修改名称、简称、精度或发行量后需要重新生成。',
+      symbol: '建议使用项目常用简称，链上部署完成后会写入代币合约。',
+      totalSupply: '用于计算 CREATE2 初始化代码哈希，修改后必须重新生成靓号地址。',
+      decimals: '用于计算部署参数，推荐与标准代币保持一致。',
+      prefix: '输入 0-9 和 a-f 的十六进制字符，前缀和后缀至少填写一项，总长度不能超过 40。',
+      suffix: '输入 0-9 和 a-f 的十六进制字符，前缀和后缀至少填写一项，总长度不能超过 40。',
+      creationFee: '创建费会从靓号工厂合约读取，提交部署交易时仍需另外支付链上 Gas。',
+    },
+    actions: {
+      generate: '生成靓号',
+      regenerate: '重新生成',
+      stop: '停止',
+      submit: '创建靓号代币',
+      submitting: '提交中...',
+      retry: '重试',
+      close: '关闭',
+    },
+    status: {
+      loadingFactory: '正在读取靓号工厂配置...',
+      factoryUnavailable: '当前链暂未读取到靓号工厂或 tokenCreationCode，请稍后再试。',
+      idle: '未开始',
+      searching: '搜索中',
+      success: '已命中',
+      stopped: '已停止',
+      noMatch: '尚未生成靓号地址',
+      readyToCreate: '已生成靓号地址，请执行创建靓号代币操作',
+    },
+    steps: {
+      preparing: '准备靓号代币参数',
+      waitingWallet: '等待钱包确认',
+      pending: '等待链上确认',
+      completed: '创建完成',
+      failed: '创建失败',
+    },
+    modal: {
+      progressTitle: '正在创建靓号代币',
+      successTitle: '靓号代币创建成功',
+      errorTitle: '靓号代币创建失败',
+    },
+    success: {
+      banner: '靓号代币创建成功',
+      tokenAddress: '代币合约',
+      txHash: '交易哈希',
+      predictedAddress: '靓号地址',
+      salt: '部署盐值',
+    },
+    successSummary: {
+      title: '靓号部署结果',
+      description: '靓号搜索结果与链上部署信息已经汇总，建议立即核对目标地址和交易哈希。',
+      chain: '链',
+      name: '代币全称',
+      symbol: '代币简称',
+      totalSupply: '发行量',
+      decimals: '精度',
+      prefix: '前缀',
+      suffix: '后缀',
+      predictedAddress: '靓号地址',
+      salt: '部署盐值',
+      tokenAddress: '代币合约',
+      txHash: '交易哈希',
+    },
+    overview: {
+      title: '靓号代币',
+      description: '该流程适用于希望在部署时获得更高地址识别度的 {{tokenType}} 代币发行场景。',
+      highlights: {
+        create2: 'CREATE2 部署',
+        prefix: '前缀/后缀自定义',
+        noCode: '无需手写合约',
+      },
+      cards: {
+        identity: {
+          title: '地址识别',
+          description:
+            '靓号地址适合用于品牌展示、活动编号或社区传播场景，让代币合约地址本身具备更高识别度和记忆点。',
+        },
+        binding: {
+          title: '参数绑定',
+          description:
+            '靓号搜索结果与代币名称、简称、精度、发行量以及部署钱包地址强绑定。只要其中任一参数发生变化，原先生成的靓号地址就需要重新计算。',
+        },
+        searchCost: {
+          title: '搜索成本',
+          description:
+            '前缀或后缀要求越长，匹配难度越高，搜索耗时也会明显增加。适合愿意用本地搜索时间换取地址展示效果的发行场景。',
+        },
+      },
+    },
+    nextSteps: {
+      title: '下一步建议',
+      description: '靓号代币部署完成后，建议继续完成以下步骤，确保靓号结果、链上信息和后续交易准备保持一致。',
+      addWallet: {
+        title: '添加到钱包',
+        description: '将代币地址、简称和精度导入常用钱包，确认资产展示与代币参数一致。',
+      },
+      verifyAddress: {
+        title: '核验靓号结果',
+        description: '在区块浏览器中核对最终合约地址与交易哈希，确认链上结果和本地生成的靓号地址一致后再对外展示。',
+      },
+      addLiquidity: {
+        title: '创建流动性（DEX）',
+        description: '如果计划开启交易，需在目标 DEX 建立交易对并添加首笔流动性，靓号地址本身不会自动完成这部分流程。',
+      },
+      metadata: {
+        title: '完善 Logo 与代币资料',
+        description: '补充 Logo、简介、官网和社媒链接，让靓号地址与项目展示资料形成统一的对外识别效果。',
+      },
+      note: '靓号地址只改变合约地址的展示特征，不替代钱包导入、链上核验、流动性配置和资料提交等常规上线步骤。',
+    },
+    seoBody: {
+      highlights: {
+        title: '适用场景',
+        brand: {
+          title: '强调品牌展示的项目',
+          description:
+            '当代币合约地址本身也是品牌传播、活动命名或社区记忆点的一部分时，靓号代币流程更适合在 {{chain}} 上做统一展示。',
+        },
+        workflow: {
+          title: '需要可控部署流程的团队',
+          description:
+            '当前流程先在本地搜索符合条件的地址，再发起链上部署，比分散使用外部脚本更适合需要稳定交付和团队协作的发币场景。',
+        },
+        boundary: {
+          title: '需要明确边界的上线场景',
+          description:
+            '靓号地址只改变合约地址的外观识别度，不会自动增加税费逻辑、做市能力、安全增强或其他额外功能。',
+        },
+      },
+      faq: {
+        title: '常见问题',
+        what: {
+          question: '什么是 {{chain}} 上的靓号代币？',
+          answer:
+            '靓号代币是指在部署前先搜索一个符合预设前缀、后缀或组合规则的合约地址，然后再使用该结果完成最终部署的代币。代币功能仍以当前部署模板为准，但地址会更容易识别。',
+        },
+        whyGenerate: {
+          question: '为什么要先生成靓号地址，再提交部署？',
+          answer:
+            '因为流程需要先在本地找到一个能命中目标规则的 CREATE2 salt。只有在匹配成功之后提交部署，最终链上合约地址才会符合你输入的靓号条件。',
+        },
+        whyRegenerate: {
+          question: '为什么修改代币参数后必须重新生成？',
+          answer:
+            '因为靓号结果依赖代币名称、简称、精度、发行量以及部署钱包地址。只要这些参数中有任一变化，旧的 salt 就不再对应同一个最终地址。',
+        },
+        security: {
+          question: '靓号地址会提升代币安全性或质量吗？',
+          answer:
+            '不会。靓号地址主要用于展示和识别，不会自动提升合约安全性、流动性、持币保护能力或项目价值。',
+        },
+        time: {
+          question: '为什么前缀或后缀越长，生成时间越久？',
+          answer:
+            '因为每增加一个十六进制字符，匹配命中的概率都会下降，难度会快速上升。设备性能、线程数和规则长度都会影响搜索耗时。',
+        },
+        deploy: {
+          question: '生成到靓号地址后，是否建议立刻部署？',
+          answer:
+            '建议先确认代币参数已经最终定稿，且生成结果符合你对地址展示的要求，再提交部署。部署完成后仍需完成链上核验、钱包导入、流动性和资料配置等常规步骤。',
+        },
+      },
+    },
+    errors: {
+      nameRequired: '请输入代币全称',
+      nameTooLong: '代币全称不能超过 100 个字符',
+      symbolRequired: '请输入代币简称',
+      symbolTooLong: '代币简称不能超过 100 个字符',
+      supplyRequired: '请输入发行量',
+      supplyInvalid: '发行量必须为大于 0 的整数',
+      decimalsInvalid: '精度必须为 0 到 18 的整数',
+      vanityRequired: '前缀和后缀至少填写一项',
+      vanityInvalid: '前缀和后缀只能包含十六进制字符',
+      vanityTooLong: '前缀和后缀总长度不能超过 40',
+      walletRequired: '请先连接钱包后再创建靓号代币',
+      walletRequiredForSearch: '请先连接钱包后再生成靓号地址',
+      walletUnavailable: '未检测到钱包环境',
+      factoryUnavailable: '当前链未配置靓号工厂',
+      tokenCreationCodeUnavailable: '未能读取靓号工厂的 tokenCreationCode',
+      insufficientBalance: '账户余额不足，无法支付创建费和链上 Gas，请先补充余额。',
+      generateRequired: '请先生成靓号地址',
+      generateRequiredManual: '请手动生成靓号代币',
+      searchUnavailable: '靓号工厂初始化尚未完成，请稍后重试',
     },
   },
   acceptance: {

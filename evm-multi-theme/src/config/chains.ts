@@ -49,7 +49,7 @@ export type SupportedChainKey =
   | 'pulse'
   | 'core'
   | 'gate-layer'
-export type SupportedPageKey = 'token-creation' | 'tax-token-creation' | 'project-acceptance'
+export type SupportedPageKey = 'token-creation' | 'tax-token-creation' | 'token-vanity-creation' | 'project-acceptance'
 
 export type TokenMeta = {
   address: string
@@ -283,6 +283,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0x78B84D2A29eA3e199aB81C48B687630AEA124A33' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x257eA5652423dd5551Fad18438b35Ef422Ddc01c' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0x95547365Ef339A7dF41feEB38A4029A9476107Ed', dex: 'PancakeSwap', version: 'v2',},
     ],
   },
@@ -355,6 +356,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0x1C47E37f13299d9989587edCb3875c5FcED57E99' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x2D230df14678DD87EBc586EeDD6d0D14268Eb6c3' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0xDbE4ec6610980A0Ea951F7f813A8078013b634eA', dex: 'PancakeSwap', version: 'v2',},
     ],
   },
@@ -427,6 +429,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0x7dD9CE2799D1877bCb3a4f9528CE2c61e5879449' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x26148F758BCb16640305FC73a289b03456B3248c' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0x31551329E6fe50a6db1A3858175dc652F194239C', dex: 'Uniswap', version: 'v2',},
     ],
   },
@@ -513,6 +516,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0x4D09F42905E7481d3A8E39AB8777170f6D598A3b' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x95547365Ef339A7dF41feEB38A4029A9476107Ed' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0xd9C578C35255988681dCAe665206EC443624FD6a',dex: 'Uniswap', version: 'v2',},
     ],
   },
@@ -610,6 +614,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0x5eF35d1ccB6724847026D4f7Bb08d0181047bAFf' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x26148F758BCb16640305FC73a289b03456B3248c' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0x7dD9CE2799D1877bCb3a4f9528CE2c61e5879449', dex: 'SlerfSwap', version: 'v2' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0xF5fc7a89beE9260c5CB7103B1a9585ab1a427c4C', dex: 'Dyorswap', version: 'v2' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0xcC22A79a34370f969AEBAC9f6079253aaeC1d0EC', dex: 'PotatoSwap', version: 'v2' },
@@ -656,6 +661,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0x5eF35d1ccB6724847026D4f7Bb08d0181047bAFf' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0xd2FF781eF8Db655c242bBF92e6707562f3d15Ac9' },
     ],
   },
   {
@@ -718,6 +724,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0xb87E8C20f1DdDCB7157FA8BC2282100DEb535A29' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x150F51B8F041b50065fad75EA6333E086EF0AA31' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0x26148F758BCb16640305FC73a289b03456B3248c', dex: 'Uniswap', version: 'v2' },
     ],
   },
@@ -788,6 +795,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0x52360F08Bd2cCa0BAedA1Ac2c3f0C17720C500f2' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x7dD9CE2799D1877bCb3a4f9528CE2c61e5879449' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0x5eF35d1ccB6724847026D4f7Bb08d0181047bAFf', dex: 'Uniswap', version: 'v2' },
     ],
   },
@@ -851,6 +859,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0x52360F08Bd2cCa0BAedA1Ac2c3f0C17720C500f2' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0xB1930738C1e4ac3C0bf4877aFce9e5C7493141ed' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0x5eF35d1ccB6724847026D4f7Bb08d0181047bAFf', dex: 'Uniswap', version: 'v2' },
     ],
   },
@@ -914,6 +923,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0x52360F08Bd2cCa0BAedA1Ac2c3f0C17720C500f2' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x58c7627bBa4B2217985078822851B7ac2cDC6a0A' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0xb87E8C20f1DdDCB7157FA8BC2282100DEb535A29', dex: 'Uniswap', version: 'v2' },
     ],
   },
@@ -977,6 +987,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0xb87E8C20f1DdDCB7157FA8BC2282100DEb535A29' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x150F51B8F041b50065fad75EA6333E086EF0AA31' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0x58c7627bBa4B2217985078822851B7ac2cDC6a0A', dex: 'Uniswap', version: 'v2' },
     ],
   },
@@ -1028,6 +1039,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0xb87E8C20f1DdDCB7157FA8BC2282100DEb535A29' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x58c7627bBa4B2217985078822851B7ac2cDC6a0A' },
     ],
   },
   {
@@ -1090,6 +1102,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0xb87E8C20f1DdDCB7157FA8BC2282100DEb535A29' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x150F51B8F041b50065fad75EA6333E086EF0AA31' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0x58c7627bBa4B2217985078822851B7ac2cDC6a0A', dex: 'Uniswap', version: 'v2' },
     ],
   },
@@ -1141,6 +1154,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0x52360F08Bd2cCa0BAedA1Ac2c3f0C17720C500f2' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0xb87E8C20f1DdDCB7157FA8BC2282100DEb535A29' },
     ],
   },
   {
@@ -1191,6 +1205,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0xb87E8C20f1DdDCB7157FA8BC2282100DEb535A29' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x58c7627bBa4B2217985078822851B7ac2cDC6a0A' },
     ],
   },
   {
@@ -1301,6 +1316,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0xb87E8C20f1DdDCB7157FA8BC2282100DEb535A29' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x150F51B8F041b50065fad75EA6333E086EF0AA31' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0x58c7627bBa4B2217985078822851B7ac2cDC6a0A', dex: 'Uniswap', version: 'v2' },
     ],
   },
@@ -1352,6 +1368,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0x52360F08Bd2cCa0BAedA1Ac2c3f0C17720C500f2' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0xb87E8C20f1DdDCB7157FA8BC2282100DEb535A29' },
     ],
   },
   {
@@ -1402,6 +1419,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0x5eF35d1ccB6724847026D4f7Bb08d0181047bAFf' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x58c7627bBa4B2217985078822851B7ac2cDC6a0A' },
     ],
   },
   {
@@ -1548,6 +1566,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0x63Ae170E698Df60e42060e54fBFf7a463218cbDD' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x52360F08Bd2cCa0BAedA1Ac2c3f0C17720C500f2' },
     ],
   },
   {
@@ -1598,6 +1617,7 @@ const supportedChainsBase: ChainDefinition[] = [
     ],
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0x7AFC146F26f9a794b47b1b8C3eDce0561fA40679' },
+      { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x4F9C17c25506AEB5b6bA06fF7ABaA06285ae1859' },
     ],
   },
 ]
@@ -1634,6 +1654,7 @@ export const supportedChains: ChainDefinition[] = supportedChainsBase
     ...chain,
     network: NETWORK_BY_CHAIN_KEY[chain.key],
     rpcList: [DEFAULT_RPC[chain.key]],
+    contractList: chain.contractList,
   }))
 
 export function isSupportedLang(value?: string): value is SupportedLang {
@@ -1645,7 +1666,12 @@ export function isSupportedChain(value?: string): value is SupportedChainKey {
 }
 
 export function isSupportedPage(value?: string): value is SupportedPageKey {
-  return value === 'token-creation' || value === 'tax-token-creation' || value === 'project-acceptance'
+  return (
+    value === 'token-creation' ||
+    value === 'tax-token-creation' ||
+    value === 'token-vanity-creation' ||
+    value === 'project-acceptance'
+  )
 }
 
 export function getChainDefinition(chainKey: SupportedChainKey) {

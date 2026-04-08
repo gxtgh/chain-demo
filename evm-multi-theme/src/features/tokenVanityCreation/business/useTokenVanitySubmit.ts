@@ -3,23 +3,27 @@ import { message } from 'antd'
 import { useAccount, useSwitchChain } from 'wagmi'
 import type { ChainDefinition } from '@/config/chains'
 import { isInsufficientFundsError } from '@/utils/evm-submit-error'
-import { readCreationFee, submitTokenCreation } from './tokenCreationService'
-import type { TokenCreationSubmitResult, TokenCreationSubmitStep, TokenCreationSubmitValues } from './model'
+import { readVanityFactorySnapshot, submitTokenVanityCreation } from './tokenVanityService'
+import type { TokenVanitySubmitResult, TokenVanitySubmitStep, TokenVanitySubmitValues } from './model'
 
-const defaultStep: TokenCreationSubmitStep | null = null
+const defaultStep: TokenVanitySubmitStep | null = null
 
-export function useTokenCreationSubmit(
+export function useTokenVanitySubmit(
   chainDefinition: ChainDefinition,
   t: (key: string) => string,
   validateBeforeSubmit: () => boolean,
 ) {
   const { isConnected, chainId } = useAccount()
   const { switchChainAsync } = useSwitchChain()
+  const [factoryAddress, setFactoryAddress] = useState<string>('')
   const [creationFee, setCreationFee] = useState<bigint | null>(null)
+  const [tokenCreationCode, setTokenCreationCode] = useState<string | null>(null)
   const [feeLoading, setFeeLoading] = useState(true)
+  const [creationCodeLoading, setCreationCodeLoading] = useState(true)
+  const [resourceError, setResourceError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [submitStep, setSubmitStep] = useState<TokenCreationSubmitStep | null>(defaultStep)
-  const [result, setResult] = useState<TokenCreationSubmitResult | null>(null)
+  const [submitStep, setSubmitStep] = useState<TokenVanitySubmitStep | null>(defaultStep)
+  const [result, setResult] = useState<TokenVanitySubmitResult | null>(null)
   const [successModalOpen, setSuccessModalOpen] = useState(false)
   const [failureModalOpen, setFailureModalOpen] = useState(false)
   const flowIdRef = useRef(0)
@@ -61,34 +65,49 @@ export function useTokenCreationSubmit(
     flowIdRef.current += 1
     clearModalTimer()
     setLoading(false)
+    setFactoryAddress('')
     setCreationFee(null)
+    setTokenCreationCode(null)
+    setResourceError(null)
     setResult(null)
     setSuccessModalOpen(false)
     setFailureModalOpen(false)
     setSubmitStep(defaultStep)
 
-    async function loadFee() {
+    async function loadResources() {
       setFeeLoading(true)
+      setCreationCodeLoading(true)
+
       try {
-        const fee = await readCreationFee(chainDefinition)
+        const snapshot = await readVanityFactorySnapshot(chainDefinition)
         if (!active) return
-        setCreationFee(fee)
-      } catch {
+        setFactoryAddress(snapshot.factoryAddress)
+        setCreationFee(snapshot.creationFee)
+        setTokenCreationCode(snapshot.tokenCreationCode)
+        setResourceError(null)
+      } catch (error) {
         if (!active) return
+        const nextMessage = error instanceof Error && error.message.startsWith('tokenVanityCreation.errors.')
+          ? t(error.message)
+          : t('tokenVanityCreation.errors.factoryUnavailable')
+        setFactoryAddress('')
         setCreationFee(null)
+        setTokenCreationCode(null)
+        setResourceError(nextMessage)
       } finally {
         if (active) {
           setFeeLoading(false)
+          setCreationCodeLoading(false)
         }
       }
     }
 
-    void loadFee()
+    void loadResources()
 
     return () => {
       active = false
     }
-  }, [chainDefinition])
+  }, [chainDefinition, t])
 
   useEffect(() => {
     return () => {
@@ -96,7 +115,7 @@ export function useTokenCreationSubmit(
     }
   }, [])
 
-  async function submit(values: TokenCreationSubmitValues) {
+  async function submit(values: TokenVanitySubmitValues) {
     clearModalTimer()
     setResult(null)
     setFailureModalOpen(false)
@@ -107,7 +126,7 @@ export function useTokenCreationSubmit(
     }
 
     if (!isConnected) {
-      message.warning(t('tokenCreation.errors.walletRequired'))
+      message.warning(t('tokenVanityCreation.errors.walletRequired'))
       return
     }
 
@@ -123,7 +142,7 @@ export function useTokenCreationSubmit(
 
       if (!isFlowActive(flowId)) return
 
-      const nextResult = await submitTokenCreation(chainDefinition, values, {
+      const nextResult = await submitTokenVanityCreation(chainDefinition, values, {
         onWaitingWallet: () => {
           if (!isFlowActive(flowId)) return
           setSubmitStep({ id: 2, status: 'loading' })
@@ -143,23 +162,23 @@ export function useTokenCreationSubmit(
         if (!isFlowActive(flowId)) return
         setSubmitStep(defaultStep)
         setSuccessModalOpen(true)
-      }, 1000)
+      }, 700)
     } catch (error) {
       if (!isFlowActive(flowId)) return
 
       if (isInsufficientFundsError(error)) {
-        message.warning(t('tokenCreation.errors.insufficientBalance'))
-      } else if (error instanceof Error && error.message.startsWith('tokenCreation.errors.')) {
+        message.warning(t('tokenVanityCreation.errors.insufficientBalance'))
+      } else if (error instanceof Error && error.message.startsWith('tokenVanityCreation.errors.')) {
         message.warning(t(error.message))
       }
 
       setLoading(false)
-      setSubmitStep((prev:any)=>({ ...prev, status: 'failed' }))
+      setSubmitStep((prev) => ({ id: prev?.id ?? 4, status: 'failed' }))
       modalTimerRef.current = window.setTimeout(() => {
         if (!isFlowActive(flowId)) return
         setSubmitStep(defaultStep)
         setFailureModalOpen(true)
-      }, 1000)
+      }, 400)
     }
   }
 
@@ -173,8 +192,13 @@ export function useTokenCreationSubmit(
   }
 
   return {
+    factoryAddress,
     creationFee,
+    tokenCreationCode,
     feeLoading,
+    creationCodeLoading,
+    factoryAvailable: Boolean(factoryAddress && tokenCreationCode),
+    resourceError,
     loading,
     submitStep,
     result,

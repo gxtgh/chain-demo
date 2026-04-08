@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { message } from 'antd'
 import { useAccount, useSwitchChain } from 'wagmi'
 import type { ChainDefinition } from '@/config/chains'
+import { isInsufficientFundsError } from '@/utils/evm-submit-error'
 import { readTaxCreationFee, submitTokenTaxCreation } from './tokenTaxCreationService'
 import type { TokenTaxSubmitResult, TokenTaxSubmitStep, TokenTaxSubmitValues } from './model'
 
@@ -153,7 +154,9 @@ export function useTokenTaxSubmit(
     } catch (error) {
       if (!isFlowActive(flowId)) return
 
-      if (error instanceof Error && error.message.startsWith('tokenTaxCreation.errors.')) {
+      if (isInsufficientFundsError(error)) {
+        message.warning(t('tokenTaxCreation.errors.insufficientBalance'))
+      } else if (error instanceof Error && error.message.startsWith('tokenTaxCreation.errors.')) {
         message.warning(t(error.message))
       }
 

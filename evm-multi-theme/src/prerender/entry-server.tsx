@@ -17,10 +17,11 @@ import { getPageSeo } from '@/config/seo'
 import { DEFAULT_OG_IMAGE, SITE_NAME, buildAbsoluteUrl, buildAlternatePageLinks, buildCanonicalPageUrl, normalizeLocaleTag } from '@/config/site'
 import { buildTokenCreationFaqStructuredData, getTokenCreationFaqVars } from '@/features/tokenCreation/shared/token-creation-seo-data'
 import { buildTokenTaxFaqStructuredData, getTokenTaxFaqVars } from '@/features/tokenTaxCreation/shared/token-tax-seo-data'
+import { buildTokenVanityFaqStructuredData, getTokenVanityFaqVars } from '@/features/tokenVanityCreation/shared/token-vanity-seo-data'
 import { createTranslator } from '@/i18n/messages'
 
 export const prerenderRoutes = supportedLanguages.flatMap((language) =>
-  (['token-creation', 'tax-token-creation'] as const).flatMap((page) =>
+  (['token-creation', 'tax-token-creation', 'token-vanity-creation'] as const).flatMap((page) =>
     getPageSupportedChains(page)
       .filter((chain) => chain.seoIndex)
       .map((chain) => `/${language.key}/${chain.key}/${page}`),
@@ -70,7 +71,11 @@ function buildDocument(url: string) {
   const faqStructuredData =
     route.page === 'tax-token-creation'
       ? buildTokenTaxFaqStructuredData(t, getTokenTaxFaqVars(chainDefinition, chainLabel))
-      : buildTokenCreationFaqStructuredData(t, getTokenCreationFaqVars(chainDefinition, chainLabel))
+      : route.page === 'token-vanity-creation'
+        ? buildTokenVanityFaqStructuredData(t, getTokenVanityFaqVars(chainDefinition, chainLabel))
+      : route.page === 'token-creation'
+        ? buildTokenCreationFaqStructuredData(t, getTokenCreationFaqVars(chainDefinition, chainLabel))
+        : null
 
   const headTags = [
     buildMetaTag('description', seo.description),
@@ -91,7 +96,7 @@ function buildDocument(url: string) {
     ...alternates.map(
       (alternate) => `<link rel="alternate" hreflang="${escapeAttribute(alternate.hrefLang)}" href="${escapeAttribute(alternate.href)}" />`,
     ),
-    `<script type="application/ld+json">${serializeJsonLd(faqStructuredData)}</script>`,
+    faqStructuredData ? `<script type="application/ld+json">${serializeJsonLd(faqStructuredData)}</script>` : '',
   ]
     .filter(Boolean)
     .join('\n    ')
@@ -108,7 +113,11 @@ function resolvePublicRoute(url: string) {
   const segments = pathname.split('/').filter(Boolean)
   const [lang, chain, page] = segments
 
-  if (!isSupportedLang(lang) || !isSupportedChain(chain) || (page !== 'token-creation' && page !== 'tax-token-creation')) {
+  if (
+    !isSupportedLang(lang) ||
+    !isSupportedChain(chain) ||
+    (page !== 'token-creation' && page !== 'tax-token-creation' && page !== 'token-vanity-creation')
+  ) {
     return null
   }
 

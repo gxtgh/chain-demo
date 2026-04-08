@@ -23,9 +23,9 @@ export function OperationWarning({
   onClose?: () => void
 }) {
   return (
-    <AppModal
+      <AppModal
       className="operation-warning-modal"
-      footer={footer}
+      footer={footer ? <div className="operation-warning-footer">{footer}</div> : null}
       onCancel={onClose}
       open={open}
       title={

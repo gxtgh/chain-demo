@@ -35,6 +35,7 @@ export const enUsMessages = {
   nav: {
     tokenCreation: 'Token Creation',
     tokenTaxCreation: 'Tax Token',
+    tokenVanityCreation: 'Vanity Token',
     projectAcceptance: 'Project Acceptance',
   },
   topbar: {
@@ -517,6 +518,238 @@ export const enUsMessages = {
       successTitle: 'Tax token created successfully',
       errorTitle: 'Tax token creation failed',
       errorDescription: 'The transaction did not complete on-chain. Check the wallet status, network, and balance, then try again.',
+    },
+  },
+  tokenVanityCreation: {
+    eyebrow: '',
+    title: 'Create Vanity Token',
+    description:
+      'Create a vanity token on {{chain}} and choose a distinctive, memorable character pattern so the token stands out more clearly among other projects.',
+    seo: {
+      title: 'Create Vanity {{tokenType}} Token on {{chain}} | Custom Contract Address',
+      description:
+        'Read the factory tokenCreationCode, search a matching vanity contract address locally, and deploy a vanity {{tokenType}} token on {{chain}}.',
+      keywords: 'Vanity Token, CREATE2 Token Creator, Custom Contract Address, {{chain}} {{tokenType}}',
+    },
+    fields: {
+      name: 'Token Full Name',
+      symbol: 'Token Symbol',
+      totalSupply: 'Supply',
+      decimals: 'Precision',
+      prefix: 'Address Prefix',
+      suffix: 'Address Suffix',
+    },
+    labels: {
+      creationFee: 'Creation Fee',
+      generation: 'Vanity Search',
+      generationDescription:
+        '{{chainName}} token contracts and wallet addresses follow the EVM address format: a 0x prefix plus 40 hexadecimal characters. In hexadecimal notation, each character can be 0-9 or a-f, so the customizable characters in this flow are 0-9 and a-f.',
+      preview: 'Address Preview',
+      difficulty: 'Difficulty',
+      generated: 'Tried',
+      estimated: 'Estimated Time',
+      speed: 'Search Speed',
+      status: 'Status',
+      predictedAddress: 'Vanity Address',
+      salt: 'Deployment Salt',
+    },
+    placeholders: {
+      name: 'Please enter the token full name',
+      symbol: 'Please enter the token symbol',
+      totalSupply: 'Please enter the supply',
+      decimals: 'Please enter the precision',
+      prefix: 'Prefix',
+      suffix: 'Suffix',
+    },
+    tooltips: {
+      name: 'The vanity address is bound to the current token parameters. Changing the name, symbol, decimals, or supply requires regenerating the vanity match.',
+      symbol: 'Use the symbol you want to publish on-chain when the contract is deployed.',
+      totalSupply: 'This value participates in the CREATE2 init code hash. Updating it requires a fresh vanity search.',
+      decimals: 'This value also participates in the deployment parameters and should be regenerated when changed.',
+      prefix: 'Only hexadecimal characters 0-9 and a-f are supported. Enter a prefix, suffix, or both, and keep the combined length within 40 characters.',
+      suffix: 'Only hexadecimal characters 0-9 and a-f are supported. Enter a prefix, suffix, or both, and keep the combined length within 40 characters.',
+      creationFee: 'The creation fee is read from the vanity factory contract. Network gas is still paid separately on submission.',
+    },
+    actions: {
+      generate: 'Generate Vanity Address',
+      regenerate: 'Regenerate',
+      stop: 'Stop',
+      submit: 'Create Vanity Token',
+      submitting: 'Submitting...',
+      retry: 'Retry',
+      close: 'Close',
+    },
+    status: {
+      loadingFactory: 'Loading vanity factory configuration...',
+      factoryUnavailable: 'The vanity factory or tokenCreationCode is currently unavailable on this chain.',
+      idle: 'Idle',
+      searching: 'Searching',
+      success: 'Matched',
+      stopped: 'Stopped',
+      noMatch: 'No vanity address generated yet',
+      readyToCreate: 'Vanity address generated. Please continue with the Create Vanity Token action.',
+    },
+    steps: {
+      preparing: 'Preparing vanity token parameters',
+      waitingWallet: 'Waiting for wallet confirmation',
+      pending: 'Waiting for on-chain confirmation',
+      completed: 'Completed',
+      failed: 'Failed',
+    },
+    modal: {
+      progressTitle: 'Create Vanity Token',
+      successTitle: 'Vanity Token Created',
+      errorTitle: 'Vanity Token Creation Failed',
+    },
+    success: {
+      banner: 'Vanity token created successfully',
+      tokenAddress: 'Token Address',
+      txHash: 'Transaction Hash',
+      predictedAddress: 'Vanity Address',
+      salt: 'Deployment Salt',
+    },
+    successSummary: {
+      title: 'Vanity Deployment Result',
+      description: 'The vanity search result and on-chain deployment details are collected here for quick verification.',
+      chain: 'Chain',
+      name: 'Token Name',
+      symbol: 'Symbol',
+      totalSupply: 'Supply',
+      decimals: 'Decimals',
+      prefix: 'Prefix',
+      suffix: 'Suffix',
+      predictedAddress: 'Vanity Address',
+      salt: 'Deployment Salt',
+      tokenAddress: 'Token Address',
+      txHash: 'Transaction Hash',
+    },
+    overview: {
+      title: 'Vanity Token',
+      description:
+        'This flow is designed for {{tokenType}} launches that want stronger contract-address recognition, using local CREATE2 search before the final deployment transaction is submitted.',
+      highlights: {
+        create2: 'CREATE2 deployment',
+        prefix: 'Custom prefix or suffix',
+        noCode: 'No custom contract coding',
+      },
+      cards: {
+        identity: {
+          title: 'Address Identity',
+          description:
+            'A vanity address can improve brand recognition, campaign consistency, or launch-specific presentation when the contract address itself is part of how the project is introduced publicly.',
+        },
+        binding: {
+          title: 'Parameter Binding',
+          description:
+            'The vanity result is tied to the token name, symbol, decimals, supply, and deployer wallet. If any of those values change, the previously generated match is no longer valid and must be regenerated.',
+        },
+        searchCost: {
+          title: 'Search Cost',
+          description:
+            'Longer or stricter prefix and suffix rules increase the search difficulty and expected runtime. This flow is best for teams that value recognisable contract addresses and accept the extra local search time.',
+        },
+      },
+    },
+    nextSteps: {
+      title: 'Next Steps',
+      description:
+        'After a vanity token is deployed, we recommend completing the following steps so the vanity result, wallet display, and later trading setup stay consistent.',
+      addWallet: {
+        title: 'Add to Wallet',
+        description:
+          'Import the deployed token into common wallets using the contract address, symbol, and decimals and confirm the wallet display matches the launch plan.',
+      },
+      verifyAddress: {
+        title: 'Verify the Vanity Result',
+        description:
+          'Open the explorer and confirm the final contract address and transaction hash match the generated vanity result before sharing it publicly.',
+      },
+      addLiquidity: {
+        title: 'Create Liquidity (DEX)',
+        description:
+          'If the token is intended to trade, create the pair on the target DEX and add the initial liquidity after the vanity deployment is verified on-chain.',
+      },
+      metadata: {
+        title: 'Complete Logo & Metadata',
+        description:
+          'Prepare the logo, description, website, and social links so the token is easier to recognise across wallets, explorers, and launch materials.',
+      },
+      note:
+        'A vanity contract address does not replace the standard launch checklist. Wallet import, explorer verification, liquidity setup, and metadata submission are still required after deployment.',
+    },
+    seoBody: {
+      highlights: {
+        title: 'Best-fit scenarios',
+        brand: {
+          title: 'Projects with strong brand presentation',
+          description:
+            'Use the vanity-token flow when the contract address itself is part of the branding, launch announcement, or campaign identity on {{chain}}.',
+        },
+        workflow: {
+          title: 'Teams that want a predictable deployment workflow',
+          description:
+            'The flow keeps the address search local and submits the deployment only after a valid match is found, which is easier to manage than scattered external scripts for many launch teams.',
+        },
+        boundary: {
+          title: 'Launches that need clear boundaries',
+          description:
+            'A vanity address changes how the contract address looks, but it does not add tax logic, liquidity, security guarantees, or extra market support by itself.',
+        },
+      },
+      faq: {
+        title: 'Frequently asked questions',
+        what: {
+          question: 'What is a vanity token on {{chain}}?',
+          answer:
+            'A vanity token is a token deployed with a contract address that matches a preferred prefix, suffix, or both. The token behavior still follows the configured deployment template, but the address is searched in advance for better recognition.',
+        },
+        whyGenerate: {
+          question: 'Why do I need to generate the vanity address before deployment?',
+          answer:
+            'The flow searches locally for a CREATE2 salt that produces a matching contract address. The deployment transaction should only be submitted after a valid match is found, otherwise the final contract address will not follow the requested vanity rule.',
+        },
+        whyRegenerate: {
+          question: 'Why must I regenerate after changing token parameters?',
+          answer:
+            'Because the vanity result depends on the token name, symbol, decimals, supply, and deployer wallet. Once any of those values change, the previously generated salt no longer maps to the same final contract address.',
+        },
+        security: {
+          question: 'Does a vanity address improve token security or contract quality?',
+          answer:
+            'No. A vanity address is mainly a presentation and recognition feature. It does not automatically improve contract security, liquidity, holder protection, or launch success.',
+        },
+        time: {
+          question: 'Why does search time increase when the prefix or suffix is longer?',
+          answer:
+            'Each extra hexadecimal character reduces the chance of hitting a valid address pattern, so the search difficulty rises quickly. Device performance, concurrency, and the strictness of the pattern all affect the runtime.',
+        },
+        deploy: {
+          question: 'Should I deploy immediately after a vanity match is generated?',
+          answer:
+            'Only after you confirm the token parameters are final and the generated address matches your launch requirements. Once deployed, you should still verify the contract on-chain and complete the usual wallet, liquidity, and metadata steps.',
+        },
+      },
+    },
+    errors: {
+      nameRequired: 'Please enter the token full name',
+      nameTooLong: 'The token full name must be 100 characters or fewer',
+      symbolRequired: 'Please enter the token symbol',
+      symbolTooLong: 'The token symbol must be 100 characters or fewer',
+      supplyRequired: 'Please enter the supply',
+      supplyInvalid: 'The supply must be an integer greater than 0',
+      decimalsInvalid: 'Decimals must be an integer between 0 and 18',
+      vanityRequired: 'Enter a prefix, a suffix, or both',
+      vanityInvalid: 'Only hexadecimal characters are supported in the prefix and suffix',
+      vanityTooLong: 'The combined prefix and suffix length cannot exceed 40 characters',
+      walletRequired: 'Connect a wallet before creating a vanity token',
+      walletRequiredForSearch: 'Connect a wallet before generating a vanity address',
+      walletUnavailable: 'Wallet environment is unavailable',
+      factoryUnavailable: 'The vanity factory is not configured on this chain',
+      tokenCreationCodeUnavailable: 'Failed to load tokenCreationCode from the vanity factory',
+      insufficientBalance: 'Insufficient balance to cover the creation fee and network gas. Please fund the wallet and try again.',
+      generateRequired: 'Generate a vanity address before submitting',
+      generateRequiredManual: 'Please generate a vanity token address manually first.',
+      searchUnavailable: 'The vanity factory is still loading. Please try again shortly.',
     },
   },
   acceptance: {

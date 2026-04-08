@@ -1,6 +1,6 @@
 import { BrowserProvider, Contract, Interface, JsonRpcProvider, ZeroAddress } from 'ethers'
 import { getChainRpcUrl, type ChainDefinition } from '@/config/chains'
-import { getDynamicGasOverrides } from '@/utils/evm-gas'
+import { estimateMaxTransactionCost, getDynamicGasOverrides } from '@/utils/evm-gas'
 import tokenTaxFactoryAbi from '@/assets/abi/TokenTax.json'
 import type { TokenTaxSubmitResult, TokenTaxSubmitValues } from './model'
 
@@ -42,10 +42,6 @@ export async function submitTokenTaxCreation(
   const creationFee = (await contract.creationFee()) as bigint
   const walletBalance = await browserProvider.getBalance(signerAddress)
 
-  if (walletBalance < creationFee) {
-    throw new Error('tokenTaxCreation.errors.insufficientBalance')
-  }
-
   const tokenParams = {
     name: values.name,
     symbol: values.symbol,
@@ -66,6 +62,12 @@ export async function submitTokenTaxCreation(
   const gasLimit = (gasEstimate * 12n) / 10n
   options?.onWaitingWallet?.()
   const gasOverrides = await getDynamicGasOverrides(browserProvider, chainDefinition, gasLimit, creationFee)
+  const estimatedMaxCost = estimateMaxTransactionCost(gasOverrides)
+
+  if (walletBalance < estimatedMaxCost) {
+    throw new Error('tokenTaxCreation.errors.insufficientBalance')
+  }
+
   const transaction = await contract.createTaxToken(tokenParams, gasOverrides)
 
   options?.onPending?.()
