@@ -168,9 +168,14 @@
   box-shadow: var(--theme-shadow);
 }
 
-.share-site-visual::before {
-  content: '';
+.share-site-visual-grid,
+.share-site-visual-glow {
   position: absolute;
+  pointer-events: none;
+}
+
+.share-site-visual-grid {
+  z-index: 0;
   inset: -12% -8%;
   background-image:
     linear-gradient(color-mix(in srgb, var(--theme-line) 58%, transparent) 1px, transparent 1px),
@@ -180,9 +185,8 @@
   transform: rotate(-4deg);
 }
 
-.share-site-visual::after {
-  content: '';
-  position: absolute;
+.share-site-visual-glow {
+  z-index: 0;
   inset: 16% 10%;
   border-radius: 38px;
   background:
@@ -222,7 +226,9 @@
   border: 1px solid color-mix(in srgb, var(--theme-line) 86%, transparent);
   border-radius: 22px;
   background: color-mix(in srgb, var(--theme-surface-strong) 88%, transparent);
-  box-shadow: 0 20px 50px color-mix(in srgb, black 14%, transparent);
+  box-shadow:
+    0 22px 54px rgba(69, 44, 29, 0.12),
+    0 10px 24px rgba(69, 44, 29, 0.08);
   backdrop-filter: blur(18px);
 }
 
@@ -278,11 +284,21 @@ body.app-theme.app-theme-dark {
       linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
   }
 
+  .share-site-visual-grid {
+    opacity: 0.36;
+  }
+
   .share-hero-card,
   .share-site-points span,
   .share-site-link-card,
   .share-site-qr-card {
     background: rgba(255, 255, 255, 0.045);
+  }
+
+  .share-hero-card {
+    box-shadow:
+      0 24px 56px rgba(0, 0, 0, 0.34),
+      0 10px 24px rgba(0, 0, 0, 0.2);
   }
 
   .share-site-qr-code {
@@ -338,8 +354,12 @@ body.app-theme.app-theme-dark {
   }
 
   .share-site-visual {
-    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-height: 0;
     border-radius: 22px;
+    padding: 84px 14px 20px;
   }
 
   .share-site-qr-card {
@@ -355,29 +375,32 @@ body.app-theme.app-theme-dark {
   }
 
   .share-hero-card {
+    position: relative;
+    inset: auto;
     padding: 14px;
     border-radius: 18px;
   }
 
   .share-hero-card-main {
-    width: calc(100% - 28px);
-    top: 8%;
-    left: 14px;
+    width: 100%;
   }
 
   .share-hero-card-tools {
-    width: calc(100% - 52px);
-    top: 36%;
-    right: 14px;
+    width: 100%;
   }
 
   .share-hero-card-chains {
-    width: calc(100% - 52px);
-    left: 14px;
-    bottom: 10%;
+    width: 100%;
   }
 
   .share-hero-card-email {
-    display: none;
+    display: grid;
+    width: 100%;
+  }
+
+  .share-hero-card-email strong {
+    font-size: 16px;
+    line-height: 1.45;
+    word-break: break-word;
   }
 }
