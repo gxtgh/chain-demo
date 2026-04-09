@@ -25,18 +25,18 @@ export const zhCnMessages = {
     controls: '页面控制',
   },
   app: {
-    name: 'Web3 代币',
+    name: 'LaunchLayer',
     tagline: '专业代币工具',
   },
   footer: {
-    copyright: 'Web3 Token © 2026',
+    copyright: 'LaunchLayer © 2026',
     emailLabel: 'Email',
   },
   nav: {
+    home: '首页',
     tokenCreation: '标准代币',
     tokenTaxCreation: '税费代币',
     tokenVanityCreation: '靓号代币',
-    projectAcceptance: '项目验收',
   },
   topbar: {
     language: '语言',
@@ -61,9 +61,9 @@ export const zhCnMessages = {
   },
   share: {
     menuItem: '分享',
-    eyebrow: '分享 Web3 Token',
+    eyebrow: '分享 LaunchLayer',
     title: 'Create Your Token',
-    description: '把 Web3 Token 分享给项目方、社区成员或合作伙伴，让他们用更简单的方式在多条 EVM 链上发行代币。',
+    description: '把 LaunchLayer 分享给项目方、社区成员或合作伙伴，让他们用更简单的方式在多条 EVM 链上发行代币。',
     featureTokens: '支持标准代币、税费代币、靓号代币等创建工具。',
     chainSummary: '支持 {{chains}} 等 {{count}} 条链创建你的代币。',
     featureNoCode: '无需编程，连接钱包即可完成创建流程。',
@@ -76,12 +76,187 @@ export const zhCnMessages = {
     downloadSuccess: '截图已保存',
     downloadFailed: '截图保存失败，请稍后再试',
     qrTitle: '官网二维码',
-    qrText: '扫码打开 Web3 Token 官网，快速进入代币创建工具。',
+    qrText: '扫码打开 LaunchLayer 官网，快速进入代币创建工具。',
     visualLabel: 'Token launch toolkit',
     toolsTitle: '多种代币工具',
     toolsText: '标准代币 / 税费代币 / 靓号代币等功能持续扩展。',
     chainsTitle: '多链支持',
     support: 'Email',
+  },
+  home: {
+    seo: {
+      title: '{{chain}} EVM 代币发行平台 | LaunchLayer',
+      description:
+        '围绕 {{chain}} 提供标准代币发行、高级 Tokenomics 配置与靓号部署能力，构建面向多链扩展的 EVM Token Launch Platform。',
+      keywords: 'EVM 代币发行平台, {{chain}} 发币工作台, Tokenomics, 税费代币, 靓号代币, Token Launch Platform',
+    },
+    hero: {
+      eyebrow: 'EVM Token Launch Platform',
+      title: '更专业的发射代币',
+      description:
+        '围绕标准资产发行、税费代币配置与靓号合约部署，提供面向真实项目执行的多链 Launch Workflow。你可以从 {{chain}} 开始，沿统一流程完成参数配置、钱包签名与上链交付。',
+      primaryCta: '进入发行工作台',
+      secondaryCta: '查看发行模型',
+      badges: {
+        multiChain: '多链覆盖',
+        transparent: '费用与执行透明',
+        wallet: '钱包签名执行',
+        workflow: '模块化发行流程',
+      },
+      stats: {
+        networks: '支持网络',
+        tokenType: '代币标准',
+        currentChain: '当前链',
+      },
+    },
+    preview: {
+      coreLabel: '{{tokenType}} 发行工作台',
+      networksLabel: '网络',
+      cardEyebrow: 'Chain Deployment Lane',
+      networkTag: 'Chain ID {{chainId}}',
+      summary:
+        '面向 {{chain}} 的 {{tokenType}} 合约部署通道，支持以 {{nativeSymbol}} 结算 Gas，并衔接 {{dex}} 流动性路由与后续发行动作。',
+      metrics: {
+        tokenStandard: '代币标准',
+        gasAsset: 'Gas 资产',
+        routingVenue: '默认路由',
+        execution: 'Gas 模型',
+      },
+      defaults: {
+        routingVenue: '链上路由生态',
+      },
+      execution: {
+        eip1559: 'EIP-1559',
+        legacy: 'Legacy Gas',
+      },
+      badges: {
+        walletExecution: '钱包签名执行',
+        dexReady: 'DEX 路由就绪',
+        multiDex: '多 DEX 兼容',
+        eip1559: '动态费率',
+        legacyGas: '固定 Gas 模型',
+      },
+      actions: {
+        previous: '上一张卡片',
+        next: '下一张卡片',
+        goTo: '切换到卡片',
+      },
+      chips: {
+        taxReady: '税费模型',
+        vanity: '靓号代币',
+      },
+    },
+    models: {
+      eyebrow: '发行方案',
+      title: '面向不同发行阶段的代币模型矩阵',
+      description: '根据项目当前对合约控制、Tokenomics 复杂度与品牌识别度的要求，进入最合适的发行工作流。',
+      supportedChains: '支持 {{count}} 条网络',
+      cta: '进入工作流',
+      basic: {
+        title: '标准代币发行',
+        description: '面向标准同质化资产的基础部署路径，适合快速完成合约落地、钱包展示与后续流动性配置。',
+        bulletOne: '覆盖名称、符号、总量与精度等核心合约参数',
+        bulletTwo: '适合标准资产首发、社区测试与轻量级交易场景',
+      },
+      advanced: {
+        title: '税费代币发行',
+        description: '面向带交易税、接收地址和路由逻辑的发行模型，适合需要更强策略控制的项目上线。',
+        bulletOne: '支持买入税、卖出税与资金归集地址配置',
+        bulletTwo: '适合 Launch、营销盘与更复杂的交易前置设计',
+      },
+      vanity: {
+        title: '靓号部署',
+        description: '部署前预搜索目标前缀或后缀的合约地址，让发行结果具备更高品牌识别度与传播记忆点。',
+        bulletOne: '支持前缀、后缀目标与搜索难度预估',
+        bulletTwo: '适合品牌化部署、社区传播与项目视觉统一',
+      },
+    },
+    advantages: {
+      eyebrow: '平台能力',
+      title: '不只是发币页面，而是面向运营执行的发行入口',
+      description: '平台强调的不是单点创建能力，而是可持续扩展的 Launch Architecture 与更明确的执行路径。',
+      modular: {
+        title: '模块化 Launch Architecture',
+        description: '以工作流组织能力模块，便于持续接入更多发行、治理与运营工具，而不是堆积成碎片化工具列表。',
+      },
+      networks: {
+        title: '多链统一交付体验',
+        description: '在主流 EVM 网络中复用同一套交互与参数组织方式，降低跨链部署的重复配置和沟通成本。',
+      },
+      vanity: {
+        title: '品牌化部署能力',
+        description: '将靓号地址部署纳入平台级工作流，使项目在首次发行阶段就具备更清晰的品牌记忆点。',
+      },
+      transparent: {
+        title: '透明执行与结果追踪',
+        description: '把创建费用、执行状态、浏览器结果与能力边界直接前置展示，降低上线过程中的不确定性。',
+      },
+    },
+    flow: {
+      eyebrow: '发行流程',
+      title: '从参数配置到链上交付的标准化路径',
+      description: '无论发行模型如何扩展，用户都应沿着统一、可理解的流程完成部署与后续跟进。',
+      stepOne: '选择目标网络与发行模型',
+      stepOneDescription: '依据项目阶段、资金规模与策略复杂度，确定最匹配的部署链路。',
+      stepTwo: '配置合约参数与发行策略',
+      stepTwoDescription: '在结构化表单中完成代币字段、税率逻辑与执行选项确认。',
+      stepThree: '连接钱包并提交部署交易',
+      stepThreeDescription: '完成最终复核后，以钱包签名发起链上部署并等待交易确认。',
+      stepFour: '获取结果回执并衔接后续动作',
+      stepFourDescription: '直接拿到合约地址、浏览器链接与下一阶段流动性或运营入口。',
+    },
+    networks: {
+      eyebrow: '支持网络',
+      title: '围绕主流 EVM 生态建立发行覆盖',
+      description: '不同发行模型在工厂合约与网络可用性上可能存在差异，但平台整体已围绕多链部署能力进行设计。',
+    },
+    security: {
+      eyebrow: '信任层',
+      title: '透明、可追踪，并服务真实上线流程',
+      description: '对需要快速推进部署的团队来说，执行确定性与结果可追溯性同样属于核心能力。',
+      itemOne: '通过钱包签名直接发起部署交易，执行链路更直观',
+      itemTwo: '平台不托管用户私钥',
+      itemThree: '提交前可见创建费用与链上成本预期',
+      itemFour: '部署完成后直接返回浏览器可验证结果',
+      itemFive: '关键执行状态通过引导式流程持续展示',
+    },
+    expand: {
+      eyebrow: '扩展方向',
+      title: '围绕链上发行逐步延展的平台能力图谱',
+      description: '首页不仅展示当前已上线的能力，也提前传达平台未来的产品边界和演进方向。',
+      live: '已上线',
+      planned: '规划中',
+      issuance: {
+        title: '标准代币发行',
+        description: '面向标准资产创建与基础部署的核心发行能力。',
+      },
+      tokenomics: {
+        title: '税费代币发行',
+        description: '面向需要更多代币逻辑控制的税费发行工作流。',
+      },
+      vanity: {
+        title: '靓号部署',
+        description: '围绕合约地址识别度与项目记忆点构建的品牌化部署能力。',
+      },
+      ownership: {
+        title: '权限控制',
+        description: '可继续扩展为所有权转移、放弃权限与权限治理工具。',
+      },
+      liquidity: {
+        title: '流动性操作',
+        description: '可延展至交易对建立、流动性配置与部署后跟进行为。',
+      },
+      distribution: {
+        title: '分发工具',
+        description: '可扩展为空投、批量分发与持有人运营等交付能力。',
+      },
+    },
+    cta: {
+      eyebrow: '开始使用',
+      title: '从最匹配当前项目阶段的发行模型开始',
+      description: '选择与你当前 Token Strategy 相匹配的工作流，进入统一、清晰且可执行的 EVM Launch Flow。',
+      primary: '立即进入',
+    },
   },
   tokenCreation: {
     eyebrow: '',

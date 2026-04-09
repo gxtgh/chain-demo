@@ -273,6 +273,17 @@ body.app-theme.app-theme-dark.app-theme-color-green {
   display: flex;
   gap: 14px;
   align-items: center;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+.brand:hover {
+  transform: translateY(-1px);
+}
+
+.brand:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--theme-accent) 38%, transparent);
+  outline-offset: 6px;
+  border-radius: 20px;
 }
 
 .brand-mark {
@@ -666,6 +677,10 @@ body.app-theme.app-theme-dark.app-theme-color-green {
   align-content: start;
 }
 
+.layout-grid.layout-grid-home {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .mobile-panel-content,
 .mobile-settings-grid {
   display: grid;
@@ -915,6 +930,10 @@ body.app-theme.app-theme-dark .mobile-drawer,
 .page-stack {
   display: grid;
   gap: 20px;
+}
+
+.page-shell.page-shell-home {
+  gap: 28px;
 }
 
 .page-header {

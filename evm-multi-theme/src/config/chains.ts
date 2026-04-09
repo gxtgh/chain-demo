@@ -49,7 +49,7 @@ export type SupportedChainKey =
   | 'pulse'
   | 'core'
   | 'gate-layer'
-export type SupportedPageKey = 'token-creation' | 'tax-token-creation' | 'token-vanity-creation' | 'project-acceptance'
+export type SupportedPageKey = 'home' | 'token-creation' | 'tax-token-creation' | 'token-vanity-creation'
 
 export type TokenMeta = {
   address: string
@@ -113,7 +113,7 @@ export type ChainDefinition = {
 
 export const DEFAULT_LANG: SupportedLang = 'en-us'
 export const DEFAULT_CHAIN: SupportedChainKey = 'bsc'
-export const DEFAULT_PAGE: SupportedPageKey = 'token-creation'
+export const DEFAULT_PAGE: SupportedPageKey = 'home'
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000' as const
 
 function readRpcEnv(name: string | string[], fallback: string) {
@@ -626,6 +626,7 @@ const supportedChainsBase: ChainDefinition[] = [
     key: 'plasma',
     chainId: 9745,
     network: plasma,
+    defaultDex: 'Uniswap',
     EIP1559: true,
     name: 'Plasma',
     fullName: 'Plasma',
@@ -633,7 +634,27 @@ const supportedChainsBase: ChainDefinition[] = [
     tokenType: 'PRC20',
     deployUrl: '',
     rpcList: [DEFAULT_RPC.plasma],
-    dexs: [],
+    dexs: [
+      {
+        type: 'Lithos',
+        version: 'v2',
+        name: 'Lithos RouterV2',
+        logo: '/img/dex/lithos.svg',
+        routerAddress: '0xD70962bd7C6B3567a8c893b55a8aBC1E151759f3',
+        factoryAddress: '0x71a870D1c935C2146b87644DF3B5316e8756aE18',
+      },
+      // {
+      //   type: 'Uniswap',
+      //   version: 'v3',
+      //   name: 'Oku Trade (Uniswap V3)',
+      //   logo: '/img/dex/uniswap.png',
+      //   routerAddress: '0x807F4E281B7A3B324825C64ca53c69F0b418dE40',
+      //   factoryAddress: '0xcb2436774C3e191c85056d248EF4260ce5f27A9D',
+      //   quoterV2Address: '0xaa52bB8110fE38D0d2d2AF0B85C3A3eE622CA455',
+      //   nonfungiblePositionManager: '0x743E03cceB4af2efA3CC76838f6E8B50B63F184c',
+      //   rates: [100, 500, 3000, 10000],
+      // },
+    ],
     explorerBaseUrl: 'https://plasmascan.to',
     nativeToken: {
       address: ZERO_ADDRESS,
@@ -1004,7 +1025,29 @@ const supportedChainsBase: ChainDefinition[] = [
     tokenType: 'ERC20',
     deployUrl: '',
     rpcList: [DEFAULT_RPC.sonic],
-    dexs: [],
+    dexs: [
+      {
+        type: 'Shadow',
+        version: 'v2',
+        name: 'Shadow V2',
+        logo: '/img/dex/shadow.svg',
+        routerAddress: '0x1D368773735ee1E678950B7A97bcA2CafB330CDc',
+        factoryAddress: '0x2dA25E7446A70D7be65fd4c053948BEcAA6374c8',
+        // swapRouterAddress: '',
+        rates: [3000]
+      },
+      {
+        type: 'Shadow',
+        version: 'v3',
+        name: 'Shadow V3',
+        logo: '/img/dex/shadow.svg',
+        routerAddress: '0x5543c6176FEb9B4b179078205d7C29EEa2e2d695',
+        factoryAddress: '0xcD2d0637c94fe77C2896BbCBB174cefFb08DE6d7',
+        quoterV2Address: '0x219b7ADebc0935a3eC889a148c6924D51A07535A',
+        nonfungiblePositionManager: "0x12E66C8F215DdD5d48d150c8f46aD0c6fB0F4406",
+        rates: [100, 500, 2500, 10000],
+      }
+    ],
     explorerBaseUrl: 'https://sonicscan.org',
     nativeToken: {
       address: ZERO_ADDRESS,
@@ -1040,6 +1083,7 @@ const supportedChainsBase: ChainDefinition[] = [
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0xb87E8C20f1DdDCB7157FA8BC2282100DEb535A29' },
       { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x58c7627bBa4B2217985078822851B7ac2cDC6a0A' },
+      { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0x080c3c30683eade41dfb9ea3b3862f15b24be57a', dex: 'Shadow', version: 'v2' },
     ],
   },
   {
@@ -1170,7 +1214,28 @@ const supportedChainsBase: ChainDefinition[] = [
     tokenType: 'ERC20',
     deployUrl: '',
     rpcList: [DEFAULT_RPC.linea],
-    dexs: [],
+    dexs: [
+      {
+        type: 'PancakeSwap',
+        version: 'v2',
+        name: 'PancakeSwap V2',
+        logo: '/img/dex/pancake.svg',
+        routerAddress: '0x8cFe327CEc66d1C090Dd72bd0FF11d690C33a2Eb',
+        factoryAddress: '0x02a84c1b3BBD7401a5f7fa98a384EBC70bB5749E',
+        rates: [2500],
+      },
+      {
+        type: 'PancakeSwap',
+        version: 'v3',
+        name: 'PancakeSwap V3',
+        logo: '/img/dex/pancake.svg',
+        routerAddress: '0x1b81D678ffb9C0263b24A97847620C99d213eB14',
+        factoryAddress: '0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865',
+        quoterV2Address: '0xbC203d7f83677c7ed3F7acEc959963E7F4ECC5C2',
+        nonfungiblePositionManager: "0x427bF5b37357632377eCbEC9de3626C71A5396c1",
+        rates: [100, 500, 2500, 10000],
+      }
+    ],
     explorerBaseUrl: 'https://lineascan.build',
     nativeToken: {
       address: ZERO_ADDRESS,
@@ -1206,6 +1271,7 @@ const supportedChainsBase: ChainDefinition[] = [
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0xb87E8C20f1DdDCB7157FA8BC2282100DEb535A29' },
       { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x58c7627bBa4B2217985078822851B7ac2cDC6a0A' },
+      { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0x31551329E6fe50a6db1A3858175dc652F194239C', dex: 'PancakeSwap', version: 'v2', },
     ],
   },
   {
@@ -1667,10 +1733,10 @@ export function isSupportedChain(value?: string): value is SupportedChainKey {
 
 export function isSupportedPage(value?: string): value is SupportedPageKey {
   return (
+    value === 'home' ||
     value === 'token-creation' ||
     value === 'tax-token-creation' ||
-    value === 'token-vanity-creation' ||
-    value === 'project-acceptance'
+    value === 'token-vanity-creation'
   )
 }
 

@@ -15,6 +15,10 @@ export type PageRouteConfig = {
 }
 
 export const pageRouteConfigs: Record<SupportedPageKey, PageRouteConfig> = {
+  home: {
+    page: 'home',
+    chainKeys: supportedChains.map((chain) => chain.key),
+  },
   'token-creation': {
     page: 'token-creation',
     chainKeys: [
@@ -57,10 +61,10 @@ export const pageRouteConfigs: Record<SupportedPageKey, PageRouteConfig> = {
       'avalanche',
       'arbitrum',
       'optimism',
-      // 'sonic',
+      'sonic',
       'unichain',
       // 'hyperevm',
-      // 'linea',
+      'linea',
       // 'mantle',
       'blast',
       // 'scroll',
@@ -98,10 +102,6 @@ export const pageRouteConfigs: Record<SupportedPageKey, PageRouteConfig> = {
       'core',
       'gate-layer',
     ],
-  },
-  'project-acceptance': {
-    page: 'project-acceptance',
-    chainKeys: ['bsc', 'eth', 'base'],
   },
 }
 
@@ -142,7 +142,8 @@ export function buildPagePath(
     search.set('themeColor', options.themeColor)
   }
   const query = search.toString()
-  return `/${lang}/${resolvedChain}/${page}${query ? `?${query}` : ''}`
+  const pathname = page === 'home' ? `/${lang}/${resolvedChain}` : `/${lang}/${resolvedChain}/${page}`
+  return `${pathname}${query ? `?${query}` : ''}`
 }
 
 export function buildDefaultPath() {

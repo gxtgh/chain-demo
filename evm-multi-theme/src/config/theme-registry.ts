@@ -14,7 +14,7 @@ export type ThemeColorDefinition = {
 }
 
 export const DEFAULT_THEME: ThemeModeId = 'light'
-export const DEFAULT_THEME_COLOR: ThemeColorId = 'orange'
+export const DEFAULT_THEME_COLOR: ThemeColorId = 'green'
 
 export const themeModeRegistry: ThemeModeDefinition[] = [
   {

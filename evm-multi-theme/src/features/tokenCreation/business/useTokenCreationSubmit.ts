@@ -3,6 +3,7 @@ import { message } from 'antd'
 import { useAccount, useSwitchChain } from 'wagmi'
 import type { ChainDefinition } from '@/config/chains'
 import { isInsufficientFundsError } from '@/utils/evm-submit-error'
+import { getConnectorProvider } from '@/utils/wagmi-provider'
 import { readCreationFee, submitTokenCreation } from './tokenCreationService'
 import type { TokenCreationSubmitResult, TokenCreationSubmitStep, TokenCreationSubmitValues } from './model'
 
@@ -13,7 +14,7 @@ export function useTokenCreationSubmit(
   t: (key: string) => string,
   validateBeforeSubmit: () => boolean,
 ) {
-  const { isConnected, chainId } = useAccount()
+  const { isConnected, chainId, connector } = useAccount()
   const { switchChainAsync } = useSwitchChain()
   const [creationFee, setCreationFee] = useState<bigint | null>(null)
   const [feeLoading, setFeeLoading] = useState(true)
@@ -123,7 +124,12 @@ export function useTokenCreationSubmit(
 
       if (!isFlowActive(flowId)) return
 
-      const nextResult = await submitTokenCreation(chainDefinition, values, {
+      const walletProvider = await getConnectorProvider(connector, chainDefinition.chainId)
+      if (!walletProvider) {
+        throw new Error('tokenCreation.errors.walletUnavailable')
+      }
+
+      const nextResult = await submitTokenCreation(chainDefinition, values, walletProvider, {
         onWaitingWallet: () => {
           if (!isFlowActive(flowId)) return
           setSubmitStep({ id: 2, status: 'loading' })
@@ -154,7 +160,7 @@ export function useTokenCreationSubmit(
       }
 
       setLoading(false)
-      setSubmitStep((prev:any)=>({ ...prev, status: 'failed' }))
+      setSubmitStep((prev) => ({ id: prev?.id ?? 4, status: 'failed' }))
       modalTimerRef.current = window.setTimeout(() => {
         if (!isFlowActive(flowId)) return
         setSubmitStep(defaultStep)

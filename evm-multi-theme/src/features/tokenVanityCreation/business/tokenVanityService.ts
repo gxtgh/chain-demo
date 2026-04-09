@@ -1,4 +1,5 @@
 import { BrowserProvider, Contract, Interface, JsonRpcProvider } from 'ethers'
+import type { EIP1193Provider } from 'viem'
 import { getChainContractAddress, getChainRpcUrl, type ChainDefinition } from '@/config/chains'
 import { estimateMaxTransactionCost, getDynamicGasOverrides } from '@/utils/evm-gas'
 import type { TokenVanitySubmitResult, TokenVanitySubmitValues } from './model'
@@ -43,12 +44,13 @@ export async function readVanityFactorySnapshot(chainDefinition: ChainDefinition
 export async function submitTokenVanityCreation(
   chainDefinition: ChainDefinition,
   values: TokenVanitySubmitValues,
+  walletProvider: EIP1193Provider,
   options?: {
     onWaitingWallet?: () => void
     onPending?: () => void
   },
 ): Promise<TokenVanitySubmitResult> {
-  if (!window.ethereum) {
+  if (!walletProvider) {
     throw new Error('tokenVanityCreation.errors.walletUnavailable')
   }
 
@@ -57,7 +59,7 @@ export async function submitTokenVanityCreation(
     throw new Error('tokenVanityCreation.errors.factoryUnavailable')
   }
 
-  const browserProvider = new BrowserProvider(window.ethereum as never)
+  const browserProvider = new BrowserProvider(walletProvider)
   const signer = await browserProvider.getSigner()
   const signerAddress = await signer.getAddress()
   const contract = new Contract(factoryAddress, vanityTokenFactoryAbi, signer)

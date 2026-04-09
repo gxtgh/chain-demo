@@ -23,6 +23,20 @@ export type SeoContext = {
 }
 
 export function getPageSeo(page: SupportedPageKey, context: SeoContext): SeoDefinition {
+  if (page === 'home') {
+    return {
+      title: context.t('home.seo.title', {
+        chain: context.chainName,
+      }),
+      description: context.t('home.seo.description', {
+        chain: context.chainName,
+      }),
+      keywords: context.t('home.seo.keywords', {
+        chain: context.chainName,
+      }),
+    }
+  }
+
   if (page === 'token-creation') {
     return {
       title: context.t('tokenCreation.seo.title', {
@@ -77,9 +91,5 @@ export function getPageSeo(page: SupportedPageKey, context: SeoContext): SeoDefi
     }
   }
 
-  return {
-    title: context.t('acceptance.seo.title', { chain: context.chainName }),
-    description: context.t('acceptance.seo.description', { chain: context.chainName }),
-    keywords: context.t('acceptance.seo.keywords', { chain: context.chainName }),
-  }
+  throw new Error(`Unsupported SEO page: ${page satisfies never}`)
 }

@@ -3,8 +3,8 @@ import { supportedLanguages, type SupportedChainKey, type SupportedLang, type Su
 
 const fallbackSiteUrl = 'http://localhost:5174'
 
-export const SITE_NAME = 'Web3 Token'
-export const SUPPORT_EMAIL = 'support@create-solana-token.com'
+export const SITE_NAME = 'LaunchLayer'
+export const SUPPORT_EMAIL = 'BD@slerf.tools'
 export const SITE_URL = normalizeSiteUrl(import.meta.env.VITE_SITE_URL ?? fallbackSiteUrl)
 export const DEFAULT_OG_IMAGE = '/img/common/logo-orange.png'
 

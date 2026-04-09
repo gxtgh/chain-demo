@@ -3,6 +3,7 @@ import { message } from 'antd'
 import { useAccount, useSwitchChain } from 'wagmi'
 import type { ChainDefinition } from '@/config/chains'
 import { isInsufficientFundsError } from '@/utils/evm-submit-error'
+import { getConnectorProvider } from '@/utils/wagmi-provider'
 import { readVanityFactorySnapshot, submitTokenVanityCreation } from './tokenVanityService'
 import type { TokenVanitySubmitResult, TokenVanitySubmitStep, TokenVanitySubmitValues } from './model'
 
@@ -13,7 +14,7 @@ export function useTokenVanitySubmit(
   t: (key: string) => string,
   validateBeforeSubmit: () => boolean,
 ) {
-  const { isConnected, chainId } = useAccount()
+  const { isConnected, chainId, connector } = useAccount()
   const { switchChainAsync } = useSwitchChain()
   const [factoryAddress, setFactoryAddress] = useState<string>('')
   const [creationFee, setCreationFee] = useState<bigint | null>(null)
@@ -142,7 +143,12 @@ export function useTokenVanitySubmit(
 
       if (!isFlowActive(flowId)) return
 
-      const nextResult = await submitTokenVanityCreation(chainDefinition, values, {
+      const walletProvider = await getConnectorProvider(connector, chainDefinition.chainId)
+      if (!walletProvider) {
+        throw new Error('tokenVanityCreation.errors.walletUnavailable')
+      }
+
+      const nextResult = await submitTokenVanityCreation(chainDefinition, values, walletProvider, {
         onWaitingWallet: () => {
           if (!isFlowActive(flowId)) return
           setSubmitStep({ id: 2, status: 'loading' })

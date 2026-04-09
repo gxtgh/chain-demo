@@ -1,28 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://token-tools.pages.dev/en-us/bsc/token-creation</loc>
-    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/bsc/token-creation" />
-    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/bsc/token-creation" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/bsc/token-creation" />
+    <loc>https://token-tools.pages.dev/en-us/bsc</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/bsc" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/bsc" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/bsc" />
   </url>
   <url>
-    <loc>https://token-tools.pages.dev/zh-cn/bsc/token-creation</loc>
-    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/bsc/token-creation" />
-    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/bsc/token-creation" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/bsc/token-creation" />
+    <loc>https://token-tools.pages.dev/zh-cn/bsc</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/bsc" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/bsc" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/bsc" />
   </url>
   <url>
-    <loc>https://token-tools.pages.dev/en-us/bsc/tax-token-creation</loc>
-    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/bsc/tax-token-creation" />
-    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/bsc/tax-token-creation" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/bsc/tax-token-creation" />
+    <loc>https://token-tools.pages.dev/en-us/eth</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/eth" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/eth" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/eth" />
   </url>
   <url>
-    <loc>https://token-tools.pages.dev/zh-cn/bsc/tax-token-creation</loc>
-    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/bsc/tax-token-creation" />
-    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/bsc/tax-token-creation" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/bsc/tax-token-creation" />
+    <loc>https://token-tools.pages.dev/zh-cn/eth</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/eth" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/eth" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/eth" />
+  </url>
+  <url>
+    <loc>https://token-tools.pages.dev/en-us/base</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/base" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/base" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/base" />
+  </url>
+  <url>
+    <loc>https://token-tools.pages.dev/zh-cn/base</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/base" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/base" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/base" />
   </url>
   <url>
     <loc>https://token-tools.pages.dev/en-us/eth/token-creation</loc>
@@ -37,16 +49,16 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/eth/token-creation" />
   </url>
   <url>
-    <loc>https://token-tools.pages.dev/en-us/eth/tax-token-creation</loc>
-    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/eth/tax-token-creation" />
-    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/eth/tax-token-creation" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/eth/tax-token-creation" />
+    <loc>https://token-tools.pages.dev/en-us/bsc/token-creation</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/bsc/token-creation" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/bsc/token-creation" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/bsc/token-creation" />
   </url>
   <url>
-    <loc>https://token-tools.pages.dev/zh-cn/eth/tax-token-creation</loc>
-    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/eth/tax-token-creation" />
-    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/eth/tax-token-creation" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/eth/tax-token-creation" />
+    <loc>https://token-tools.pages.dev/zh-cn/bsc/token-creation</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/bsc/token-creation" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/bsc/token-creation" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/bsc/token-creation" />
   </url>
   <url>
     <loc>https://token-tools.pages.dev/en-us/base/token-creation</loc>
@@ -61,6 +73,30 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/base/token-creation" />
   </url>
   <url>
+    <loc>https://token-tools.pages.dev/en-us/eth/tax-token-creation</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/eth/tax-token-creation" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/eth/tax-token-creation" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/eth/tax-token-creation" />
+  </url>
+  <url>
+    <loc>https://token-tools.pages.dev/zh-cn/eth/tax-token-creation</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/eth/tax-token-creation" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/eth/tax-token-creation" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/eth/tax-token-creation" />
+  </url>
+  <url>
+    <loc>https://token-tools.pages.dev/en-us/bsc/tax-token-creation</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/bsc/tax-token-creation" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/bsc/tax-token-creation" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/bsc/tax-token-creation" />
+  </url>
+  <url>
+    <loc>https://token-tools.pages.dev/zh-cn/bsc/tax-token-creation</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/bsc/tax-token-creation" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/bsc/tax-token-creation" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/bsc/tax-token-creation" />
+  </url>
+  <url>
     <loc>https://token-tools.pages.dev/en-us/base/tax-token-creation</loc>
     <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/base/tax-token-creation" />
     <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/base/tax-token-creation" />
@@ -71,5 +107,41 @@
     <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/base/tax-token-creation" />
     <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/base/tax-token-creation" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/base/tax-token-creation" />
+  </url>
+  <url>
+    <loc>https://token-tools.pages.dev/en-us/eth/token-vanity-creation</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/eth/token-vanity-creation" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/eth/token-vanity-creation" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/eth/token-vanity-creation" />
+  </url>
+  <url>
+    <loc>https://token-tools.pages.dev/zh-cn/eth/token-vanity-creation</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/eth/token-vanity-creation" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/eth/token-vanity-creation" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/eth/token-vanity-creation" />
+  </url>
+  <url>
+    <loc>https://token-tools.pages.dev/en-us/bsc/token-vanity-creation</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/bsc/token-vanity-creation" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/bsc/token-vanity-creation" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/bsc/token-vanity-creation" />
+  </url>
+  <url>
+    <loc>https://token-tools.pages.dev/zh-cn/bsc/token-vanity-creation</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/bsc/token-vanity-creation" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/bsc/token-vanity-creation" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/bsc/token-vanity-creation" />
+  </url>
+  <url>
+    <loc>https://token-tools.pages.dev/en-us/base/token-vanity-creation</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/base/token-vanity-creation" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/base/token-vanity-creation" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/base/token-vanity-creation" />
+  </url>
+  <url>
+    <loc>https://token-tools.pages.dev/zh-cn/base/token-vanity-creation</loc>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://token-tools.pages.dev/en-us/base/token-vanity-creation" />
+    <xhtml:link rel="alternate" hreflang="zh-cn" href="https://token-tools.pages.dev/zh-cn/base/token-vanity-creation" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://token-tools.pages.dev/en-us/base/token-vanity-creation" />
   </url>
 </urlset>

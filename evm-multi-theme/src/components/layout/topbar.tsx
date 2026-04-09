@@ -2,6 +2,7 @@ import { SettingsIcon } from '@/components/common/topbar-icons'
 import { ChainSwitcher } from '@/components/chain/chain-switcher'
 import { useRouteContext } from '@/app/use-route-context'
 import { LanguageSwitcher } from '@/components/language/language-switcher'
+import { buildPagePath } from '@/config/routes'
 import { ShareMenu } from '@/components/share/share-menu'
 import { ThemeSwitcher } from '@/components/theme/theme-switcher'
 import { ConnectWalletButton } from '@/components/wallet/connect-wallet-button'
@@ -13,20 +14,21 @@ export function Topbar({
   onOpenMobileControls: () => void
   onOpenShare: () => void
 }) {
-  const { t, themeColor } = useRouteContext()
+  const { t, lang, chain, theme, themeColor } = useRouteContext()
   const logoSrc = `/img/common/logo-${themeColor}.png`
+  const homePath = buildPagePath(lang, chain, 'home', { theme, themeColor })
 
   return (
     <div className="topbar">
-      <div className="brand">
+      <a className="brand" href={homePath}>
         <div className="brand-mark">
           <img src={logoSrc} alt={`${t('app.name')} logo`} />
         </div>
-        <div className='description'>
+        <div className="description">
           <strong>{t('app.name')}</strong>
           <span>{t('app.tagline')}</span>
         </div>
-      </div>
+      </a>
 
       <div className="topbar-actions">
         <ChainSwitcher />

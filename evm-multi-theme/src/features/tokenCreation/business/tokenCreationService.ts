@@ -1,4 +1,5 @@
 import { BrowserProvider, Contract, Interface, JsonRpcProvider } from 'ethers'
+import type { EIP1193Provider } from 'viem'
 import { getChainContractAddress, getChainRpcUrl, type ChainDefinition } from '@/config/chains'
 import tokenFactoryAbi from '@/assets/abi/TokenFactory.json'
 import { estimateMaxTransactionCost, getDynamicGasOverrides } from '@/utils/evm-gas'
@@ -22,16 +23,17 @@ export async function readCreationFee(chainDefinition: ChainDefinition) {
 export async function submitTokenCreation(
   chainDefinition: ChainDefinition,
   values: TokenCreationSubmitValues,
+  walletProvider: EIP1193Provider,
   options?: {
     onWaitingWallet?: () => void
     onPending?: () => void
   },
 ): Promise<TokenCreationSubmitResult> {
-  if (!window.ethereum) {
+  if (!walletProvider) {
     throw new Error('tokenCreation.errors.walletUnavailable')
   }
 
-  const browserProvider = new BrowserProvider(window.ethereum as never)
+  const browserProvider = new BrowserProvider(walletProvider)
   const signer = await browserProvider.getSigner()
   const signerAddress = await signer.getAddress()
   const tokenFactoryAddress = getChainContractAddress(chainDefinition, 'tokenFactory')

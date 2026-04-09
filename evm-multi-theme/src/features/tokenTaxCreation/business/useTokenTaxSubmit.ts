@@ -3,6 +3,7 @@ import { message } from 'antd'
 import { useAccount, useSwitchChain } from 'wagmi'
 import type { ChainDefinition } from '@/config/chains'
 import { isInsufficientFundsError } from '@/utils/evm-submit-error'
+import { getConnectorProvider } from '@/utils/wagmi-provider'
 import { readTaxCreationFee, submitTokenTaxCreation } from './tokenTaxCreationService'
 import type { TokenTaxSubmitResult, TokenTaxSubmitStep, TokenTaxSubmitValues } from './model'
 
@@ -14,7 +15,7 @@ export function useTokenTaxSubmit(
   t: (key: string) => string,
   validateBeforeSubmit: () => boolean,
 ) {
-  const { isConnected, chainId } = useAccount()
+  const { isConnected, chainId, connector } = useAccount()
   const { switchChainAsync } = useSwitchChain()
   const [creationFee, setCreationFee] = useState<bigint | null>(null)
   const [feeLoading, setFeeLoading] = useState(true)
@@ -130,7 +131,12 @@ export function useTokenTaxSubmit(
 
       if (!isFlowActive(flowId)) return
 
-      const nextResult = await submitTokenTaxCreation(chainDefinition, factoryAddress, values, {
+      const walletProvider = await getConnectorProvider(connector, chainDefinition.chainId)
+      if (!walletProvider) {
+        throw new Error('tokenTaxCreation.errors.walletUnavailable')
+      }
+
+      const nextResult = await submitTokenTaxCreation(chainDefinition, factoryAddress, values, walletProvider, {
         onWaitingWallet: () => {
           if (!isFlowActive(flowId)) return
           setSubmitStep({ id: 2, status: 'loading' })
@@ -152,6 +158,7 @@ export function useTokenTaxSubmit(
         setSuccessModalOpen(true)
       }, 600)
     } catch (error) {
+      console.log("error",error)
       if (!isFlowActive(flowId)) return
 
       if (isInsufficientFundsError(error)) {
@@ -161,7 +168,7 @@ export function useTokenTaxSubmit(
       }
 
       setLoading(false)
-      setSubmitStep((prev: any)=>({ ...prev, status: 'failed' })) 
+      setSubmitStep((prev) => ({ id: prev?.id ?? 4, status: 'failed' }))
       modalTimerRef.current = window.setTimeout(() => {
         if (!isFlowActive(flowId)) return
         setSubmitStep(defaultStep)

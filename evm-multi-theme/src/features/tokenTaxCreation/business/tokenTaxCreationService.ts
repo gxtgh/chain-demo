@@ -1,10 +1,10 @@
 import { BrowserProvider, Contract, Interface, JsonRpcProvider, ZeroAddress } from 'ethers'
+import type { EIP1193Provider } from 'viem'
 import { getChainRpcUrl, type ChainDefinition } from '@/config/chains'
 import { estimateMaxTransactionCost, getDynamicGasOverrides } from '@/utils/evm-gas'
 import tokenTaxFactoryAbi from '@/assets/abi/TokenTax.json'
+import tokenTaxShadowFactoryAbi from '@/assets/abi/TokenTaxShadow.json'
 import type { TokenTaxSubmitResult, TokenTaxSubmitValues } from './model'
-
-const factoryInterface = new Interface(tokenTaxFactoryAbi)
 
 export async function readTaxCreationFee(chainDefinition: ChainDefinition, factoryAddress: string) {
   const rpcUrl = getChainRpcUrl(chainDefinition)
@@ -13,8 +13,9 @@ export async function readTaxCreationFee(chainDefinition: ChainDefinition, facto
     throw new Error('tokenTaxCreation.errors.factoryUnavailable')
   }
 
+  const { abi } = resolveTaxFactoryContext(chainDefinition, factoryAddress)
   const provider = new JsonRpcProvider(rpcUrl)
-  const contract = new Contract(factoryAddress, tokenTaxFactoryAbi, provider)
+  const contract = new Contract(factoryAddress, abi, provider)
   return (await contract.creationFee()) as bigint
 }
 
@@ -22,23 +23,26 @@ export async function submitTokenTaxCreation(
   chainDefinition: ChainDefinition,
   factoryAddress: string,
   values: TokenTaxSubmitValues,
+  walletProvider: EIP1193Provider,
   options?: {
     onWaitingWallet?: () => void
     onPending?: () => void
   },
 ): Promise<TokenTaxSubmitResult> {
-  if (!window.ethereum) {
+  if (!walletProvider) {
     throw new Error('tokenTaxCreation.errors.walletUnavailable')
   }
 
   if (!factoryAddress) {
     throw new Error('tokenTaxCreation.errors.factoryUnavailable')
   }
-
-  const browserProvider = new BrowserProvider(window.ethereum as never)
+  debugger
+  const { abi, isShadowFactory } = resolveTaxFactoryContext(chainDefinition, factoryAddress)
+  const factoryInterface = new Interface(abi)
+  const browserProvider = new BrowserProvider(walletProvider)
   const signer = await browserProvider.getSigner()
   const signerAddress = await signer.getAddress()
-  const contract = new Contract(factoryAddress, tokenTaxFactoryAbi, signer)
+  const contract = new Contract(factoryAddress, abi, signer)
   const creationFee = (await contract.creationFee()) as bigint
   const walletBalance = await browserProvider.getBalance(signerAddress)
 
@@ -54,8 +58,14 @@ export async function submitTokenTaxCreation(
     tradingEnabled: true,
     renounceOwnership: false,
   }
+  const submitParams = isShadowFactory
+    ? {
+        ...tokenParams,
+        stablePair: false,
+      }
+    : tokenParams
 
-  const gasEstimate = (await contract.createTaxToken.estimateGas(tokenParams, {
+  const gasEstimate = (await contract.createTaxToken.estimateGas(submitParams, {
     value: creationFee,
   })) as bigint
 
@@ -68,7 +78,7 @@ export async function submitTokenTaxCreation(
     throw new Error('tokenTaxCreation.errors.insufficientBalance')
   }
 
-  const transaction = await contract.createTaxToken(tokenParams, gasOverrides)
+  const transaction = await contract.createTaxToken(submitParams, gasOverrides)
 
   options?.onPending?.()
   const receipt = await transaction.wait()
@@ -99,4 +109,16 @@ function toBasisPoints(value: string) {
   }
 
   return BigInt(Math.round(Number(value) * 100))
+}
+
+function resolveTaxFactoryContext(chainDefinition: ChainDefinition, factoryAddress: string) {
+  const factoryConfig = chainDefinition.contractList.find(
+    (contract) => contract.key === 'tokenTaxFactory' && contract.address.toLowerCase() === factoryAddress.toLowerCase(),
+  )
+  const isShadowFactory = factoryConfig?.dex === 'Shadow'
+
+  return {
+    abi: isShadowFactory ? tokenTaxShadowFactoryAbi : tokenTaxFactoryAbi,
+    isShadowFactory,
+  }
 }

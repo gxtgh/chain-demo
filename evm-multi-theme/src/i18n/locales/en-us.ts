@@ -25,18 +25,18 @@ export const enUsMessages = {
     controls: 'Controls',
   },
   app: {
-    name: 'Web3 Token',
+    name: 'LaunchLayer',
     tagline: 'Professional Token Toolkit',
   },
   footer: {
-    copyright: 'Web3 Token © 2026',
+    copyright: 'LaunchLayer © 2026',
     emailLabel: 'Email',
   },
   nav: {
+    home: 'Home',
     tokenCreation: 'Token Creation',
     tokenTaxCreation: 'Tax Token',
     tokenVanityCreation: 'Vanity Token',
-    projectAcceptance: 'Project Acceptance',
   },
   topbar: {
     language: 'Language',
@@ -61,9 +61,9 @@ export const enUsMessages = {
   },
   share: {
     menuItem: 'Share',
-    eyebrow: 'Share Web3 Token',
+    eyebrow: 'Share LaunchLayer',
     title: 'Create Your Token',
-    description: 'Share Web3 Token with founders, communities, and partners so they can launch tokens across EVM chains with a simpler workflow.',
+    description: 'Share LaunchLayer with founders, communities, and partners so they can launch tokens across EVM chains with a simpler workflow.',
     featureTokens: 'Supports standard tokens, tax tokens, vanity-token workflows, and more.',
     chainSummary: 'Create your token on {{count}} chains including {{chains}}.',
     featureNoCode: 'No coding required. Connect a wallet and follow the guided creation flow.',
@@ -76,12 +76,187 @@ export const enUsMessages = {
     downloadSuccess: 'Screenshot saved',
     downloadFailed: 'Failed to save the screenshot. Please try again.',
     qrTitle: 'Official QR Code',
-    qrText: 'Scan to open the Web3 Token website and jump into the token creation toolkit.',
+    qrText: 'Scan to open the LaunchLayer website and jump into the token creation toolkit.',
     visualLabel: 'Token launch toolkit',
     toolsTitle: 'Token creation suite',
     toolsText: 'Standard tokens, tax tokens, vanity-token workflows, and more capabilities are expanding.',
     chainsTitle: 'Multi-chain support',
     support: 'Email',
+  },
+  home: {
+    seo: {
+      title: 'EVM Token Launch Platform on {{chain}} | LaunchLayer',
+      description:
+        'Launch standard token contracts, advanced tokenomics workflows, and vanity deployments on {{chain}} with a multi-chain EVM token launch platform.',
+      keywords: 'EVM Token Launch Platform, {{chain}} Token Launch Workbench, Tokenomics, Tax Token, Vanity Token, Multi-Chain Launch',
+    },
+    hero: {
+      eyebrow: 'EVM Token Launch Platform',
+      title: 'Drive token issuance, configuration review, and on-chain deployment from one structured workbench',
+      description:
+        'Run standard issuance, advanced tokenomics setup, and vanity-address deployment across major EVM networks through an execution-ready launch workflow. Start on {{chain}} and move from parameter setup to wallet-signed delivery with a consistent operating model.',
+      primaryCta: 'Open Launch Workbench',
+      secondaryCta: 'Explore Launch Models',
+      badges: {
+        multiChain: 'Multi-chain coverage',
+        transparent: 'Transparent execution',
+        wallet: 'Wallet-signed deployment',
+        workflow: 'Modular launch workflows',
+      },
+      stats: {
+        networks: 'Supported networks',
+        tokenType: 'Token standard',
+        currentChain: 'Current chain',
+      },
+    },
+    preview: {
+      coreLabel: '{{tokenType}} launch workbench',
+      networksLabel: 'Networks',
+      cardEyebrow: 'Chain Deployment Lane',
+      networkTag: 'Chain ID {{chainId}}',
+      summary:
+        'A {{tokenType}} deployment lane for {{chain}} with {{nativeSymbol}} gas settlement, {{dex}} routing context, and a production-minded launch path.',
+      metrics: {
+        tokenStandard: 'Token standard',
+        gasAsset: 'Gas asset',
+        routingVenue: 'Default routing',
+        execution: 'Gas model',
+      },
+      defaults: {
+        routingVenue: 'On-chain routing',
+      },
+      execution: {
+        eip1559: 'EIP-1559',
+        legacy: 'Legacy Gas',
+      },
+      badges: {
+        walletExecution: 'Wallet-signed execution',
+        dexReady: 'DEX routing ready',
+        multiDex: 'Multi-DEX compatible',
+        eip1559: 'Dynamic fee market',
+        legacyGas: 'Legacy gas model',
+      },
+      actions: {
+        previous: 'Previous card',
+        next: 'Next card',
+        goTo: 'Go to card',
+      },
+      chips: {
+        taxReady: 'Tax Ready',
+        vanity: 'Vanity Token',
+      },
+    },
+    models: {
+      eyebrow: 'Launch Models',
+      title: 'A launch model matrix for different issuance stages',
+      description: 'Choose the workflow that matches your project’s current needs around contract control, tokenomics complexity, and launch identity.',
+      supportedChains: '{{count}} supported networks',
+      cta: 'Open Workflow',
+      basic: {
+        title: 'Standard Token Issuance',
+        description: 'Deploy a clean fungible token contract for straightforward issuance, wallet display, and downstream liquidity setup.',
+        bulletOne: 'Covers core contract inputs including name, symbol, supply, and decimals',
+        bulletTwo: 'Fits standard asset launches, community testing, and lightweight trading scenarios',
+      },
+      advanced: {
+        title: 'Advanced Tokenomics',
+        description: 'Launch tax-enabled token models with buy/sell logic, receiver controls, and more deliberate routing preparation.',
+        bulletOne: 'Configure buy tax, sell tax, and treasury-style receiver addresses',
+        bulletTwo: 'Built for launches that require stronger trading and distribution controls',
+      },
+      vanity: {
+        title: 'Vanity Deployment',
+        description: 'Search for a contract address with a preferred prefix or suffix before deployment to make the launch more recognizable.',
+        bulletOne: 'Supports prefix and suffix targeting with difficulty-aware search',
+        bulletTwo: 'Useful for brand-oriented deployments, campaign launches, and stronger recall',
+      },
+    },
+    advantages: {
+      eyebrow: 'Platform Strengths',
+      title: 'More than a creator. A launch surface built for execution.',
+      description: 'The platform is structured to make token issuance operationally clear, transparent, and ready for expansion.',
+      modular: {
+        title: 'Modular Launch Architecture',
+        description: 'Organize issuance capabilities by workflow so the product can keep growing without turning navigation into a tool dump.',
+      },
+      networks: {
+        title: 'Unified Multi-Chain Delivery',
+        description: 'Reuse one operating model across major EVM networks instead of rebuilding the launch flow chain by chain.',
+      },
+      vanity: {
+        title: 'Brand-Oriented Deployment',
+        description: 'Treat vanity-address deployment as a first-class launch workflow rather than leaving it as a disconnected utility.',
+      },
+      transparent: {
+        title: 'Transparent Execution & Traceability',
+        description: 'Expose creation cost, workflow state, explorer results, and launch boundaries in-product instead of hiding them in docs.',
+      },
+    },
+    flow: {
+      eyebrow: 'Launch Flow',
+      title: 'A standardized path from configuration to on-chain delivery',
+      description: 'Keep the journey consistent and understandable even as issuance models become more specialized.',
+      stepOne: 'Select the target network and launch model',
+      stepOneDescription: 'Choose the deployment lane that fits the project stage, budget, and strategy complexity.',
+      stepTwo: 'Configure contract parameters and launch strategy',
+      stepTwoDescription: 'Complete token fields, tax logic, and execution options through a structured form flow.',
+      stepThree: 'Connect wallet and submit the deployment transaction',
+      stepThreeDescription: 'Review the final configuration, sign with your wallet, and push the launch on-chain.',
+      stepFour: 'Receive result receipts and continue into next actions',
+      stepFourDescription: 'Get the contract address, explorer links, and the next operational entry points after deployment.',
+    },
+    networks: {
+      eyebrow: 'Supported Networks',
+      title: 'Coverage built around major EVM ecosystems',
+      description: 'Availability can vary by launch model and factory readiness, but the platform is designed around broad multi-chain deployment coverage.',
+    },
+    security: {
+      eyebrow: 'Trust Layer',
+      title: 'Transparent, traceable, and aligned with production launches',
+      description: 'Teams shipping under time pressure still need predictable execution and result traceability before and after deployment.',
+      itemOne: 'Wallet signatures initiate deployment directly from the user workflow',
+      itemTwo: 'The platform does not custody private keys',
+      itemThree: 'Creation fees and expected on-chain cost are visible before submit',
+      itemFour: 'Successful transactions return explorer-verifiable results',
+      itemFive: 'Execution state is shown as a guided, visible process',
+    },
+    expand: {
+      eyebrow: 'Expansion Map',
+      title: 'A capability map that extends beyond issuance',
+      description: 'The homepage should communicate both what is live today and where the platform is headed next.',
+      live: 'Live',
+      planned: 'Planned',
+      issuance: {
+        title: 'Standard Token Issuance',
+        description: 'Core launch capability for clean asset creation and baseline contract deployment.',
+      },
+      tokenomics: {
+        title: 'Advanced Tokenomics',
+        description: 'Tax-enabled launch workflows for projects that need stronger token-logic controls.',
+      },
+      vanity: {
+        title: 'Vanity Deployment',
+        description: 'Contract-address-driven deployment for stronger launch identity and memorability.',
+      },
+      ownership: {
+        title: 'Ownership Controls',
+        description: 'Next-stage tooling for ownership transfer, renounce flows, and permission management.',
+      },
+      liquidity: {
+        title: 'Liquidity Operations',
+        description: 'Future entry points for pairing, liquidity setup, and post-deployment follow-through.',
+      },
+      distribution: {
+        title: 'Distribution Tools',
+        description: 'Upcoming utilities for token distribution, campaign rollout, and holder-facing operations.',
+      },
+    },
+    cta: {
+      eyebrow: 'Start Here',
+      title: 'Start with the launch model that fits the project stage',
+      description: 'Choose the workflow that matches your current token strategy and move into a guided, execution-ready EVM launch flow.',
+      primary: 'Enter Now',
+    },
   },
   tokenCreation: {
     eyebrow: '',

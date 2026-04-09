@@ -1,0 +1,95 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint256", "name": "newFee", "type": "uint256" }
+    ],
+    "name": "CreationFeeUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "newRouter", "type": "address" }
+    ],
+    "name": "DefaultRouterUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "creator", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "FeeCollected",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "oldReceiver", "type": "address" },
+      { "indexed": true, "internalType": "address", "name": "newReceiver", "type": "address" }
+    ],
+    "name": "FeeReceiverUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "token", "type": "address" },
+      { "indexed": true, "internalType": "address", "name": "creator", "type": "address" },
+      { "indexed": false, "internalType": "string", "name": "name", "type": "string" },
+      { "indexed": false, "internalType": "string", "name": "symbol", "type": "string" },
+      { "indexed": false, "internalType": "uint8", "name": "decimals", "type": "uint8" },
+      { "indexed": false, "internalType": "uint256", "name": "totalSupply", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "buyTax", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "sellTax", "type": "uint256" },
+      { "indexed": false, "internalType": "address", "name": "taxReceiver", "type": "address" },
+      { "indexed": false, "internalType": "bool", "name": "stablePair", "type": "bool" },
+      { "indexed": false, "internalType": "bool", "name": "tradingEnabled", "type": "bool" },
+      { "indexed": false, "internalType": "bool", "name": "ownershipRenounced", "type": "bool" }
+    ],
+    "name": "TokenCreated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "string", "name": "symbol", "type": "string" },
+          { "internalType": "uint8", "name": "decimals", "type": "uint8" },
+          { "internalType": "uint256", "name": "totalSupply", "type": "uint256" },
+          { "internalType": "uint256", "name": "buyTax", "type": "uint256" },
+          { "internalType": "uint256", "name": "sellTax", "type": "uint256" },
+          { "internalType": "address", "name": "taxReceiver", "type": "address" },
+          { "internalType": "address", "name": "pairedToken", "type": "address" },
+          { "internalType": "bool", "name": "stablePair", "type": "bool" },
+          { "internalType": "bool", "name": "tradingEnabled", "type": "bool" },
+          { "internalType": "bool", "name": "renounceOwnership", "type": "bool" }
+        ],
+        "internalType": "struct TaxTokenFactoryV1Shadow.TokenParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "createTaxToken",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "creationFee",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "defaultRouter",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

@@ -17,6 +17,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
+  const isHomePage = page === 'home'
   const logoSrc = `/img/common/logo-${themeColor}.png`
   const navItems = useMemo(
     () =>
@@ -91,7 +92,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
         }
-        width={320}
+        size={320}
       >
         <div className="mobile-drawer-sections">
           <section className="mobile-drawer-section">
@@ -132,20 +133,22 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </Drawer>
       <ShareSiteModal open={shareModalOpen} onClose={() => setShareModalOpen(false)} />
-      <div className="layout-grid">
-        <aside className="sidebar-card">
-          {navItems.map((item) => (
-            <button
-              className={`sidebar-link ${page === item.page ? 'active' : ''}`}
-              key={item.page}
-              onClick={() => navigateToPage(item.page)}
-              type="button"
-            >
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </aside>
-        <main className="page-shell">{children}</main>
+      <div className={`layout-grid ${isHomePage ? 'layout-grid-home' : ''}`}>
+        {isHomePage ? null : (
+          <aside className="sidebar-card">
+            {navItems.map((item) => (
+              <button
+                className={`sidebar-link ${page === item.page ? 'active' : ''}`}
+                key={item.page}
+                onClick={() => navigateToPage(item.page)}
+                type="button"
+              >
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </aside>
+        )}
+        <main className={`page-shell ${isHomePage ? 'page-shell-home' : ''}`}>{children}</main>
       </div>
       <AppFooter />
       <button

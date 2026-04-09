@@ -21,10 +21,10 @@ import { buildTokenVanityFaqStructuredData, getTokenVanityFaqVars } from '@/feat
 import { createTranslator } from '@/i18n/messages'
 
 export const prerenderRoutes = supportedLanguages.flatMap((language) =>
-  (['token-creation', 'tax-token-creation', 'token-vanity-creation'] as const).flatMap((page) =>
+  (['home', 'token-creation', 'tax-token-creation', 'token-vanity-creation'] as const).flatMap((page) =>
     getPageSupportedChains(page)
       .filter((chain) => chain.seoIndex)
-      .map((chain) => `/${language.key}/${chain.key}/${page}`),
+      .map((chain) => (page === 'home' ? `/${language.key}/${chain.key}` : `/${language.key}/${chain.key}/${page}`)),
   ),
 )
 
@@ -115,20 +115,30 @@ function resolvePublicRoute(url: string) {
 
   if (
     !isSupportedLang(lang) ||
-    !isSupportedChain(chain) ||
-    (page !== 'token-creation' && page !== 'tax-token-creation' && page !== 'token-vanity-creation')
+    !isSupportedChain(chain)
   ) {
     return null
   }
 
-  if (!isPageChainSupported(page, chain)) {
+  const resolvedPage =
+    page === undefined
+      ? 'home'
+      : page === 'token-creation' || page === 'tax-token-creation' || page === 'token-vanity-creation'
+        ? page
+        : null
+
+  if (!resolvedPage) {
+    return null
+  }
+
+  if (!isPageChainSupported(resolvedPage, chain)) {
     return null
   }
 
   return {
     lang: lang as SupportedLang,
     chain: chain as SupportedChainKey,
-    page: page as SupportedPageKey,
+    page: resolvedPage as SupportedPageKey,
   }
 }
 
