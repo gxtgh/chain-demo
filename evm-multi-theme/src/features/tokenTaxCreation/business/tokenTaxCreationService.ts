@@ -2,6 +2,7 @@ import { BrowserProvider, Contract, Interface, JsonRpcProvider, ZeroAddress } fr
 import type { EIP1193Provider } from 'viem'
 import { getChainRpcUrl, type ChainDefinition } from '@/config/chains'
 import { estimateMaxTransactionCost, getDynamicGasOverrides } from '@/utils/evm-gas'
+import { isInsufficientFundsError } from '@/utils/evm-submit-error'
 import tokenTaxFactoryAbi from '@/assets/abi/TokenTax.json'
 import tokenTaxShadowFactoryAbi from '@/assets/abi/TokenTaxShadow.json'
 import type { TokenTaxSubmitResult, TokenTaxSubmitValues } from './model'
@@ -36,7 +37,7 @@ export async function submitTokenTaxCreation(
   if (!factoryAddress) {
     throw new Error('tokenTaxCreation.errors.factoryUnavailable')
   }
-  debugger
+
   const { abi, isShadowFactory } = resolveTaxFactoryContext(chainDefinition, factoryAddress)
   const factoryInterface = new Interface(abi)
   const browserProvider = new BrowserProvider(walletProvider)
@@ -45,6 +46,10 @@ export async function submitTokenTaxCreation(
   const contract = new Contract(factoryAddress, abi, signer)
   const creationFee = (await contract.creationFee()) as bigint
   const walletBalance = await browserProvider.getBalance(signerAddress)
+
+  if (walletBalance < creationFee) {
+    throw new Error('tokenTaxCreation.errors.insufficientBalance')
+  }
 
   const tokenParams = {
     name: values.name,
@@ -65,9 +70,17 @@ export async function submitTokenTaxCreation(
       }
     : tokenParams
 
-  const gasEstimate = (await contract.createTaxToken.estimateGas(submitParams, {
-    value: creationFee,
-  })) as bigint
+  let gasEstimate: bigint
+  try {
+    gasEstimate = (await contract.createTaxToken.estimateGas(submitParams, {
+      value: creationFee,
+    })) as bigint
+  } catch (error) {
+    if (isInsufficientFundsError(error)) {
+      throw new Error('tokenTaxCreation.errors.insufficientBalance')
+    }
+    throw error
+  }
 
   const gasLimit = (gasEstimate * 12n) / 10n
   options?.onWaitingWallet?.()

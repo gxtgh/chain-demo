@@ -2,7 +2,7 @@ export function isInsufficientFundsError(error: unknown) {
   const candidates = collectErrorStrings(error)
 
   return candidates.some((item) =>
-    /insufficient funds|insufficient_balance|funds for gas \* price \+ value|exceeds the balance/i.test(item),
+    /insufficient funds|insufficient_balance|funds for gas \* price \+ value|exceeds the balance|insufficient balance for transfer/i.test(item),
   )
 }
 

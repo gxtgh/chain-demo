@@ -99,8 +99,8 @@
   .tax-exchange-select.ant-select.ant-select-status-error:hover .ant-select-selector,
   .tax-exchange-select.ant-select.ant-select-status-error.ant-select-focused .ant-select-selector,
   .tax-exchange-select.ant-select.ant-select-status-error.ant-select-open .ant-select-selector {
-    border-color: color-mix(in srgb, var(--warning) 72%, transparent) !important;
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--warning) 12%, transparent) !important;
+    border-color: color-mix(in srgb, var(--error) 72%, transparent) !important;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--error) 12%, transparent) !important;
   }
 
   .tax-exchange-select.ant-select.ant-select-disabled {
@@ -286,8 +286,8 @@ body.app-theme.app-theme-dark {
     .tax-exchange-select.ant-select.ant-select-status-error:hover .ant-select-selector,
     .tax-exchange-select.ant-select.ant-select-status-error.ant-select-focused .ant-select-selector,
     .tax-exchange-select.ant-select.ant-select-status-error.ant-select-open .ant-select-selector {
-      border-color: color-mix(in srgb, var(--warning) 72%, transparent) !important;
-      box-shadow: 0 0 0 4px color-mix(in srgb, var(--warning) 12%, transparent) !important;
+      border-color: color-mix(in srgb, var(--error) 72%, transparent) !important;
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--error) 12%, transparent) !important;
     }
 
     .tax-exchange-select.ant-select .ant-select-selection-item,

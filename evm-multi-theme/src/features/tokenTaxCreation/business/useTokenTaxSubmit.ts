@@ -158,7 +158,6 @@ export function useTokenTaxSubmit(
         setSuccessModalOpen(true)
       }, 600)
     } catch (error) {
-      console.log("error",error)
       if (!isFlowActive(flowId)) return
 
       if (isInsufficientFundsError(error)) {

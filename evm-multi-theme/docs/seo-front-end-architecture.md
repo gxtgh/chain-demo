@@ -524,7 +524,6 @@ src/
     tokenCreation/
       business/
       shared/
-    projectAcceptance/
       pages/
 ```
 

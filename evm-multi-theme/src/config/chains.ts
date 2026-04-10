@@ -1083,7 +1083,7 @@ const supportedChainsBase: ChainDefinition[] = [
     contractList: [
       { key: 'tokenFactory', label: 'Token Creation', address: '0xb87E8C20f1DdDCB7157FA8BC2282100DEb535A29' },
       { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x58c7627bBa4B2217985078822851B7ac2cDC6a0A' },
-      { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0x080c3c30683eade41dfb9ea3b3862f15b24be57a', dex: 'Shadow', version: 'v2' },
+      { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0x9a232934326e2a1598acc7fff4b37d82ac39a462', dex: 'Shadow', version: 'v2' },
     ],
   },
   {

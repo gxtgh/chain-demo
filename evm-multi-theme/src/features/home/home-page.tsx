@@ -9,7 +9,7 @@ import {
   SafetyCertificateOutlined,
   ThunderboltOutlined,
 } from '@ant-design/icons'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouteContext } from '@/app/use-route-context'
 import { PageSeo } from '@/components/common/page-seo'
 import { getChainFullName, supportedChains, type ChainDefinition } from '@/config/chains'
@@ -17,6 +17,20 @@ import { buildPagePath, getPageSupportedChains } from '@/config/routes'
 import { getPageSeo } from '@/config/seo'
 import { buildAlternatePageLinks, buildCanonicalPageUrl, normalizeLocaleTag } from '@/config/site'
 import './styles.scss'
+
+const HERO_PRIMARY_TRANSITION_MS = 300
+const HERO_QUEUE_TRANSITION_MS = 220
+const HERO_QUEUE_STAGGER_MS = 60
+const HERO_TOTAL_TRANSITION_MS = HERO_PRIMARY_TRANSITION_MS + HERO_QUEUE_TRANSITION_MS + HERO_QUEUE_STAGGER_MS * 2
+
+type HeroAnimationDirection = 'next' | 'prev'
+
+type HeroAnimationState = {
+  direction: HeroAnimationDirection
+  fromIndex: number
+  toIndex: number
+  phase: 'promoting' | 'queueing'
+}
 
 export function HomePage() {
   const { t, lang, chain, theme, themeColor, chainDefinition, hasThemeQuery } = useRouteContext()
@@ -129,9 +143,82 @@ export function HomePage() {
   const marqueeRows = useMemo(() => buildMarqueeRows(supportedChains), [])
   const heroSlides = useMemo(() => buildHeroSlides(chainDefinition, featuredChains, t), [chainDefinition, t])
   const [heroSlideIndex, setHeroSlideIndex] = useState(0)
+  const [heroAnimation, setHeroAnimation] = useState<HeroAnimationState | null>(null)
+  const [isCompactHeroViewport, setIsCompactHeroViewport] = useState(false)
   const primaryPath = buildPagePath(lang, chain, 'token-creation', { theme, themeColor })
   const modelOverviewPath = '#launch-models'
-  const visibleHeroSlides = getVisibleHeroSlides(heroSlideIndex, heroSlides)
+  const renderHeroSlideIndex =
+    heroAnimation?.phase === 'promoting' ? heroAnimation.fromIndex : heroSlideIndex
+  const visibleHeroSlides = getVisibleHeroSlides(renderHeroSlideIndex, heroSlides)
+  const isHeroAnimating = heroAnimation !== null
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 1024px)')
+    const updateViewportMode = () => {
+      setIsCompactHeroViewport(mediaQuery.matches)
+    }
+
+    updateViewportMode()
+    mediaQuery.addEventListener('change', updateViewportMode)
+
+    return () => {
+      mediaQuery.removeEventListener('change', updateViewportMode)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isCompactHeroViewport && heroAnimation) {
+      setHeroAnimation(null)
+    }
+  }, [isCompactHeroViewport, heroAnimation])
+
+  useEffect(() => {
+    if (!heroAnimation) {
+      return
+    }
+
+    const timerId = window.setTimeout(() => {
+      if (heroAnimation.phase === 'promoting') {
+        setHeroSlideIndex(heroAnimation.toIndex)
+        setHeroAnimation({
+          ...heroAnimation,
+          phase: 'queueing',
+        })
+        return
+      }
+
+      setHeroAnimation(null)
+    }, heroAnimation.phase === 'promoting' ? HERO_PRIMARY_TRANSITION_MS : HERO_QUEUE_TRANSITION_MS + HERO_QUEUE_STAGGER_MS * 2)
+
+    return () => {
+      window.clearTimeout(timerId)
+    }
+  }, [heroAnimation])
+
+  const handleHeroSlideChange = (direction: HeroAnimationDirection) => {
+    if (heroSlides.length < 2) {
+      return
+    }
+
+    const offset = direction === 'next' ? 1 : -1
+    const nextIndex = getWrappedIndex(heroSlideIndex + offset, heroSlides.length)
+
+    if (isCompactHeroViewport) {
+      setHeroSlideIndex(nextIndex)
+      return
+    }
+
+    if (isHeroAnimating) {
+      return
+    }
+
+    setHeroAnimation({
+      direction,
+      fromIndex: heroSlideIndex,
+      toIndex: nextIndex,
+      phase: 'promoting',
+    })
+  }
 
   return (
     <section className={`page-stack home-page home-page-${themeColor}`}>
@@ -171,31 +258,48 @@ export function HomePage() {
 
           <div className="home-hero-stats">
             <article className="home-stat-card">
-              <span>{t('home.hero.stats.networks')}</span>
+              <div className="home-stat-card-head">
+                <span className="home-stat-card-label-icon" aria-hidden="true">
+                  <GlobalOutlined />
+                </span>
+                <span className="home-stat-card-label">{t('home.hero.stats.networks')}</span>
+              </div>
               <strong>{formatCount(getPageSupportedChains('home').length)}</strong>
             </article>
-            <article className="home-stat-card">
-              <span>{t('home.hero.stats.tokenType')}</span>
-              <strong>{chainDefinition.tokenType}</strong>
-            </article>
             <article className="home-stat-card home-stat-card-chain">
-              <span>{t('home.hero.stats.currentChain')}</span>
+              <div className="home-stat-card-head">
+                <span className="home-stat-card-label-icon" aria-hidden="true">
+                  <DeploymentUnitOutlined />
+                </span>
+                <span className="home-stat-card-label">{t('home.hero.stats.currentChain')}</span>
+              </div>
               <div className="home-stat-chain-row">
                 <img className="home-stat-chain-icon" src={chainDefinition.icon} alt={chainDefinition.fullName} />
                 <strong>{chainDefinition.name}</strong>
               </div>
+            </article>
+            <article className="home-stat-card">
+              <div className="home-stat-card-head">
+                <span className="home-stat-card-label-icon" aria-hidden="true">
+                  <BgColorsOutlined />
+                </span>
+                <span className="home-stat-card-label">{t('home.hero.stats.tokenType')}</span>
+              </div>
+              <strong>{chainDefinition.tokenType}</strong>
             </article>
           </div>
         </div>
 
         <div className="home-preview-shell">
           <div className="home-visual-carousel">
-            <div className="home-visual-carousel-viewport">
+            <div
+              className={`home-visual-carousel-viewport${isHeroAnimating ? ` is-animating is-animating-${heroAnimation.direction}` : ''}`}
+            >
               {visibleHeroSlides.map(({ key, position, slide }) =>
                 renderHeroVisualSlide({
                   slide,
                   key,
-                  className: `home-visual-slide home-visual-slide-${position}`,
+                  className: getHeroSlideClassName(position, heroAnimation),
                 }),
               )}
             </div>
@@ -204,9 +308,9 @@ export function HomePage() {
               <button
                 aria-label={t('home.preview.actions.previous')}
                 className="home-visual-control-button"
+                disabled={isHeroAnimating}
                 onClick={() => {
-                  const nextIndex = getWrappedIndex(heroSlideIndex - 1, heroSlides.length)
-                  setHeroSlideIndex(nextIndex)
+                  handleHeroSlideChange('prev')
                 }}
                 type="button"
               >
@@ -215,9 +319,9 @@ export function HomePage() {
               <button
                 aria-label={t('home.preview.actions.next')}
                 className="home-visual-control-button"
+                disabled={isHeroAnimating}
                 onClick={() => {
-                  const nextIndex = getWrappedIndex(heroSlideIndex + 1, heroSlides.length)
-                  setHeroSlideIndex(nextIndex)
+                  handleHeroSlideChange('next')
                 }}
                 type="button"
               >
@@ -443,6 +547,69 @@ function getVisibleHeroSlides(currentIndex: number, slides: ReturnType<typeof bu
       slide: slides[getWrappedIndex(currentIndex + 4, slides.length)],
     },
   ]
+}
+
+function getHeroSlideClassName(
+  position: ReturnType<typeof getVisibleHeroSlides>[number]['position'],
+  animation: HeroAnimationState | null,
+) {
+  if (!animation) {
+    return `home-visual-slide home-visual-slide-${position}`
+  }
+
+  if (animation.phase === 'promoting') {
+    if (animation.direction === 'next') {
+      switch (position) {
+        case 'active':
+          return 'home-visual-slide home-visual-slide-active home-visual-slide-transition-active-to-prev'
+        case 'peek-1':
+          return 'home-visual-slide home-visual-slide-peek-1 home-visual-slide-transition-peek1-to-active'
+        default:
+          return `home-visual-slide home-visual-slide-${position}`
+      }
+    }
+
+    switch (position) {
+      case 'prev':
+        return 'home-visual-slide home-visual-slide-prev home-visual-slide-transition-prev-to-active'
+      case 'active':
+        return 'home-visual-slide home-visual-slide-active home-visual-slide-transition-active-fade-out'
+      default:
+        return `home-visual-slide home-visual-slide-${position}`
+    }
+  }
+
+  if (animation.direction === 'next') {
+    switch (position) {
+      case 'active':
+        return 'home-visual-slide home-visual-slide-active'
+      case 'peek-1':
+        return 'home-visual-slide home-visual-slide-peek-2 home-visual-slide-transition-peek2-to-peek1'
+      case 'peek-2':
+        return 'home-visual-slide home-visual-slide-peek-3 home-visual-slide-transition-peek3-to-peek2'
+      case 'peek-3':
+        return 'home-visual-slide home-visual-slide-peek-4 home-visual-slide-transition-peek4-to-peek3'
+      case 'peek-4':
+        return 'home-visual-slide home-visual-slide-peek-4'
+      default:
+        return `home-visual-slide home-visual-slide-${position}`
+    }
+  }
+
+  switch (position) {
+    case 'active':
+      return 'home-visual-slide home-visual-slide-active'
+    case 'peek-1':
+      return 'home-visual-slide home-visual-slide-active home-visual-slide-transition-active-to-peek1'
+    case 'peek-2':
+      return 'home-visual-slide home-visual-slide-peek-1 home-visual-slide-transition-peek1-to-peek2'
+    case 'peek-3':
+      return 'home-visual-slide home-visual-slide-peek-2 home-visual-slide-transition-peek2-to-peek3'
+    case 'peek-4':
+      return 'home-visual-slide home-visual-slide-peek-3 home-visual-slide-transition-peek3-to-peek4'
+    default:
+      return `home-visual-slide home-visual-slide-${position}`
+  }
 }
 
 function renderHeroVisualSlide({
