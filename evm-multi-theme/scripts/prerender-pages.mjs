@@ -8,6 +8,7 @@ const serverEntryPath = path.join(serverBuildDir, 'entry-server.js')
 
 const template = await readFile(path.join(clientDistDir, 'index.html'), 'utf8')
 const { prerenderRoutes, render } = await import(pathToFileURL(serverEntryPath).href)
+const redirectRules = []
 
 for (const route of prerenderRoutes) {
   const { appHtml, headTags, htmlLang, title } = render(route)
@@ -17,9 +18,19 @@ for (const route of prerenderRoutes) {
     .replace('</head>', `${headTags ? `    ${headTags}\n` : ''}  </head>`)
     .replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`)
 
-  const outputFilePath = path.join(clientDistDir, route.replace(/^\//, ''), 'index.html')
+  const outputFilePath =
+    route === '/'
+      ? path.join(clientDistDir, 'index.html')
+      : path.join(clientDistDir, `${route.replace(/^\//, '')}.html`)
   await mkdir(path.dirname(outputFilePath), { recursive: true })
   await writeFile(outputFilePath, routeHtml, 'utf8')
+  if (route !== '/') {
+    redirectRules.push(`${route}/ ${route} 301`)
+  }
+}
+
+if (redirectRules.length > 0) {
+  await writeFile(path.join(clientDistDir, '_redirects'), `${redirectRules.join('\n')}\n`, 'utf8')
 }
 
 await rm(serverBuildDir, { recursive: true, force: true })

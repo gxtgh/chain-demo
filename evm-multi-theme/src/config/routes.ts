@@ -64,7 +64,7 @@ export const pageRouteConfigs: Record<SupportedPageKey, PageRouteConfig> = {
       'sonic',
       'unichain',
       // 'hyperevm',
-      // 'linea',
+      'linea',
       // 'mantle',
       'blast',
       // 'scroll',

@@ -5,21 +5,169 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-site-verification" content="1CYyoFEcj0xKNN8tcSue5-7Wc5yM5mgbsoc0paXgRHo" />
     <link rel="icon" type="image/x-icon" href="/img/common/favicon-orange.ico" data-app-favicon="true" />
-    <script>
-      ;(() => {
-        const themeColor = new URLSearchParams(window.location.search).get('themeColor')
-        const supportedThemeColors = ['orange', 'purple', 'green']
-        const faviconThemeColor = supportedThemeColors.includes(themeColor ?? '') ? themeColor : 'orange'
-        const faviconLink = document.querySelector('link[data-app-favicon]')
-
-        if (faviconLink) {
-          faviconLink.href = `/img/common/favicon-${faviconThemeColor}.ico`
-        }
-      })()
-    </script>
     <title>LaunchLayer</title>
   </head>
   <body>
+    <script>
+      ;(() => {
+        const STORAGE_KEY = 'evm-multi-theme.preferences'
+        const supportedThemes = new Set(['light', 'dark'])
+        const supportedThemeColors = new Set(['orange', 'purple', 'green'])
+        const defaultPreferences = {
+          theme: 'light',
+          themeColor: 'green',
+        }
+
+        const themeModeVars = {
+          light: {
+            '--text': '#20140f',
+            '--muted': '#7d655b',
+            '--warning': '#d3542f',
+            '--error': '#f1400a',
+            '--success': '#1a8b4b',
+            '--theme-surface': 'rgba(255, 255, 255, 0.88)',
+            '--theme-surface-strong': 'rgba(255, 255, 255, 0.96)',
+            '--theme-line': 'rgba(76, 40, 20, 0.1)',
+            '--theme-shadow': '0 30px 80px rgba(83, 45, 23, 0.08)',
+            '--chain-watermark-opacity': '0.13',
+            '--chain-watermark-blur': '0.4px',
+            '--chain-watermark-glow': '28%',
+          },
+          dark: {
+            '--bg': '#0b0b10',
+            '--bg-soft': '#13131a',
+            '--text': '#f6efe9',
+            '--muted': '#c5b8b0',
+            '--warning': '#ff9f73',
+            '--error': '#f1400a',
+            '--success': '#65d79c',
+            '--theme-surface': 'rgba(20, 20, 27, 0.82)',
+            '--theme-surface-strong': 'rgba(28, 28, 36, 0.94)',
+            '--theme-line': 'rgba(255, 255, 255, 0.09)',
+            '--theme-shadow': '0 36px 90px rgba(0, 0, 0, 0.35)',
+            '--chain-watermark-opacity': '0.09',
+            '--chain-watermark-blur': '1px',
+            '--chain-watermark-glow': '28%',
+          },
+        }
+
+        const themeColorVars = {
+          orange: {
+            '--theme-accent': '#ff6b2d',
+            '--theme-accent-soft': 'rgba(255, 107, 45, 0.14)',
+            '--theme-accent-strong': '#ff9d67',
+            '--theme-hero-start': '#fff8f1',
+            '--theme-hero-end': '#f7efe6',
+            '--bg-ambient': 'rgba(255, 126, 67, 0.16)',
+            '--bg-ambient-strong': 'rgba(255, 192, 145, 0.14)',
+          },
+          purple: {
+            '--theme-accent': '#8b5cf6',
+            '--theme-accent-soft': 'rgba(139, 92, 246, 0.14)',
+            '--theme-accent-strong': '#b38cff',
+            '--theme-hero-start': '#f9f4ff',
+            '--theme-hero-end': '#f2eefc',
+            '--bg-ambient': 'rgba(139, 92, 246, 0.16)',
+            '--bg-ambient-strong': 'rgba(196, 170, 255, 0.14)',
+          },
+          green: {
+            '--theme-accent': '#1dbf73',
+            '--theme-accent-soft': 'rgba(29, 191, 115, 0.14)',
+            '--theme-accent-strong': '#5dd39d',
+            '--theme-hero-start': '#f3fff8',
+            '--theme-hero-end': '#edf7f2',
+            '--bg-ambient': 'rgba(29, 191, 115, 0.16)',
+            '--bg-ambient-strong': 'rgba(138, 228, 186, 0.14)',
+          },
+        }
+
+        const darkThemeColorVars = {
+          orange: {
+            '--theme-hero-start': '#17110d',
+            '--theme-hero-end': '#1f1713',
+            '--bg-ambient': 'rgba(255, 126, 67, 0.14)',
+            '--bg-ambient-strong': 'rgba(255, 192, 145, 0.08)',
+          },
+          purple: {
+            '--theme-hero-start': '#131019',
+            '--theme-hero-end': '#191521',
+            '--bg-ambient': 'rgba(139, 92, 246, 0.14)',
+            '--bg-ambient-strong': 'rgba(196, 170, 255, 0.08)',
+          },
+          green: {
+            '--theme-hero-start': '#0e1611',
+            '--theme-hero-end': '#131d17',
+            '--bg-ambient': 'rgba(29, 191, 115, 0.14)',
+            '--bg-ambient-strong': 'rgba(138, 228, 186, 0.08)',
+          },
+        }
+
+        function readStoredPreferences(storageType) {
+          try {
+            const storage = storageType === 'session' ? window.sessionStorage : window.localStorage
+            const rawValue = storage.getItem(STORAGE_KEY)
+            return rawValue ? JSON.parse(rawValue) : {}
+          } catch {
+            return {}
+          }
+        }
+
+        function resolveValue(validValues, ...candidates) {
+          for (const candidate of candidates) {
+            if (typeof candidate === 'string' && validValues.has(candidate)) {
+              return candidate
+            }
+          }
+          return null
+        }
+
+        function buildThemeBootstrapCss(theme, themeColor) {
+          const resolvedVars = {
+            ...themeModeVars[theme],
+            ...themeColorVars[themeColor],
+            ...(theme === 'dark' ? darkThemeColorVars[themeColor] : {}),
+          }
+          const declarations = Object.entries(resolvedVars)
+            .map(([key, value]) => `${key}: ${value};`)
+            .join('')
+
+          return `html.app-theme,body.app-theme,.app-shell[class]{${declarations}}body.app-theme{background:var(--bg);}`
+        }
+
+        const searchParams = new URLSearchParams(window.location.search)
+        const sessionPreferences = readStoredPreferences('session')
+        const localPreferences = readStoredPreferences('local')
+        const theme = resolveValue(
+          supportedThemes,
+          searchParams.get('theme'),
+          sessionPreferences.theme,
+          localPreferences.theme,
+          defaultPreferences.theme,
+        ) ?? defaultPreferences.theme
+        const themeColor = resolveValue(
+          supportedThemeColors,
+          searchParams.get('themeColor'),
+          sessionPreferences.themeColor,
+          localPreferences.themeColor,
+          defaultPreferences.themeColor,
+        ) ?? defaultPreferences.themeColor
+
+        const classNames = ['app-theme', `app-theme-${theme}`, `app-theme-color-${themeColor}`]
+        document.documentElement.classList.add(...classNames)
+        document.documentElement.style.colorScheme = theme
+        document.body.classList.add(...classNames)
+
+        const faviconLink = document.querySelector('link[data-app-favicon]')
+        if (faviconLink) {
+          faviconLink.href = `/img/common/favicon-${themeColor}.ico`
+        }
+
+        const styleElement = document.createElement('style')
+        styleElement.setAttribute('data-app-theme-bootstrap', 'true')
+        styleElement.textContent = buildThemeBootstrapCss(theme, themeColor)
+        document.head.appendChild(styleElement)
+      })()
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

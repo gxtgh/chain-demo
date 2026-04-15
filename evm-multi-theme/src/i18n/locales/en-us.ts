@@ -519,6 +519,7 @@ export const enUsMessages = {
       taxReceiver:
         'The fee receiver address collects the trading-tax proceeds. If it is left empty, the connected wallet address is used by default.',
       exchange: 'After the tax token is deployed, tax-mode trading is supported on this exchange.',
+      exchangeShadowSupport: 'Tax tokens currently support Shadow V2 only. Shadow V3 does not support tax-token mechanics yet.',
       poolToken:
         'Please choose the pool token used for trading, such as {{nativeSymbol}} or {{stableSymbol}}. Future liquidity must use the same pool token to keep token trading working correctly.',
       creationFee: 'The creation fee is read from the selected tax-token factory. Network gas is charged separately when the transaction is submitted.',

@@ -40,6 +40,7 @@ export function TokenTaxFormPanel({ model }: { model: TokenTaxViewModel }) {
   const txExplorerUrl = getExplorerUrl(chainDefinition, 'hash', result?.txHash)
   const tokenExplorerUrl = getExplorerUrl(chainDefinition, 'token', result?.tokenAddress)
   const defaultStableSymbol = chainDefinition.stableCoins?.[0]?.symbol ?? chainDefinition.nativeToken.symbol
+  const exchangeTooltip = getExchangeTooltip(chainDefinition.key, exchanges, t)
 
   return (
     <section className="surface-card form-card tax-form-card">
@@ -159,7 +160,7 @@ export function TokenTaxFormPanel({ model }: { model: TokenTaxViewModel }) {
           </label>
 
           <label className="field">
-            <FieldLabelWithTooltip label={t('tokenTaxCreation.fields.exchange')} tooltip={t('tokenTaxCreation.tooltips.exchange')} />
+            <FieldLabelWithTooltip label={t('tokenTaxCreation.fields.exchange')} tooltip={exchangeTooltip} />
             <Select
               className="tax-exchange-select"
               optionLabelProp="label"
@@ -326,6 +327,21 @@ export function TokenTaxFormPanel({ model }: { model: TokenTaxViewModel }) {
       />
     </section>
   )
+}
+
+function getExchangeTooltip(
+  chainKey: string,
+  exchanges: TaxExchangeOption[],
+  t: (key: string, vars?: Record<string, string | number>) => string,
+) {
+  const hasShadowV2 = exchanges.some((exchange) => exchange.dex === 'Shadow' && exchange.version === 'v2')
+  const hasShadowV3 = exchanges.some((exchange) => exchange.dex === 'Shadow' && exchange.version === 'v3')
+
+  if (chainKey === 'sonic' && hasShadowV2 && hasShadowV3) {
+    return t('tokenTaxCreation.tooltips.exchangeShadowSupport')
+  }
+
+  return t('tokenTaxCreation.tooltips.exchange')
 }
 
 function buildExchangeSelectedLabel(exchange: TaxExchangeOption) {

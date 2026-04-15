@@ -508,6 +508,7 @@ export const zhCnMessages = {
       sellTax: '卖出税按百分比填写，支持最多两位小数，当前限制在 0 到 25 之间。',
       taxReceiver: '税费接收地址用于接收买卖产生的税费；如果留空，则默认使用当前提交交易的钱包地址。',
       exchange: '税费代币部署后，支持在该交易所执行税费模式。',
+      exchangeShadowSupport: '税费代币当前仅支持 Shadow V2；Shadow V3 暂不支持税费机制。',
       poolToken:
         '请选择交易底池代币（如 {{nativeSymbol}}、{{stableSymbol}} 等），后续流动性必须使用相同底池代币，确保代币交易正常运行。',
       creationFee: '创建费会从当前所选税费工厂中读取，提交交易时仍需另外支付链上 Gas。',

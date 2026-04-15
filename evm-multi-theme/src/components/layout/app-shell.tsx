@@ -1,5 +1,5 @@
 import { Drawer } from 'antd'
-import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { ReactNode, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { useRouteContext } from '@/app/use-route-context'
 import { ArrowUpIcon } from '@/components/common/topbar-icons'
 import { LanguageSwitcher } from '@/components/language/language-switcher'
@@ -30,7 +30,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     [chain, t],
   )
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const faviconHref = `/img/common/favicon-${themeColor}.ico`
     let faviconLink = document.querySelector<HTMLLinkElement>('link[data-app-favicon]')
 
@@ -45,14 +45,18 @@ export function AppShell({ children }: { children: ReactNode }) {
     faviconLink.href = faviconHref
   }, [themeColor])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const documentElement = document.documentElement
     const body = document.body
     const themeClass = `app-theme-${theme}`
     const themeColorClass = `app-theme-color-${themeColor}`
 
+    documentElement.classList.add('app-theme', themeClass, themeColorClass)
+    documentElement.style.colorScheme = theme
     body.classList.add('app-theme', themeClass, themeColorClass)
 
     return () => {
+      documentElement.classList.remove('app-theme', themeClass, themeColorClass)
       body.classList.remove('app-theme', themeClass, themeColorClass)
     }
   }, [theme, themeColor])
