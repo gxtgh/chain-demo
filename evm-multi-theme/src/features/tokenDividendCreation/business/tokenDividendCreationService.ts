@@ -75,7 +75,7 @@ export async function submitTokenDividendCreation(
     minHoldingForDividend: parseUnits(values.minHoldingForDividend, values.decimals),
     dividendTriggerThreshold: parseUnits(values.dividendTriggerThreshold, values.decimals),
     autoProcessGasLimit: BigInt(values.autoProcessGasLimit),
-    killBlockCount: values.killBlockCount.trim() ? BigInt(values.killBlockCount) : 0n,
+    killBlockCount: values.manualTradingEnable && values.killBlockCount.trim() ? BigInt(values.killBlockCount) : 0n,
     mintEnabled: values.mintEnabled,
     manualTradingEnable: values.manualTradingEnable,
     blacklistEnabled: values.blacklistEnabled,

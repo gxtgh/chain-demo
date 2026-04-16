@@ -21,7 +21,7 @@ import { buildTokenVanityFaqStructuredData, getTokenVanityFaqVars } from '@/feat
 import { createTranslator } from '@/i18n/messages'
 
 export const prerenderRoutes = supportedLanguages.flatMap((language) =>
-  (['home', 'token-creation', 'tax-token-creation', 'token-dividend-creation', 'token-vanity-creation'] as const).flatMap((page) =>
+  (['home', 'token-creation', 'tax-token-creation', 'token-dividend-creation', 'token-manage', 'token-vanity-creation'] as const).flatMap((page) =>
     getPageSupportedChains(page)
       .filter((chain) => chain.seoIndex)
       .map((chain) => (page === 'home' ? `/${language.key}/${chain.key}` : `/${language.key}/${chain.key}/${page}`)),
@@ -123,7 +123,7 @@ function resolvePublicRoute(url: string) {
   const resolvedPage =
     page === undefined
       ? 'home'
-      : page === 'token-creation' || page === 'tax-token-creation' || page === 'token-dividend-creation' || page === 'token-vanity-creation'
+      : page === 'token-creation' || page === 'tax-token-creation' || page === 'token-dividend-creation' || page === 'token-manage' || page === 'token-vanity-creation'
         ? page
         : null
 

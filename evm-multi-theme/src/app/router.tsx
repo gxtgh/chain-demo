@@ -5,6 +5,7 @@ import { AppShell } from '@/components/layout/app-shell'
 import { HomePage } from '@/features/home/home-page'
 import { TokenCreationPage } from '@/features/tokenCreation/shared/token-creation-page'
 import { TokenDividendCreationPage } from '@/features/tokenDividendCreation/shared/token-dividend-creation-page'
+import { TokenManagePage } from '@/features/tokenManage/shared/token-manage-page'
 import { TokenTaxCreationPage } from '@/features/tokenTaxCreation/shared/token-tax-creation-page'
 import { TokenVanityCreationPage } from '@/features/tokenVanityCreation/shared/token-vanity-creation-page'
 import { resolveAppPreferences } from './preferences'
@@ -60,6 +61,7 @@ export function AppRouter() {
         <Route path="token-creation" element={<TokenCreationPage />} />
         <Route path="tax-token-creation" element={<TokenTaxCreationPage />} />
         <Route path="token-dividend-creation" element={<TokenDividendCreationPage />} />
+        <Route path="token-manage" element={<TokenManagePage />} />
         <Route path="token-vanity-creation" element={<TokenVanityCreationPage />} />
         <Route path="*" element={<NestedFallback />} />
       </Route>

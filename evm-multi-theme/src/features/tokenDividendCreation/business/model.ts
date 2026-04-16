@@ -67,6 +67,7 @@ export type TokenDividendSubmitResult = {
 
 export type TokenDividendViewModel = {
   chainDefinition: ChainDefinition
+  connectedAddress: string
   formValues: TokenDividendFormValues
   errors: TokenDividendFormErrors
   exchanges: DividendExchangeOption[]
@@ -77,6 +78,7 @@ export type TokenDividendViewModel = {
   loading: boolean
   submitStep: TokenDividendSubmitStep | null
   result: TokenDividendSubmitResult | null
+  manageConsoleUrl?: string
   successModalOpen: boolean
   failureModalOpen: boolean
   updateField: <Key extends keyof TokenDividendFormValues>(key: Key, value: TokenDividendFormValues[Key]) => void
@@ -139,14 +141,6 @@ export function buildDividendPoolTokenOptions(chainDefinition: ChainDefinition):
     isNative: true,
   }
 
-  const wrappedToken: TokenDisplayItem = {
-    address: normalizeAddress(chainDefinition.wtoken.address),
-    name: chainDefinition.wtoken.name ?? chainDefinition.wtoken.symbol,
-    symbol: chainDefinition.wtoken.symbol,
-    decimals: chainDefinition.wtoken.decimals,
-    logo: chainDefinition.wtoken.logo,
-  }
-
   const stableTokens =
     chainDefinition.stableCoins?.map((token) => ({
       address: normalizeAddress(token.address),
@@ -156,16 +150,26 @@ export function buildDividendPoolTokenOptions(chainDefinition: ChainDefinition):
       logo: token.logo,
     })) ?? []
 
-  return mergeTokenOptions([nativeToken], [wrappedToken], stableTokens)
+  return mergeTokenOptions([nativeToken], stableTokens)
 }
 
 export function buildDividendRewardTokenOptions(chainDefinition: ChainDefinition) {
-  return buildDividendPoolTokenOptions(chainDefinition)
+  const wrappedToken: TokenDisplayItem = {
+    address: normalizeAddress(chainDefinition.wtoken.address),
+    name: chainDefinition.wtoken.name ?? chainDefinition.wtoken.symbol,
+    symbol: chainDefinition.wtoken.symbol,
+    decimals: chainDefinition.wtoken.decimals,
+    logo: chainDefinition.wtoken.logo,
+  }
+
+  return mergeTokenOptions([wrappedToken], buildDividendPoolTokenOptions(chainDefinition))
 }
 
 export function getDefaultTokenDividendValues(chainDefinition: ChainDefinition): TokenDividendFormValues {
   const exchanges = getDividendExchangeOptions(chainDefinition)
   const poolTokens = buildDividendPoolTokenOptions(chainDefinition)
+  const rewardTokens = buildDividendRewardTokenOptions(chainDefinition)
+  const defaultRewardToken = rewardTokens.find((token) => !token.isNative) ?? rewardTokens[0]
 
   return {
     name: '',
@@ -177,7 +181,7 @@ export function getDefaultTokenDividendValues(chainDefinition: ChainDefinition):
     exchange: exchanges[0]?.value ?? '',
     poolToken: poolTokens[0]?.address ?? normalizeAddress(chainDefinition.nativeToken.address),
     isSameTokenDividend: true,
-    dividendToken: '',
+    dividendToken: defaultRewardToken?.address ?? '',
     minHoldingForDividend: '',
     dividendTriggerThreshold: '',
     autoProcessGasLimit: String(getDefaultAutoProcessGasLimit(chainDefinition)),
@@ -264,7 +268,7 @@ export function validateTokenDividend(
     errors.autoProcessGasLimit = t('tokenDividendCreation.errors.autoProcessGasLimitInvalid')
   }
 
-  if (values.killBlockCount.trim()) {
+  if (values.manualTradingEnable && values.killBlockCount.trim()) {
     if (!/^\d+$/.test(values.killBlockCount.trim())) {
       errors.killBlockCount = t('tokenDividendCreation.errors.killBlockInvalid')
     }

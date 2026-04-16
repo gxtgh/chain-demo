@@ -54,6 +54,7 @@ export type SupportedPageKey =
   | 'token-creation'
   | 'tax-token-creation'
   | 'token-dividend-creation'
+  | 'token-manage'
   | 'token-vanity-creation'
 
 export type TokenMeta = {
@@ -1743,6 +1744,7 @@ export function isSupportedPage(value?: string): value is SupportedPageKey {
     value === 'token-creation' ||
     value === 'tax-token-creation' ||
     value === 'token-dividend-creation' ||
+    value === 'token-manage' ||
     value === 'token-vanity-creation'
   )
 }

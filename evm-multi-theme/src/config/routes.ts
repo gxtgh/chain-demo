@@ -75,12 +75,6 @@ export const pageRouteConfigs: Record<SupportedPageKey, PageRouteConfig> = {
       // 'gate-layer',
     ],
   },
-  'token-dividend-creation': {
-    page: 'token-dividend-creation',
-    chainKeys: [
-      'bsc-testnet',
-    ],
-  },
   'token-vanity-creation': {
     page: 'token-vanity-creation',
     chainKeys: [
@@ -107,6 +101,18 @@ export const pageRouteConfigs: Record<SupportedPageKey, PageRouteConfig> = {
       // 'pulse',
       'core',
       'gate-layer',
+    ],
+  },
+  'token-dividend-creation': {
+    page: 'token-dividend-creation',
+    chainKeys: [
+      'bsc-testnet',
+    ],
+  },
+  'token-manage': {
+    page: 'token-manage',
+    chainKeys: [
+      'bsc-testnet',
     ],
   },
 }

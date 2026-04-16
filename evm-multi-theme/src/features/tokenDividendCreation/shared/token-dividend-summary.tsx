@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import { CopyButton } from '@/components/common/copy-button'
 import type { TokenDisplayItem } from '@/components/common/token-display'
 import { getExplorerUrl, type ChainDefinition } from '@/config/chains'
@@ -19,6 +20,7 @@ type TokenDividendSummaryProps = {
   exchanges: DividendExchangeOption[]
   poolTokens: TokenDisplayItem[]
   rewardTokens: TokenDisplayItem[]
+  manageConsoleUrl?: string
   t: (key: string, vars?: Record<string, string | number>) => string
 }
 
@@ -29,6 +31,7 @@ export function TokenDividendSummary({
   exchanges,
   poolTokens,
   rewardTokens,
+  manageConsoleUrl,
   t,
 }: TokenDividendSummaryProps) {
   const selectedExchange = exchanges.find((item) => item.value === formValues.exchange)
@@ -142,6 +145,14 @@ export function TokenDividendSummary({
           </div>
         ))}
       </div>
+
+      {manageConsoleUrl ? (
+        <div className="summary-actions">
+          <Button type="primary" href={manageConsoleUrl}>
+            {t('tokenDividendCreation.successSummary.openConsole')}
+          </Button>
+        </div>
+      ) : null}
     </section>
   )
 }

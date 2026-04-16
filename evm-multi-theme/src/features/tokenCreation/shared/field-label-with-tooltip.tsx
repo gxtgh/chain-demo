@@ -1,4 +1,5 @@
 import { InfoCircleOutlined } from '@ant-design/icons'
+import type { ReactNode } from 'react'
 import { Grid, Tooltip } from 'antd'
 import { useRouteContext } from '@/app/use-route-context'
 
@@ -6,7 +7,7 @@ const { useBreakpoint } = Grid
 
 type FieldLabelWithTooltipProps = {
   label: string
-  tooltip?: string
+  tooltip?: ReactNode
 }
 
 function getTooltipContainer(triggerNode: HTMLElement) {

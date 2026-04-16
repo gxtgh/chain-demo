@@ -1,9 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
+import { message } from 'antd'
+import { isAddress } from 'ethers'
+import { useAccount } from 'wagmi'
 import { useRenderMode } from '@/app/render-mode'
 import { PageHeader } from '@/components/common/page-header'
 import { PageSeo } from '@/components/common/page-seo'
 import { useRouteContext } from '@/app/use-route-context'
 import { getChainFullName } from '@/config/chains'
+import { buildPagePath } from '@/config/routes'
 import { getPageSeo } from '@/config/seo'
 import { buildAlternatePageLinks, buildCanonicalPageUrl, normalizeLocaleTag } from '@/config/site'
 import type { TokenDisplayItem } from '@/components/common/token-display'
@@ -17,6 +21,13 @@ import {
   type TokenDividendSubmitValues,
   type TokenDividendViewModel,
 } from '../business/model'
+import {
+  buildProtectedAddressEntries,
+  buildProtectedAddressSet,
+  DEAD_ADDRESS,
+  findProtectedAddresses,
+  splitAddressList,
+} from '../business/protected-addresses'
 import { useTokenDividendForm } from '../business/useTokenDividendForm'
 import { useTokenDividendSubmit } from '../business/useTokenDividendSubmit'
 import { TokenDividendOverviewCard } from './token-dividend-overview-card'
@@ -35,7 +46,8 @@ export function TokenDividendCreationPage() {
 }
 
 function InteractiveTokenDividendCreationPage() {
-  const { t, lang, chain, themeColor, chainDefinition, hasThemeQuery } = useRouteContext()
+  const { t, lang, chain, theme, themeColor, chainDefinition, hasThemeQuery } = useRouteContext()
+  const { address } = useAccount()
   const chainLabel = getChainFullName(chainDefinition)
   const form = useTokenDividendForm(chainDefinition, t)
   const exchanges = useMemo(() => getDividendExchangeOptions(chainDefinition), [chainDefinition])
@@ -56,6 +68,7 @@ function InteractiveTokenDividendCreationPage() {
 
   const model: TokenDividendViewModel = {
     chainDefinition,
+    connectedAddress: String(address ?? ''),
     formValues: form.formValues,
     errors: form.errors,
     exchanges,
@@ -66,6 +79,9 @@ function InteractiveTokenDividendCreationPage() {
     loading: submit.loading,
     submitStep: submit.submitStep,
     result: submit.result,
+    manageConsoleUrl: submit.result?.tokenAddress
+      ? buildTokenManageUrl(lang, chain, theme, themeColor, submit.result.tokenAddress)
+      : undefined,
     successModalOpen: submit.successModalOpen,
     failureModalOpen: submit.failureModalOpen,
     updateField: (key, value) => {
@@ -93,6 +109,40 @@ function InteractiveTokenDividendCreationPage() {
 
       const selectedExchange = exchanges.find((item) => item.value === form.formValues.exchange)
       if (!selectedExchange?.routerAddress) {
+        return
+      }
+
+      const resolvedReceiveAddress = form.formValues.receiveAddress.trim() || String(address ?? '')
+      const resolvedFundAddress = form.formValues.fundAddress.trim() || String(address ?? '')
+      const protectedAddressEntries = buildProtectedAddressEntries([
+        { label: t('tokenDividendCreation.labels.protectedReceiveAddress'), address: resolvedReceiveAddress || '-' },
+        { label: t('tokenDividendCreation.labels.protectedFundAddress'), address: resolvedFundAddress || '-' },
+        { label: t('tokenDividendCreation.labels.protectedRouterAddress'), address: selectedExchange.routerAddress },
+        { label: t('tokenDividendCreation.labels.protectedDeadAddress'), address: DEAD_ADDRESS },
+      ])
+      const protectedAddressSet = buildProtectedAddressSet(protectedAddressEntries, isAddress)
+      const blacklistAddresses = splitAddressList(form.formValues.initialBlacklist)
+      const whitelistAddresses = splitAddressList(form.formValues.initialWhitelist)
+      const invalidProtectedBlacklist = findProtectedAddresses(blacklistAddresses, protectedAddressSet)
+      const invalidProtectedWhitelist = findProtectedAddresses(whitelistAddresses, protectedAddressSet)
+
+      if (invalidProtectedBlacklist.length > 0) {
+        message.warning(
+          t('tokenDividendCreation.errors.protectedAddressSubmitError', {
+            mode: t('tokenDividendCreation.fields.blacklistEnabled'),
+            addresses: invalidProtectedBlacklist.join(', '),
+          }),
+        )
+        return
+      }
+
+      if (invalidProtectedWhitelist.length > 0) {
+        message.warning(
+          t('tokenDividendCreation.errors.protectedAddressSubmitError', {
+            mode: t('tokenDividendCreation.fields.whitelistEnabled'),
+            addresses: invalidProtectedWhitelist.join(', '),
+          }),
+        )
         return
       }
 
@@ -135,6 +185,7 @@ function StaticTokenDividendCreationPage() {
 
   const model: TokenDividendViewModel = {
     chainDefinition,
+    connectedAddress: '',
     formValues: getDefaultTokenDividendValues(chainDefinition),
     errors: {},
     exchanges: getDividendExchangeOptions(chainDefinition),
@@ -145,6 +196,7 @@ function StaticTokenDividendCreationPage() {
     loading: false,
     submitStep: null,
     result: null,
+    manageConsoleUrl: undefined,
     successModalOpen: false,
     failureModalOpen: false,
     updateField: createStaticUpdateField,
@@ -230,4 +282,19 @@ function renderTokenDividendCreationLayout({
 
 function createStaticUpdateField<Key extends keyof TokenDividendFormValues>(_key: Key, _value: TokenDividendFormValues[Key]) {
   return undefined
+}
+
+function buildTokenManageUrl(
+  lang: string,
+  chain: string,
+  theme: string,
+  themeColor: string,
+  tokenAddress: string,
+) {
+  const basePath = buildPagePath(lang as never, chain as never, 'token-manage', {
+    theme: theme as never,
+    themeColor: themeColor as never,
+  })
+  const separator = basePath.includes('?') ? '&' : '?'
+  return `${basePath}${separator}address=${encodeURIComponent(tokenAddress)}`
 }

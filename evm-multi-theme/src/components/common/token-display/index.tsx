@@ -172,7 +172,7 @@ export function TokenDisplay({
     lookupState.status === 'loading' && Boolean(normalizedSearchAddress) && lookupState.address === normalizedSearchAddress
   const tokenNotFound =
     lookupState.status === 'not-found' && Boolean(normalizedSearchAddress) && lookupState.address === normalizedSearchAddress
-  const displayValue = searchValue ? undefined : value
+  const displayValue = searchValue ? undefined : (value || undefined)
 
   return (
     <Select

@@ -158,7 +158,7 @@
     padding: 0;
     border: none;
     background: transparent;
-    color: color-mix(in srgb, var(--theme-accent) 88%, var(--muted));
+    color: color-mix(in srgb, var(--text) 58%, var(--muted));
     font-size: 15px;
     line-height: 1;
     transition:
@@ -166,7 +166,7 @@
       color 180ms ease;
 
     &:hover {
-      color: var(--theme-accent-strong);
+      color: color-mix(in srgb, var(--text) 78%, var(--muted));
       transform: translateY(-1px);
     }
   }

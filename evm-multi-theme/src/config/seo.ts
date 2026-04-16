@@ -94,6 +94,20 @@ export function getPageSeo(page: SupportedPageKey, context: SeoContext): SeoDefi
     }
   }
 
+  if (page === 'token-manage') {
+    return {
+      title: context.t('tokenManage.seo.title', {
+        chain: context.chainName,
+      }),
+      description: context.t('tokenManage.seo.description', {
+        chain: context.chainName,
+      }),
+      keywords: context.t('tokenManage.seo.keywords', {
+        chain: context.chainName,
+      }),
+    }
+  }
+
   if (page === 'token-vanity-creation') {
     return {
       title: context.t('tokenVanityCreation.seo.title', {

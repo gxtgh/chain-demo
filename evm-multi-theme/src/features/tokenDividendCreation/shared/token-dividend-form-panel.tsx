@@ -1,4 +1,4 @@
-import { CheckCircleFilled, CloseOutlined, InfoCircleOutlined } from '@ant-design/icons'
+import { CheckCircleFilled, CloseOutlined } from '@ant-design/icons'
 import { Alert, Button, Input, InputNumber, Select, Switch } from 'antd'
 import type { SyntheticEvent } from 'react'
 import { TokenDisplay } from '@/components/common/token-display'
@@ -10,6 +10,7 @@ import { getExplorerUrl } from '@/config/chains'
 import { formatNativeAmount, formatText } from '@/utils'
 import { FieldLabelWithTooltip } from '@/features/tokenCreation/shared/field-label-with-tooltip'
 import type { DividendExchangeOption, TokenDividendViewModel } from '../business/model'
+import { buildProtectedAddressEntries, DEAD_ADDRESS } from '../business/protected-addresses'
 import {
   calcDividendTaxCategoryTotal,
   calcDividendTaxGrandTotal,
@@ -18,6 +19,7 @@ import {
   MAX_DIVIDEND_TAX_PER_GROUP,
   MAX_DIVIDEND_TAX_TOTAL,
   MEDIUM_DIVIDEND_TAX_HINT,
+  normalizeTaxInput,
 } from '../business/tax'
 import { TokenDividendSummary } from './token-dividend-summary'
 
@@ -27,6 +29,7 @@ export function TokenDividendFormPanel({ model }: { model: TokenDividendViewMode
   const {
     t,
     chainDefinition,
+    connectedAddress,
     formValues,
     errors,
     exchanges,
@@ -37,6 +40,7 @@ export function TokenDividendFormPanel({ model }: { model: TokenDividendViewMode
     loading,
     submitStep,
     result,
+    manageConsoleUrl,
     successModalOpen,
     failureModalOpen,
     updateField,
@@ -53,6 +57,16 @@ export function TokenDividendFormPanel({ model }: { model: TokenDividendViewMode
   const tokenExplorerUrl = getExplorerUrl(chainDefinition, 'token', result?.tokenAddress)
   const exchangeTooltip = t('tokenDividendCreation.tooltips.exchange')
   const exchangeDisabled = exchanges.length === 0
+  const selectedExchange = exchanges.find((item) => item.value === formValues.exchange)
+  const dividendModeHelp = formValues.isSameTokenDividend
+    ? t('tokenDividendCreation.labels.sameTokenModeHelp')
+    : t('tokenDividendCreation.labels.externalTokenModeHelp')
+  const protectedAddressEntries = buildProtectedAddressEntries([
+    { label: t('tokenDividendCreation.labels.protectedReceiveAddress'), address: formValues.receiveAddress.trim() || connectedAddress || '-' },
+    { label: t('tokenDividendCreation.labels.protectedFundAddress'), address: formValues.fundAddress.trim() || connectedAddress || '-' },
+    { label: t('tokenDividendCreation.labels.protectedRouterAddress'), address: selectedExchange?.routerAddress ?? '-' },
+    { label: t('tokenDividendCreation.labels.protectedDeadAddress'), address: DEAD_ADDRESS },
+  ])
 
   return (
     <section className="surface-card form-card dividend-form-card">
@@ -109,6 +123,7 @@ export function TokenDividendFormPanel({ model }: { model: TokenDividendViewMode
             style={{ width: '100%' }}
             value={formValues.totalSupply}
             onChange={(value) => updateField('totalSupply', String(value ?? ''))}
+            onBlur={() => updateField('totalSupply', normalizeIntegerBlurValue(formValues.totalSupply))}
             status={errors.totalSupply ? 'error' : undefined}
           />
           {errors.totalSupply ? <small className="field-error">{errors.totalSupply}</small> : null}
@@ -128,373 +143,394 @@ export function TokenDividendFormPanel({ model }: { model: TokenDividendViewMode
             style={{ width: '100%' }}
             value={formValues.decimals}
             onChange={(value) => updateField('decimals', value == null ? null : Number(value))}
+            onBlur={() => updateField('decimals', formValues.decimals == null ? null : Number(normalizeIntegerBlurValue(String(formValues.decimals))))}
             status={errors.decimals ? 'error' : undefined}
           />
           {errors.decimals ? <small className="field-error">{errors.decimals}</small> : null}
         </label>
+
+        <label className="field">
+          <FieldLabelWithTooltip
+            label={t('tokenDividendCreation.fields.receiveAddress')}
+            tooltip={t('tokenDividendCreation.tooltips.receiveAddress')}
+          />
+          <Input
+            className="token-form-input"
+            placeholder={t('tokenDividendCreation.placeholders.receiveAddress')}
+            value={formValues.receiveAddress}
+            allowClear
+            onChange={(event) => updateField('receiveAddress', event.target.value)}
+            status={errors.receiveAddress ? 'error' : undefined}
+          />
+          <small className="field-hint">{t('tokenDividendCreation.labels.receiveAddressDividendNotice')}</small>
+          {errors.receiveAddress ? <small className="field-error">{errors.receiveAddress}</small> : null}
+        </label>
       </div>
 
-      <section className="dividend-mode-panel">
-        <div className="tax-section-copy">
-          <strong>{t('tokenDividendCreation.labels.modeTitle')}</strong>
-          <p>{t('tokenDividendCreation.labels.modeDescription')}</p>
-        </div>
-
-        <Alert
-          className="dividend-mode-alert"
-          type="info"
-          showIcon
-          icon={<InfoCircleOutlined />}
-          message={formValues.isSameTokenDividend ? t('tokenDividendCreation.modes.sameToken') : t('tokenDividendCreation.modes.externalToken')}
-          description={
-            formValues.isSameTokenDividend
-              ? t('tokenDividendCreation.labels.sameTokenModeHelp')
-              : t('tokenDividendCreation.labels.externalTokenModeHelp')
-          }
-        />
-
-        <div className="switch-row">
-          <div className="switch-copy">
-            <strong>{t('tokenDividendCreation.fields.isSameTokenDividend')}</strong>
-            <p>{t('tokenDividendCreation.tooltips.isSameTokenDividend')}</p>
+      <section className="dividend-config-panel">
+        <section className="dividend-mode-panel">
+          <div className="tax-section-copy">
+            <strong>{t('tokenDividendCreation.labels.modeTitle')}</strong>
           </div>
-          <Switch
-            checked={formValues.isSameTokenDividend}
-            onChange={(checked) => {
-              updateField('isSameTokenDividend', checked)
-              if (checked) {
-                updateField('dividendToken', '')
-              }
-            }}
-          />
-        </div>
 
-        <div className="field-grid tax-field-grid">
-          <label className="field">
-            <FieldLabelWithTooltip label={t('tokenDividendCreation.fields.exchange')} tooltip={exchangeTooltip} />
-            <Select
-              className="tax-exchange-select"
-              optionLabelProp="label"
-              placeholder={t('tokenDividendCreation.placeholders.exchange')}
-              disabled={exchangeDisabled}
-              status={errors.exchange ? 'error' : undefined}
-              value={formValues.exchange || undefined}
-              classNames={{
-                popup: {
-                  root: 'tax-exchange-dropdown',
-                },
+          <div className="switch-row">
+            <div className="switch-copy">
+              <strong>{t('tokenDividendCreation.fields.isSameTokenDividend')}</strong>
+              <p>{t('tokenDividendCreation.tooltips.isSameTokenDividend')}</p>
+              <p className="switch-mode-note">{dividendModeHelp}</p>
+            </div>
+            <Switch
+              checked={formValues.isSameTokenDividend}
+              onChange={(checked) => {
+                updateField('isSameTokenDividend', checked)
+                if (checked) {
+                  updateField('dividendToken', '')
+                } else if (!formValues.dividendToken) {
+                  const defaultRewardToken = rewardTokens.find((token) => !token.isNative) ?? rewardTokens[0]
+                  if (defaultRewardToken?.address) {
+                    updateField('dividendToken', defaultRewardToken.address)
+                  }
+                }
               }}
-              onChange={(value) => updateField('exchange', value)}
-            >
-              {exchanges.map((item) => (
-                <Select.Option key={item.value} label={buildExchangeSelectedLabel(item)} value={item.value}>
-                  {buildExchangeOptionLabel(item)}
-                </Select.Option>
-              ))}
-            </Select>
-            {errors.exchange ? <small className="field-error">{errors.exchange}</small> : null}
-          </label>
-
-          <label className="field field-span-full">
-            <FieldLabelWithTooltip
-              label={t('tokenDividendCreation.fields.poolToken')}
-              tooltip={t('tokenDividendCreation.tooltips.poolToken', {
-                nativeSymbol: chainDefinition.nativeToken.symbol,
-              })}
             />
-            <TokenDisplay
-              allowCustomAddress
-              chainDefinition={chainDefinition}
-              emptyText={t('tokenDividendCreation.status.emptyTokenList')}
-              lookupErrorText={t('tokenDividendCreation.errors.tokenLookupFailed')}
-              nativeLabel={t('common.nativeToken')}
-              noTokenInfoText={t('tokenDividendCreation.status.noTokenInfo')}
-              onChange={(nextValue) => updateField('poolToken', nextValue)}
-              onTokenResolved={onPoolTokenResolved}
-              placeholder={t('tokenDividendCreation.placeholders.poolToken')}
-              searchingText={t('tokenDividendCreation.status.searchingToken')}
-              status={errors.poolToken ? 'error' : undefined}
-              tokens={poolTokens}
-              value={formValues.poolToken}
-            />
-            {errors.poolToken ? <small className="field-error">{errors.poolToken}</small> : null}
-          </label>
+          </div>
 
-          {!formValues.isSameTokenDividend ? (
-            <label className="field field-span-full">
+          <div className="field-grid tax-field-grid">
+            <label className="field">
+              <FieldLabelWithTooltip label={t('tokenDividendCreation.fields.exchange')} tooltip={exchangeTooltip} />
+              <Select
+                className="tax-exchange-select"
+                optionLabelProp="label"
+                placeholder={t('tokenDividendCreation.placeholders.exchange')}
+                disabled={exchangeDisabled}
+                status={errors.exchange ? 'error' : undefined}
+                value={formValues.exchange || undefined}
+                classNames={{
+                  popup: {
+                    root: 'tax-exchange-dropdown',
+                  },
+                }}
+                onChange={(value) => updateField('exchange', value)}
+              >
+                {exchanges.map((item) => (
+                  <Select.Option key={item.value} label={buildExchangeSelectedLabel(item)} value={item.value}>
+                    {buildExchangeOptionLabel(item)}
+                  </Select.Option>
+                ))}
+              </Select>
+              {errors.exchange ? <small className="field-error">{errors.exchange}</small> : null}
+            </label>
+
+            <label className="field">
               <FieldLabelWithTooltip
-                label={t('tokenDividendCreation.fields.dividendToken')}
-                tooltip={t('tokenDividendCreation.tooltips.dividendToken')}
+                label={t('tokenDividendCreation.fields.poolToken')}
+                tooltip={t('tokenDividendCreation.tooltips.poolToken', {
+                  nativeSymbol: chainDefinition.nativeToken.symbol,
+                })}
               />
               <TokenDisplay
                 allowCustomAddress
                 chainDefinition={chainDefinition}
                 emptyText={t('tokenDividendCreation.status.emptyTokenList')}
+                key={`${chainDefinition.key}-pool-token`}
                 lookupErrorText={t('tokenDividendCreation.errors.tokenLookupFailed')}
                 nativeLabel={t('common.nativeToken')}
                 noTokenInfoText={t('tokenDividendCreation.status.noTokenInfo')}
-                onChange={(nextValue) => updateField('dividendToken', nextValue)}
-                onTokenResolved={onRewardTokenResolved}
-                placeholder={t('tokenDividendCreation.placeholders.dividendToken')}
+                onChange={(nextValue) => updateField('poolToken', nextValue)}
+                onTokenResolved={onPoolTokenResolved}
+                placeholder={t('tokenDividendCreation.placeholders.poolToken')}
                 searchingText={t('tokenDividendCreation.status.searchingToken')}
-                status={errors.dividendToken ? 'error' : undefined}
-                tokens={rewardTokens}
-                value={formValues.dividendToken}
+                status={errors.poolToken ? 'error' : undefined}
+                tokens={poolTokens}
+                value={formValues.poolToken}
               />
-              {errors.dividendToken ? <small className="field-error">{errors.dividendToken}</small> : null}
+              {errors.poolToken ? <small className="field-error">{errors.poolToken}</small> : null}
             </label>
-          ) : null}
-        </div>
-      </section>
 
-      <section className="dividend-parameter-panel">
-        <div className="tax-section-copy">
-          <strong>{t('tokenDividendCreation.labels.distributionRules')}</strong>
-          <p>{t('tokenDividendCreation.labels.distributionRulesNote')}</p>
-        </div>
+            {!formValues.isSameTokenDividend ? (
+              <label className="field">
+                <FieldLabelWithTooltip
+                  label={t('tokenDividendCreation.fields.dividendToken')}
+                  tooltip={t('tokenDividendCreation.tooltips.dividendToken')}
+                />
+                <TokenDisplay
+                  allowCustomAddress
+                  chainDefinition={chainDefinition}
+                  emptyText={t('tokenDividendCreation.status.emptyTokenList')}
+                  key={`${chainDefinition.key}-reward-token`}
+                  lookupErrorText={t('tokenDividendCreation.errors.tokenLookupFailed')}
+                  nativeLabel={t('common.nativeToken')}
+                  noTokenInfoText={t('tokenDividendCreation.status.noTokenInfo')}
+                  onChange={(nextValue) => updateField('dividendToken', nextValue)}
+                  onTokenResolved={onRewardTokenResolved}
+                  placeholder={t('tokenDividendCreation.placeholders.dividendToken')}
+                  searchingText={t('tokenDividendCreation.status.searchingToken')}
+                  status={errors.dividendToken ? 'error' : undefined}
+                  tokens={rewardTokens}
+                  value={formValues.dividendToken}
+                />
+                {errors.dividendToken ? <small className="field-error">{errors.dividendToken}</small> : null}
+              </label>
+            ) : null}
+          </div>
+        </section>
 
-        <div className="field-grid">
-          <label className="field">
-            <FieldLabelWithTooltip
-              label={t('tokenDividendCreation.fields.receiveAddress')}
-              tooltip={t('tokenDividendCreation.tooltips.receiveAddress')}
-            />
-            <Input
-              className="token-form-input"
-              placeholder={t('tokenDividendCreation.placeholders.receiveAddress')}
-              value={formValues.receiveAddress}
-              allowClear
-              onChange={(event) => updateField('receiveAddress', event.target.value)}
-              status={errors.receiveAddress ? 'error' : undefined}
-            />
-            {errors.receiveAddress ? <small className="field-error">{errors.receiveAddress}</small> : null}
-          </label>
+        <section className="dividend-parameter-panel">
+          <div className="tax-section-copy">
+            <strong>{t('tokenDividendCreation.labels.distributionRules')}</strong>
+          </div>
 
-          <label className="field">
-            <FieldLabelWithTooltip
-              label={t('tokenDividendCreation.fields.fundAddress')}
-              tooltip={t('tokenDividendCreation.tooltips.fundAddress')}
-            />
-            <Input
-              className="token-form-input"
-              placeholder={t('tokenDividendCreation.placeholders.fundAddress')}
-              value={formValues.fundAddress}
-              allowClear
-              onChange={(event) => updateField('fundAddress', event.target.value)}
-              status={errors.fundAddress ? 'error' : undefined}
-            />
-            {errors.fundAddress ? <small className="field-error">{errors.fundAddress}</small> : null}
-          </label>
+          <div className="field-grid">
+            <label className="field">
+              <FieldLabelWithTooltip
+                label={t('tokenDividendCreation.fields.fundAddress')}
+                tooltip={t('tokenDividendCreation.tooltips.fundAddress')}
+              />
+              <Input
+                className="token-form-input"
+                placeholder={t('tokenDividendCreation.placeholders.fundAddress')}
+                value={formValues.fundAddress}
+                allowClear
+                onChange={(event) => updateField('fundAddress', event.target.value)}
+                status={errors.fundAddress ? 'error' : undefined}
+              />
+              {errors.fundAddress ? <small className="field-error">{errors.fundAddress}</small> : null}
+            </label>
 
-          <label className="field">
-            <FieldLabelWithTooltip
-              label={t('tokenDividendCreation.fields.minHoldingForDividend')}
-              tooltip={t('tokenDividendCreation.tooltips.minHoldingForDividend')}
-            />
-            <Input
-              className="token-form-input"
-              placeholder={t('tokenDividendCreation.placeholders.minHoldingForDividend')}
-              value={formValues.minHoldingForDividend}
-              allowClear
-              onChange={(event) => updateField('minHoldingForDividend', event.target.value)}
-              status={errors.minHoldingForDividend ? 'error' : undefined}
-            />
-            {errors.minHoldingForDividend ? <small className="field-error">{errors.minHoldingForDividend}</small> : null}
-          </label>
+            <label className="field">
+              <FieldLabelWithTooltip
+                label={t('tokenDividendCreation.fields.minHoldingForDividend')}
+                tooltip={t('tokenDividendCreation.tooltips.minHoldingForDividend')}
+              />
+              <Input
+                className="token-form-input"
+                placeholder={t('tokenDividendCreation.placeholders.minHoldingForDividend')}
+                value={formValues.minHoldingForDividend}
+                allowClear
+                onBlur={() => updateField('minHoldingForDividend', normalizeDecimalBlurValue(formValues.minHoldingForDividend))}
+                onChange={(event) => updateField('minHoldingForDividend', normalizeDecimalInput(event.target.value))}
+                status={errors.minHoldingForDividend ? 'error' : undefined}
+              />
+              {errors.minHoldingForDividend ? <small className="field-error">{errors.minHoldingForDividend}</small> : null}
+            </label>
 
-          <label className="field">
-            <FieldLabelWithTooltip
-              label={t('tokenDividendCreation.fields.dividendTriggerThreshold')}
-              tooltip={t('tokenDividendCreation.tooltips.dividendTriggerThreshold')}
-            />
-            <Input
-              className="token-form-input"
-              placeholder={t('tokenDividendCreation.placeholders.dividendTriggerThreshold')}
-              value={formValues.dividendTriggerThreshold}
-              allowClear
-              onChange={(event) => updateField('dividendTriggerThreshold', event.target.value)}
-              status={errors.dividendTriggerThreshold ? 'error' : undefined}
-            />
-            {errors.dividendTriggerThreshold ? <small className="field-error">{errors.dividendTriggerThreshold}</small> : null}
-          </label>
+            <label className="field">
+              <FieldLabelWithTooltip
+                label={t('tokenDividendCreation.fields.dividendTriggerThreshold')}
+                tooltip={t('tokenDividendCreation.tooltips.dividendTriggerThreshold')}
+              />
+              <Input
+                className="token-form-input"
+                placeholder={t('tokenDividendCreation.placeholders.dividendTriggerThreshold')}
+                value={formValues.dividendTriggerThreshold}
+                allowClear
+                onBlur={() => updateField('dividendTriggerThreshold', normalizeDecimalBlurValue(formValues.dividendTriggerThreshold))}
+                onChange={(event) => updateField('dividendTriggerThreshold', normalizeDecimalInput(event.target.value))}
+                status={errors.dividendTriggerThreshold ? 'error' : undefined}
+              />
+              {errors.dividendTriggerThreshold ? <small className="field-error">{errors.dividendTriggerThreshold}</small> : null}
+            </label>
 
-          <label className="field">
-            <FieldLabelWithTooltip
-              label={t('tokenDividendCreation.fields.autoProcessGasLimit')}
-              tooltip={t('tokenDividendCreation.tooltips.autoProcessGasLimit')}
-            />
-            <InputNumber
-              className="token-form-number"
-              controls={false}
-              min="1"
-              precision={0}
-              stringMode
-              style={{ width: '100%' }}
-              placeholder={t('tokenDividendCreation.placeholders.autoProcessGasLimit')}
-              value={formValues.autoProcessGasLimit || undefined}
-              onChange={(value) => updateField('autoProcessGasLimit', String(value ?? ''))}
-              status={errors.autoProcessGasLimit ? 'error' : undefined}
-            />
-            {errors.autoProcessGasLimit ? <small className="field-error">{errors.autoProcessGasLimit}</small> : null}
-          </label>
+          </div>
+        </section>
 
-          <label className="field">
-            <FieldLabelWithTooltip
-              label={t('tokenDividendCreation.fields.killBlockCount')}
-              tooltip={t('tokenDividendCreation.tooltips.killBlockCount')}
-            />
-            <InputNumber
-              className="token-form-number"
-              controls={false}
-              min="0"
-              precision={0}
-              stringMode
-              style={{ width: '100%' }}
-              placeholder={t('tokenDividendCreation.placeholders.killBlockCount')}
-              value={formValues.killBlockCount || undefined}
-              onChange={(value) => updateField('killBlockCount', String(value ?? ''))}
-              status={errors.killBlockCount ? 'error' : undefined}
-            />
-            {errors.killBlockCount ? <small className="field-error">{errors.killBlockCount}</small> : null}
-          </label>
-        </div>
-      </section>
+        <section className="dividend-tax-panel">
+          <div className="tax-section-copy">
+            <strong>{t('tokenDividendCreation.labels.taxConfiguration')}</strong>
+          </div>
 
-      <section className="dividend-tax-panel">
-        <div className="tax-section-copy">
-          <strong>{t('tokenDividendCreation.labels.taxConfiguration')}</strong>
-          <p>{t('tokenDividendCreation.labels.taxConfigurationNote')}</p>
-        </div>
+          <div className="tax-group-grid">
+            {DIVIDEND_TAX_PREFIXES.map((prefix) => {
+              const categoryTotal = calcDividendTaxCategoryTotal(formValues, prefix)
+              const isGroupWarning = categoryTotal >= MEDIUM_DIVIDEND_TAX_HINT && categoryTotal < MAX_DIVIDEND_TAX_PER_GROUP
+              const isGroupExceeded = categoryTotal > MAX_DIVIDEND_TAX_PER_GROUP
 
-        <div className="tax-group-grid">
-          {DIVIDEND_TAX_PREFIXES.map((prefix) => {
-            const categoryTotal = calcDividendTaxCategoryTotal(formValues, prefix)
-            const isGroupWarning = categoryTotal >= MEDIUM_DIVIDEND_TAX_HINT && categoryTotal < MAX_DIVIDEND_TAX_PER_GROUP
-            const isGroupExceeded = categoryTotal > MAX_DIVIDEND_TAX_PER_GROUP
-
-            return (
-              <section className={`dividend-tax-card ${isGroupExceeded ? 'is-error' : ''}`} key={prefix}>
-                <div className="dividend-tax-card-head">
-                  <div>
-                    <strong>{t(`tokenDividendCreation.taxGroups.${prefix}`)}</strong>
-                    <p>{t(`tokenDividendCreation.taxGroupDescriptions.${prefix}`)}</p>
+              return (
+                <section className={`dividend-tax-card ${isGroupExceeded ? 'is-error' : ''}`} key={prefix}>
+                  <div className="dividend-tax-card-head">
+                    <div>
+                      <strong>{t(`tokenDividendCreation.taxGroups.${prefix}`)}</strong>
+                    </div>
+                    <span className={`tax-total-pill ${isGroupWarning ? 'is-warning' : ''} ${isGroupExceeded ? 'is-error' : ''}`}>
+                      {categoryTotal}%
+                    </span>
                   </div>
-                  <span className={`tax-total-pill ${isGroupWarning ? 'is-warning' : ''} ${isGroupExceeded ? 'is-error' : ''}`}>
-                    {categoryTotal}%
-                  </span>
+
+                  <div className="dividend-tax-field-grid">
+                    {DIVIDEND_TAX_SUFFIXES.map((suffix) => {
+                      const fieldKey = `${prefix}${suffix}` as const
+                      return (
+                        <label className="field" key={fieldKey}>
+                          <FieldLabelWithTooltip
+                            label={t(`tokenDividendCreation.taxFields.${suffix}`)}
+                            tooltip={t(`tokenDividendCreation.taxTooltips.${suffix}`)}
+                          />
+                          <Input
+                            className="token-form-input tax-percent-input"
+                            placeholder="0"
+                            suffix={<span className="tax-percent-suffix">%</span>}
+                            value={formValues[fieldKey]}
+                            onBlur={() => updateField(fieldKey, normalizeTaxBlurValue(formValues[fieldKey]))}
+                            onChange={(event) => updateField(fieldKey, normalizeTaxInput(event.target.value))}
+                            status={errors[fieldKey] ? 'error' : undefined}
+                          />
+                          {errors[fieldKey] ? <small className="field-error">{errors[fieldKey]}</small> : null}
+                        </label>
+                      )
+                    })}
+                  </div>
+                </section>
+              )
+            })}
+          </div>
+
+          <div className="tax-total-bar">
+            <span>{t('tokenDividendCreation.labels.totalTaxRate')}</span>
+            <strong className={calcDividendTaxGrandTotal(formValues) > MAX_DIVIDEND_TAX_TOTAL ? 'is-error' : ''}>
+              {calcDividendTaxGrandTotal(formValues)}%
+            </strong>
+          </div>
+          {errors.taxConfiguration ? <small className="field-error">{errors.taxConfiguration}</small> : null}
+        </section>
+
+        <section className="dividend-permission-panel">
+          <div className="tax-section-copy">
+            <strong>{t('tokenDividendCreation.labels.permissionControls')}</strong>
+          </div>
+
+          <div className="switch-grid">
+            <div className="switch-card">
+              <div className="switch-row">
+                <div className="switch-copy">
+                  <strong>{t('tokenDividendCreation.fields.mintEnabled')}</strong>
+                  <p>{t('tokenDividendCreation.tooltips.mintEnabled')}</p>
                 </div>
+                <Switch checked={formValues.mintEnabled} onChange={(checked) => updateField('mintEnabled', checked)} />
+              </div>
+            </div>
 
-                <div className="dividend-tax-field-grid">
-                  {DIVIDEND_TAX_SUFFIXES.map((suffix) => {
-                    const fieldKey = `${prefix}${suffix}` as const
-                    return (
-                      <label className="field" key={fieldKey}>
-                        <FieldLabelWithTooltip
-                          label={t(`tokenDividendCreation.taxFields.${suffix}`)}
-                          tooltip={t(`tokenDividendCreation.taxTooltips.${suffix}`)}
-                        />
-                        <Input
-                          className="token-form-input tax-percent-input"
-                          placeholder="0"
-                          suffix={<span className="tax-percent-suffix">%</span>}
-                          value={formValues[fieldKey]}
-                          onChange={(event) => updateField(fieldKey, event.target.value)}
-                          status={errors[fieldKey] ? 'error' : undefined}
-                        />
-                        {errors[fieldKey] ? <small className="field-error">{errors[fieldKey]}</small> : null}
-                      </label>
-                    )
-                  })}
+            <div className="switch-card">
+              <div className="switch-row">
+                <div className="switch-copy">
+                  <strong>{t('tokenDividendCreation.fields.manualTradingEnable')}</strong>
+                  <p>{t('tokenDividendCreation.tooltips.manualTradingEnable')}</p>
                 </div>
-              </section>
-            )
-          })}
-        </div>
+                <Switch
+                  checked={formValues.manualTradingEnable}
+                  onChange={(checked) => {
+                    updateField('manualTradingEnable', checked)
+                    if (!checked) {
+                      updateField('killBlockCount', '')
+                    }
+                  }}
+                />
+              </div>
 
-        <div className="tax-total-bar">
-          <span>{t('tokenDividendCreation.labels.totalTaxRate')}</span>
-          <strong className={calcDividendTaxGrandTotal(formValues) > MAX_DIVIDEND_TAX_TOTAL ? 'is-error' : ''}>
-            {calcDividendTaxGrandTotal(formValues)}%
-          </strong>
-        </div>
-        {errors.taxConfiguration ? <small className="field-error">{errors.taxConfiguration}</small> : null}
-      </section>
-
-      <section className="dividend-permission-panel">
-        <div className="tax-section-copy">
-          <strong>{t('tokenDividendCreation.labels.permissionControls')}</strong>
-          <p>{t('tokenDividendCreation.labels.permissionControlsNote')}</p>
-        </div>
-
-        <div className="switch-grid">
-          <div className="switch-row">
-            <div className="switch-copy">
-              <strong>{t('tokenDividendCreation.fields.mintEnabled')}</strong>
-              <p>{t('tokenDividendCreation.tooltips.mintEnabled')}</p>
+              {formValues.manualTradingEnable ? (
+                <div className="switch-card-content">
+                  <label className="field">
+                    <FieldLabelWithTooltip
+                      label={t('tokenDividendCreation.fields.killBlockCount')}
+                      tooltip={t('tokenDividendCreation.tooltips.killBlockCount')}
+                    />
+                    <InputNumber
+                      className="token-form-number"
+                      controls={false}
+                      min="0"
+                      precision={0}
+                      stringMode
+                      style={{ width: '100%' }}
+                      placeholder={t('tokenDividendCreation.placeholders.killBlockCount')}
+                      value={formValues.killBlockCount || undefined}
+                      onChange={(value) => updateField('killBlockCount', String(value ?? ''))}
+                      onBlur={() => updateField('killBlockCount', normalizeIntegerBlurValue(formValues.killBlockCount))}
+                      status={errors.killBlockCount ? 'error' : undefined}
+                    />
+                    {errors.killBlockCount ? <small className="field-error">{errors.killBlockCount}</small> : null}
+                  </label>
+                </div>
+              ) : null}
             </div>
-            <Switch checked={formValues.mintEnabled} onChange={(checked) => updateField('mintEnabled', checked)} />
-          </div>
 
-          <div className="switch-row">
-            <div className="switch-copy">
-              <strong>{t('tokenDividendCreation.fields.manualTradingEnable')}</strong>
-              <p>{t('tokenDividendCreation.tooltips.manualTradingEnable')}</p>
+            <div className="switch-card">
+              <div className="switch-row">
+                <div className="switch-copy">
+                  <FieldLabelWithTooltip
+                    label={t('tokenDividendCreation.fields.whitelistEnabled')}
+                    tooltip={renderProtectedAddressTooltip({
+                      chainDefinition,
+                      entries: protectedAddressEntries,
+                      footer: t('tokenDividendCreation.labels.protectedAddressAutoGeneratedTips'),
+                      intro: t('tokenDividendCreation.labels.protectedAddressWhitelistTips'),
+                      title: t('tokenDividendCreation.labels.protectedAddressTitle'),
+                    })}
+                  />
+                  <p>{t('tokenDividendCreation.tooltips.whitelistEnabled')}</p>
+                </div>
+                <Switch checked={formValues.whitelistEnabled} onChange={(checked) => updateField('whitelistEnabled', checked)} />
+              </div>
+
+              {formValues.whitelistEnabled ? (
+                <div className="switch-card-content">
+                  <label className="field">
+                    <FieldLabelWithTooltip
+                      label={t('tokenDividendCreation.fields.initialWhitelist')}
+                      tooltip={t('tokenDividendCreation.tooltips.initialWhitelist')}
+                    />
+                    <Input.TextArea
+                      className="address-textarea"
+                      placeholder={t('tokenDividendCreation.placeholders.initialWhitelist')}
+                      value={formValues.initialWhitelist}
+                      autoSize={{ minRows: 4, maxRows: 8 }}
+                      onChange={(event) => updateField('initialWhitelist', event.target.value)}
+                      status={errors.initialWhitelist ? 'error' : undefined}
+                    />
+                    {errors.initialWhitelist ? <small className="field-error">{errors.initialWhitelist}</small> : null}
+                  </label>
+                </div>
+              ) : null}
             </div>
-            <Switch checked={formValues.manualTradingEnable} onChange={(checked) => updateField('manualTradingEnable', checked)} />
-          </div>
 
-          <div className="switch-row">
-            <div className="switch-copy">
-              <strong>{t('tokenDividendCreation.fields.whitelistEnabled')}</strong>
-              <p>{t('tokenDividendCreation.tooltips.whitelistEnabled')}</p>
+            <div className="switch-card">
+              <div className="switch-row">
+                <div className="switch-copy">
+                  <FieldLabelWithTooltip
+                    label={t('tokenDividendCreation.fields.blacklistEnabled')}
+                    tooltip={renderProtectedAddressTooltip({
+                      chainDefinition,
+                      entries: protectedAddressEntries,
+                      footer: t('tokenDividendCreation.labels.protectedAddressAutoGeneratedTips'),
+                      intro: t('tokenDividendCreation.labels.protectedAddressBlacklistTips'),
+                      title: t('tokenDividendCreation.labels.protectedAddressTitle'),
+                    })}
+                  />
+                  <p>{t('tokenDividendCreation.tooltips.blacklistEnabled')}</p>
+                </div>
+                <Switch checked={formValues.blacklistEnabled} onChange={(checked) => updateField('blacklistEnabled', checked)} />
+              </div>
+
+              {formValues.blacklistEnabled ? (
+                <div className="switch-card-content">
+                  <label className="field">
+                    <FieldLabelWithTooltip
+                      label={t('tokenDividendCreation.fields.initialBlacklist')}
+                      tooltip={t('tokenDividendCreation.tooltips.initialBlacklist')}
+                    />
+                    <Input.TextArea
+                      className="address-textarea"
+                      placeholder={t('tokenDividendCreation.placeholders.initialBlacklist')}
+                      value={formValues.initialBlacklist}
+                      autoSize={{ minRows: 4, maxRows: 8 }}
+                      onChange={(event) => updateField('initialBlacklist', event.target.value)}
+                      status={errors.initialBlacklist ? 'error' : undefined}
+                    />
+                    {errors.initialBlacklist ? <small className="field-error">{errors.initialBlacklist}</small> : null}
+                  </label>
+                </div>
+              ) : null}
             </div>
-            <Switch checked={formValues.whitelistEnabled} onChange={(checked) => updateField('whitelistEnabled', checked)} />
           </div>
-
-          <div className="switch-row">
-            <div className="switch-copy">
-              <strong>{t('tokenDividendCreation.fields.blacklistEnabled')}</strong>
-              <p>{t('tokenDividendCreation.tooltips.blacklistEnabled')}</p>
-            </div>
-            <Switch checked={formValues.blacklistEnabled} onChange={(checked) => updateField('blacklistEnabled', checked)} />
-          </div>
-        </div>
-
-        {formValues.whitelistEnabled ? (
-          <label className="field field-span-full">
-            <FieldLabelWithTooltip
-              label={t('tokenDividendCreation.fields.initialWhitelist')}
-              tooltip={t('tokenDividendCreation.tooltips.initialWhitelist')}
-            />
-            <Input.TextArea
-              className="address-textarea"
-              placeholder={t('tokenDividendCreation.placeholders.initialWhitelist')}
-              value={formValues.initialWhitelist}
-              autoSize={{ minRows: 4, maxRows: 8 }}
-              onChange={(event) => updateField('initialWhitelist', event.target.value)}
-              status={errors.initialWhitelist ? 'error' : undefined}
-            />
-            {errors.initialWhitelist ? <small className="field-error">{errors.initialWhitelist}</small> : null}
-          </label>
-        ) : null}
-
-        {formValues.blacklistEnabled ? (
-          <label className="field field-span-full">
-            <FieldLabelWithTooltip
-              label={t('tokenDividendCreation.fields.initialBlacklist')}
-              tooltip={t('tokenDividendCreation.tooltips.initialBlacklist')}
-            />
-            <Input.TextArea
-              className="address-textarea"
-              placeholder={t('tokenDividendCreation.placeholders.initialBlacklist')}
-              value={formValues.initialBlacklist}
-              autoSize={{ minRows: 4, maxRows: 8 }}
-              onChange={(event) => updateField('initialBlacklist', event.target.value)}
-              status={errors.initialBlacklist ? 'error' : undefined}
-            />
-            {errors.initialBlacklist ? <small className="field-error">{errors.initialBlacklist}</small> : null}
-          </label>
-        ) : null}
+        </section>
       </section>
 
       <Button
@@ -532,6 +568,7 @@ export function TokenDividendFormPanel({ model }: { model: TokenDividendViewMode
             chainDefinition={chainDefinition}
             exchanges={exchanges}
             formValues={formValues}
+            manageConsoleUrl={manageConsoleUrl}
             poolTokens={poolTokens}
             result={result}
             rewardTokens={rewardTokens}
@@ -556,7 +593,16 @@ export function TokenDividendFormPanel({ model }: { model: TokenDividendViewMode
 
       <AppModal
         className="token-result-modal"
-        footer={<Button type="primary" onClick={onCloseSuccessModal}>{t('tokenDividendCreation.actions.close')}</Button>}
+        footer={
+          <>
+            {manageConsoleUrl ? (
+              <Button type="primary" href={manageConsoleUrl}>
+                {t('tokenDividendCreation.successSummary.openConsole')}
+              </Button>
+            ) : null}
+            <Button onClick={onCloseSuccessModal}>{t('tokenDividendCreation.actions.close')}</Button>
+          </>
+        }
         onCancel={onCloseSuccessModal}
         open={successModalOpen}
         title={<div className="token-result-modal-heading">{t('tokenDividendCreation.modal.successTitle')}</div>}
@@ -654,4 +700,98 @@ function handleAssetImageError(event: SyntheticEvent<HTMLImageElement>) {
   const target = event.currentTarget
   target.onerror = null
   target.src = FALLBACK_ICON_SRC
+}
+
+function normalizeIntegerBlurValue(value: string) {
+  const digitsOnly = String(value ?? '').replace(/[^\d]/g, '')
+  if (!digitsOnly) {
+    return ''
+  }
+
+  return digitsOnly.replace(/^0+(?=\d)/, '') || '0'
+}
+
+function normalizeDecimalInput(value: string) {
+  const normalized = String(value ?? '').replace(/[^\d.]/g, '')
+  const [integerPart, ...decimalParts] = normalized.split('.')
+  const decimalPart = decimalParts.join('')
+
+  if (!integerPart && !decimalPart) {
+    return ''
+  }
+
+  const nextIntegerPart = integerPart.replace(/^0+(?=\d)/, '') || '0'
+  return normalized.includes('.') ? `${nextIntegerPart}.${decimalPart}` : nextIntegerPart
+}
+
+function normalizeDecimalBlurValue(value: string) {
+  const normalized = normalizeDecimalInput(value)
+  if (!normalized) {
+    return ''
+  }
+
+  const [integerPart, decimalPart = ''] = normalized.split('.')
+  if (!decimalPart) {
+    return integerPart
+  }
+
+  const trimmedDecimalPart = decimalPart.replace(/0+$/, '')
+  return trimmedDecimalPart ? `${integerPart}.${trimmedDecimalPart}` : integerPart
+}
+
+function normalizeTaxBlurValue(value: string) {
+  const normalized = normalizeTaxInput(value)
+  if (!normalized) {
+    return ''
+  }
+
+  const [integerPart, decimalPart = ''] = normalized.split('.')
+  if (!decimalPart) {
+    return integerPart
+  }
+
+  const trimmedDecimalPart = decimalPart.replace(/0+$/, '')
+  return trimmedDecimalPart ? `${integerPart}.${trimmedDecimalPart}` : integerPart
+}
+
+function renderProtectedAddressTooltip({
+  chainDefinition,
+  entries,
+  intro,
+  footer,
+  title,
+}: {
+  chainDefinition: TokenDividendViewModel['chainDefinition']
+  entries: Array<{ label: string; address?: string | null }>
+  intro: string
+  footer: string
+  title: string
+}) {
+  return (
+    <div className="protected-address-tooltip">
+      <div className="protected-address-tooltip__title">{title}</div>
+      <div className="protected-address-tooltip__desc">{intro}</div>
+      <div className="protected-address-tooltip__list">
+        {entries.map((item) => (
+          <div key={`${item.label}-${item.address}`} className="protected-address-tooltip__item">
+            <span className="protected-address-tooltip__label">{item.label}</span>
+            {item.address && item.address !== '-' ? (
+              <a
+                className="protected-address-tooltip__address"
+                href={getExplorerUrl(chainDefinition, 'address', item.address)}
+                target="_blank"
+                rel="noreferrer"
+                title={item.address}
+              >
+                {formatText(item.address, 8, 6)}
+              </a>
+            ) : (
+              <span className="protected-address-tooltip__address">{item.address}</span>
+            )}
+          </div>
+        ))}
+      </div>
+      <div className="protected-address-tooltip__footer">{footer}</div>
+    </div>
+  )
 }

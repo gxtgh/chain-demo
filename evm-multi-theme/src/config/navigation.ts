@@ -2,7 +2,13 @@ import type { SupportedPageKey } from './chains'
 
 export type NavigationItem = {
   page: SupportedPageKey
-  titleKey: 'nav.home' | 'nav.tokenCreation' | 'nav.tokenTaxCreation' | 'nav.tokenDividendCreation' | 'nav.tokenVanityCreation'
+  titleKey:
+    | 'nav.home'
+    | 'nav.tokenCreation'
+    | 'nav.tokenTaxCreation'
+    | 'nav.tokenDividendCreation'
+    | 'nav.tokenManage'
+    | 'nav.tokenVanityCreation'
   slug: string
 }
 
@@ -23,13 +29,18 @@ export const navigationItems: NavigationItem[] = [
     slug: 'tax-token-creation',
   },
   {
+    page: 'token-vanity-creation',
+    titleKey: 'nav.tokenVanityCreation',
+    slug: 'token-vanity-creation',
+  },
+  {
     page: 'token-dividend-creation',
     titleKey: 'nav.tokenDividendCreation',
     slug: 'token-dividend-creation',
   },
   {
-    page: 'token-vanity-creation',
-    titleKey: 'nav.tokenVanityCreation',
-    slug: 'token-vanity-creation',
+    page: 'token-manage',
+    titleKey: 'nav.tokenManage',
+    slug: 'token-manage',
   },
 ]
