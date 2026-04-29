@@ -94,13 +94,24 @@ export function useTokenManageActionRunner({
         throw new Error('tokenManage.errors.walletUnavailable')
       }
 
-      setStep({ id: 2, status: 'loading' })
       await executeDividendManageWrite({
         chainDefinition,
         tokenAddress,
         walletProvider,
         functionName: config.functionName,
         args: config.args,
+        onWaitingWallet: () => {
+          if (flowIdRef.current !== flowId) {
+            return
+          }
+          setStep({ id: 1, status: 'loading' })
+        },
+        onPending: () => {
+          if (flowIdRef.current !== flowId) {
+            return
+          }
+          setStep({ id: 2, status: 'loading' })
+        },
       })
 
       if (flowIdRef.current !== flowId) {

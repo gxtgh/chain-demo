@@ -364,7 +364,7 @@ const supportedChainsBase: ChainDefinition[] = [
       { key: 'tokenFactory', label: 'Token Creation', address: '0x1C47E37f13299d9989587edCb3875c5FcED57E99' },
       { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x2D230df14678DD87EBc586EeDD6d0D14268Eb6c3' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0xDbE4ec6610980A0Ea951F7f813A8078013b634eA', dex: 'PancakeSwap', version: 'v2',},
-      { key: 'dividendTokenFactory', label: 'Dividend Token Creation', address: '0xc1DA11E64A26ED4A8F0060D9D6cD3C00B0A7890f', dex: 'PancakeSwap', version: 'v2' },
+      { key: 'dividendTokenFactory', label: 'Dividend Token Creation', address: '0x50C7EfD2b974384aD14Be4264Ad6C4b64e0dCe26', dex: 'PancakeSwap', version: 'v2' },
     ],
   },
   {

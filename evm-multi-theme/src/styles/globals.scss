@@ -45,7 +45,11 @@ button {
 
 body.app-theme {
   .app-tooltip {
+    .ant-tooltip-container{
+      min-height: auto;
+    }
     .ant-tooltip-inner {
+      min-height: auto !important;
       border: 1px solid var(--theme-line) !important;
       border-radius: 14px !important;
       background: color-mix(in srgb, var(--theme-surface-strong) 96%, white 4%) !important;

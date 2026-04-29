@@ -172,6 +172,8 @@
   }
 
   .token-form-input {
+    &.ant-input,
+    &.ant-input-outlined,
     &.ant-input-affix-wrapper,
     &.ant-input-affix-wrapper-outlined {
       display: flex;
@@ -204,6 +206,23 @@
       &.ant-input-status-error {
         border-color: color-mix(in srgb, var(--error) 72%, transparent) !important;
         box-shadow: 0 0 0 4px color-mix(in srgb, var(--error) 12%, transparent) !important;
+      }
+
+      &.ant-input,
+      &.ant-input-outlined {
+        color: var(--text) !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        line-height: 40px !important;
+
+        &::placeholder,
+        &::-webkit-input-placeholder {
+          color: color-mix(in srgb, var(--muted) 52%, white 48%) !important;
+          -webkit-text-fill-color: color-mix(in srgb, var(--muted) 52%, white 48%) !important;
+          font-size: 14px;
+          font-weight: 500;
+          opacity: 1 !important;
+        }
       }
 
       .ant-input {
@@ -272,6 +291,8 @@
 
       .ant-input-number-input-wrap {
         height: 100%;
+        display: flex;
+        align-items: center;
       }
 
       .ant-input-number-input {
@@ -1320,6 +1341,8 @@
     }
 
     .token-form-input {
+      &.ant-input,
+      &.ant-input-outlined,
       &.ant-input-affix-wrapper,
       &.ant-input-affix-wrapper-outlined {
         background: color-mix(in srgb, var(--theme-surface-strong) 88%, #09090d 12%) !important;
@@ -1328,9 +1351,16 @@
         box-shadow: none !important;
 
         &:hover,
+        &:focus,
+        &.ant-input-focused,
         &.ant-input-affix-wrapper-focused {
           background: color-mix(in srgb, var(--theme-surface-strong) 94%, #09090d 6%) !important;
           background-color: color-mix(in srgb, var(--theme-surface-strong) 94%, #09090d 6%) !important;
+        }
+
+        &.ant-input,
+        &.ant-input-outlined {
+          color: var(--text) !important;
         }
 
         .ant-input {

@@ -289,12 +289,16 @@ export async function executeDividendManageWrite({
   walletProvider,
   functionName,
   args,
+  onWaitingWallet,
+  onPending,
 }: {
   chainDefinition: ChainDefinition
   tokenAddress: string
   walletProvider: EIP1193Provider
   functionName: string
   args: unknown[]
+  onWaitingWallet?: () => void
+  onPending?: () => void
 }) {
   if (!walletProvider || !isAddress(tokenAddress)) {
     throw new Error('tokenManage.errors.walletUnavailable')
@@ -306,7 +310,9 @@ export async function executeDividendManageWrite({
   const gasEstimate = (await contract[functionName].estimateGas(...args)) as bigint
   const gasLimit = (gasEstimate * 12n) / 10n
   const overrides = await getDynamicGasOverrides(browserProvider, chainDefinition, gasLimit)
+  onWaitingWallet?.()
   const transaction = await contract[functionName](...args, overrides)
+  onPending?.()
   const receipt = await transaction.wait()
 
   return {

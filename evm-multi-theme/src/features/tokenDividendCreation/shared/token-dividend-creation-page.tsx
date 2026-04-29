@@ -5,6 +5,7 @@ import { useAccount } from 'wagmi'
 import { useRenderMode } from '@/app/render-mode'
 import { PageHeader } from '@/components/common/page-header'
 import { PageSeo } from '@/components/common/page-seo'
+import { StructuredData } from '@/components/common/structured-data'
 import { useRouteContext } from '@/app/use-route-context'
 import { getChainFullName } from '@/config/chains'
 import { buildPagePath } from '@/config/routes'
@@ -33,6 +34,8 @@ import { useTokenDividendSubmit } from '../business/useTokenDividendSubmit'
 import { TokenDividendOverviewCard } from './token-dividend-overview-card'
 import { TokenDividendNextSteps } from './token-dividend-next-steps'
 import { TokenDividendFormPanel } from './token-dividend-form-panel'
+import { TokenDividendSeoContent } from './token-dividend-seo-content'
+import { buildTokenDividendFaqStructuredData, getTokenDividendFaqVars } from './token-dividend-seo-data'
 import '@/features/tokenCreation/styles.scss'
 import '../styles.scss'
 
@@ -54,6 +57,8 @@ function InteractiveTokenDividendCreationPage() {
   const [poolTokens, setPoolTokens] = useState<TokenDisplayItem[]>(() => buildDividendPoolTokenOptions(chainDefinition))
   const [rewardTokens, setRewardTokens] = useState<TokenDisplayItem[]>(() => buildDividendRewardTokenOptions(chainDefinition))
   const submit = useTokenDividendSubmit(chainDefinition, form.formValues.exchange, t, () => form.isValid)
+  const faqVars = getTokenDividendFaqVars(chainDefinition, chainLabel)
+  const faqStructuredData = buildTokenDividendFaqStructuredData(t, faqVars)
   const seo = getPageSeo('token-dividend-creation', {
     t,
     chainName: chainLabel,
@@ -121,8 +126,8 @@ function InteractiveTokenDividendCreationPage() {
         { label: t('tokenDividendCreation.labels.protectedDeadAddress'), address: DEAD_ADDRESS },
       ])
       const protectedAddressSet = buildProtectedAddressSet(protectedAddressEntries, isAddress)
-      const blacklistAddresses = splitAddressList(form.formValues.initialBlacklist)
-      const whitelistAddresses = splitAddressList(form.formValues.initialWhitelist)
+      const blacklistAddresses = form.formValues.blacklistEnabled ? splitAddressList(form.formValues.initialBlacklist) : []
+      const whitelistAddresses = form.formValues.whitelistEnabled ? splitAddressList(form.formValues.initialWhitelist) : []
       const invalidProtectedBlacklist = findProtectedAddresses(blacklistAddresses, protectedAddressSet)
       const invalidProtectedWhitelist = findProtectedAddresses(whitelistAddresses, protectedAddressSet)
 
@@ -170,6 +175,7 @@ function InteractiveTokenDividendCreationPage() {
     themeColor,
     chainDefinition,
     hasThemeQuery,
+    faqStructuredData,
   })
 }
 
@@ -182,6 +188,8 @@ function StaticTokenDividendCreationPage() {
     tokenType: chainDefinition.tokenType,
     nativeSymbol: chainDefinition.nativeToken.symbol,
   })
+  const faqVars = getTokenDividendFaqVars(chainDefinition, chainLabel)
+  const faqStructuredData = buildTokenDividendFaqStructuredData(t, faqVars)
 
   const model: TokenDividendViewModel = {
     chainDefinition,
@@ -219,6 +227,7 @@ function StaticTokenDividendCreationPage() {
     themeColor,
     chainDefinition,
     hasThemeQuery,
+    faqStructuredData,
   })
 }
 
@@ -231,6 +240,7 @@ function renderTokenDividendCreationLayout({
   themeColor,
   chainDefinition,
   hasThemeQuery,
+  faqStructuredData,
 }: {
   seo: ReturnType<typeof getPageSeo>
   model: TokenDividendViewModel
@@ -240,6 +250,7 @@ function renderTokenDividendCreationLayout({
   themeColor: string
   chainDefinition: TokenDividendViewModel['chainDefinition']
   hasThemeQuery: boolean
+  faqStructuredData: ReturnType<typeof buildTokenDividendFaqStructuredData>
 }) {
   const chainLabel = getChainFullName(chainDefinition)
   const header = (
@@ -266,12 +277,16 @@ function renderTokenDividendCreationLayout({
               locale={normalizeLocaleTag(lang as never)}
               robots={hasThemeQuery || !chainDefinition.seoIndex ? 'noindex,follow' : 'index,follow'}
             />
+            {hasThemeQuery ? null : (
+              <StructuredData id="token-dividend-creation-faq" data={faqStructuredData} />
+            )}
             <div id="token-dividend-creation-form">
               <TokenDividendFormPanel model={model} />
             </div>
             <section className="surface-card token-creation-content-module">
               <TokenDividendOverviewCard chainDefinition={chainDefinition} t={t} />
               <TokenDividendNextSteps t={t} />
+              <TokenDividendSeoContent chainDefinition={chainDefinition} t={t} />
             </section>
           </div>
         </div>

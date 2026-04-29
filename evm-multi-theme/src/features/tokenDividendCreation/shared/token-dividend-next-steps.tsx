@@ -1,4 +1,21 @@
-const stepKeys = ['importWallet', 'addLiquidity', 'openConsole', 'verifyRoute'] as const
+import {
+  ApartmentOutlined,
+  ControlOutlined,
+  FileSearchOutlined,
+  InfoCircleOutlined,
+  WalletOutlined,
+} from '@ant-design/icons'
+import type { ReactNode } from 'react'
+
+type StepKey = 'importWallet' | 'addLiquidity' | 'openConsole' | 'verifyRoute'
+
+const stepKeys: StepKey[] = ['importWallet', 'addLiquidity', 'openConsole', 'verifyRoute']
+const stepIcons: Record<StepKey, ReactNode> = {
+  importWallet: <WalletOutlined />,
+  addLiquidity: <ApartmentOutlined />,
+  openConsole: <ControlOutlined />,
+  verifyRoute: <FileSearchOutlined />,
+}
 
 export function TokenDividendNextSteps({
   t,
@@ -6,25 +23,30 @@ export function TokenDividendNextSteps({
   t: (key: string, vars?: Record<string, string | number>) => string
 }) {
   return (
-    <section className="token-next-steps-section">
-      <div className="token-section-copy">
+    <section className="token-success-section token-next-steps-section">
+      <div className="token-success-copy">
         <h3>{t('tokenDividendCreation.nextSteps.title')}</h3>
         <p>{t('tokenDividendCreation.nextSteps.description')}</p>
+        <div className="next-steps-note">
+          <InfoCircleOutlined />
+          <span>{t('tokenDividendCreation.nextSteps.note')}</span>
+        </div>
       </div>
 
-      <div className="token-next-step-grid">
-        {stepKeys.map((key) => (
-          <article className="token-next-step-card" key={key}>
-            <div className="token-next-step-index">{String(stepKeys.indexOf(key) + 1).padStart(2, '0')}</div>
-            <div className="token-next-step-copy">
-              <h4>{t(`tokenDividendCreation.nextSteps.${key}.title`)}</h4>
-              <p>{t(`tokenDividendCreation.nextSteps.${key}.description`)}</p>
+      <div className="next-step-grid">
+        {stepKeys.map((key, index) => (
+          <article className="next-step-card" key={key}>
+            <div className="next-step-card-head">
+              <div className="next-step-icon">{stepIcons[key]}</div>
+              <div className="next-step-heading">
+                <span className="next-step-index">{String(index + 1).padStart(2, '0')}</span>
+                <h4>{t(`tokenDividendCreation.nextSteps.${key}.title`)}</h4>
+              </div>
             </div>
+            <p>{t(`tokenDividendCreation.nextSteps.${key}.description`)}</p>
           </article>
         ))}
       </div>
-
-      <p className="token-next-steps-note">{t('tokenDividendCreation.nextSteps.note')}</p>
     </section>
   )
 }

@@ -6,16 +6,27 @@ import {
   SafetyCertificateOutlined,
   WalletOutlined,
 } from '@ant-design/icons'
-import { Alert, Button, Input, InputNumber, Segmented, Tag, message } from 'antd'
+import { Alert, Button, Input, InputNumber, Segmented, message } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 import { parseUnits } from 'viem'
 import { useRouteContext } from '@/app/use-route-context'
 import { OperationStatus } from '@/components/common/operation-status'
 import { CopyButton } from '@/components/common/copy-button'
+import { ValueWithTooltip } from '@/components/common/value-with-tooltip'
 import { FieldLabelWithTooltip } from '@/features/tokenCreation/shared/field-label-with-tooltip'
-import { formatText } from '@/utils'
+import { formatCompactNumber, formatText } from '@/utils'
 import { getExplorerUrl } from '@/config/chains'
-import { calcDividendTaxCategoryTotal, calcDividendTaxGrandTotal, DIVIDEND_TAX_PREFIXES, DIVIDEND_TAX_SUFFIXES, toBasisPoints } from '@/features/tokenDividendCreation/business/tax'
+import {
+  calcDividendTaxCategoryTotal,
+  calcDividendTaxGrandTotal,
+  DIVIDEND_TAX_PREFIXES,
+  DIVIDEND_TAX_SUFFIXES,
+  MAX_DIVIDEND_TAX_PER_GROUP,
+  MAX_DIVIDEND_TAX_TOTAL,
+  MEDIUM_DIVIDEND_TAX_HINT,
+  normalizeTaxInput,
+  toBasisPoints,
+} from '@/features/tokenDividendCreation/business/tax'
 import { queryWithdrawableDividend } from '../../business/tokenManageService'
 import { useTokenManageActionRunner } from '../../business/useTokenManageActionRunner'
 import {
@@ -24,40 +35,41 @@ import {
   normalizeTokenAddress,
   resolveTokenManageRole,
   type DividendTokenManageInfo,
-  type OverviewCardModel,
 } from '../../business/model'
 
 type AddressListMode = 'whitelist' | 'blacklist'
 type AddressListAction = 'add' | 'remove'
+type ActionSectionKey = 'supply' | 'dividend' | 'listsPermissions' | 'tradingFees' | 'danger'
+type ManageStatCard = {
+  key: string
+  label: string
+  value: string
+  fullValue?: string
+}
 
-export function DividendTokenManageView({
-  chainDefinition,
-  info,
-  role,
-  isConnected,
-  t,
-  runner,
-}: {
+export type DividendTokenManageViewProps = {
   chainDefinition: ReturnType<typeof useRouteContext>['chainDefinition']
   info: DividendTokenManageInfo
   role: ReturnType<typeof resolveTokenManageRole>
   isConnected: boolean
   t: (key: string, vars?: Record<string, string | number>) => string
   runner: ReturnType<typeof useTokenManageActionRunner>
-}) {
-  const canManage = role === 'owner'
+}
+
+export function DividendTokenManageInfoSection({
+  chainDefinition,
+  info,
+  role,
+  t,
+}: DividendTokenManageViewProps) {
   const canViewFundBadge = role === 'fund'
-  const overviewCards = useMemo(() => buildOverviewCards(info, t), [info, t])
-  const sectionNavItems = [
-    { key: 'supplyDividend', label: t('tokenManage.sections.supplyDividend.title') },
-    { key: 'listsPermissions', label: t('tokenManage.sections.listsPermissions.title') },
-    { key: 'tradingFees', label: t('tokenManage.sections.tradingFees.title') },
-    { key: 'danger', label: t('tokenManage.sections.danger.title') },
-  ]
+  const supplyCards = useMemo(() => buildSupplyCards(info, t), [info, t])
+  const dividendCards = useMemo(() => buildDividendCards(info, t), [info, t])
+  const taxInfoGroups = useMemo(() => buildTaxInfoGroups(info, t), [info, t])
+  const listSummaryCards = useMemo(() => buildListSummaryCards(info, t), [info, t])
 
   return (
-    <>
-      <section className="surface-card token-manage-header-card">
+    <section className="surface-card token-manage-header-card manage-info-unified-card">
         <div className="permission-hero">
           <div className="permission-hero-layout manage-hero-layout">
             <div className="permission-hero-badge">
@@ -68,7 +80,10 @@ export function DividendTokenManageView({
             <div className="permission-hero-content">
               <div className="manage-header-topline">
                 <div className="token-section-copy">
-                  <h2>{`${info.name} (${info.symbol})`}</h2>
+                  <div className="manage-token-identity">
+                    <h2>{info.name}</h2>
+                    <span className="manage-token-symbol">{info.symbol}</span>
+                  </div>
                 </div>
                 <div className="permission-highlight-row manage-header-tags">
                   <span className="permission-highlight-pill">{t('tokenManage.header.typeDividend')}</span>
@@ -92,86 +107,131 @@ export function DividendTokenManageView({
         </div>
 
         <div className="summary-stat-grid manage-header-stats">
+          <AddressStatCard
+            chainDefinition={chainDefinition}
+            label={t('tokenManage.header.contractAddress')}
+            value={info.address}
+          />
           <StatCard label={t('tokenManage.header.decimals')} value={String(info.decimals)} />
-          <StatCard label={t('tokenManage.header.totalSupply')} value={info.totalSupplyDisplay} />
-          <StatCard label={t('tokenManage.header.rewardToken')} value={info.dividendTokenInfo?.symbol ?? formatAddressText(info.dividendToken)} />
-          <StatCard label={t('tokenManage.header.poolToken')} value={info.basePoolTokenInfo?.symbol ?? formatAddressText(info.basePoolToken)} />
-          <StatCard label={t('tokenManage.header.mainPair')} value={formatAddressText(info.mainPair)} />
+          <StatCard
+            label={t('tokenManage.header.totalSupply')}
+            value={formatCompactTokenAmount(info.totalSupply, info.decimals)}
+            fullValue={formatFullTokenAmount(info.totalSupply, info.decimals)}
+          />
         </div>
 
-        <div className="summary-detail-list manage-header-addresses">
-          <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.contractAddress')} value={info.address} />
-          <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.ownerAddress')} value={info.owner} />
-          <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.fundAddress')} value={info.fundAddress} />
-          <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.routerAddress')} value={info.swapRouter} />
-        </div>
-      </section>
+        <InfoCluster title="地址摘要">
+          <div className="summary-detail-list manage-header-addresses">
+            <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.ownerAddress')} value={info.owner} />
+            <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.receiveAddress')} value={info.receiveAddress} />
+            <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.fundAddress')} value={info.fundAddress} />
+            <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.routerAddress')} value={info.swapRouter} />
+            <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.mainPair')} value={info.mainPair} />
+            <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.dividendTracker')} value={info.dividendTracker} />
+            <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.rewardTokenAddress')} value={info.dividendToken} />
+            <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.poolTokenAddress')} value={info.basePoolToken} />
+          </div>
+        </InfoCluster>
 
-      <section className="surface-card token-manage-overview-card">
-        <div className="token-section-copy">
-          <h3>{t('tokenManage.overview.title')}</h3>
-          <p>{t('tokenManage.overview.description')}</p>
-        </div>
-        <div className="manage-overview-grid">
-          {overviewCards.map((card) => (
-            <article className={`manage-overview-item ${card.tone ?? 'default'}`} key={card.key}>
-              <span>{card.label}</span>
-              <strong>{card.value}</strong>
-              {card.description ? <p>{card.description}</p> : null}
-            </article>
-          ))}
-        </div>
-      </section>
+      <div className="manage-info-compact-card">
+        <InfoCluster title={t('tokenManage.infoSections.supply.title')}>
+          <div className="manage-info-dense-grid">
+            {supplyCards.map((card) => (
+              <StatCard key={card.key} label={card.label} value={card.value} fullValue={card.fullValue} />
+            ))}
+          </div>
+        </InfoCluster>
 
-      {!isConnected || !canManage ? (
-        <Alert
-          className="manage-permission-alert"
-          type="info"
-          showIcon
-          message={
-            !isConnected
-              ? t('tokenManage.permission.connectWallet')
-              : t('tokenManage.permission.ownerOnly', { address: formatAddressText(info.owner) })
-          }
-        />
-      ) : null}
+        <InfoCluster title={t('tokenManage.infoSections.dividend.title')}>
+          <div className="manage-info-dense-grid">
+            {dividendCards.map((card) => (
+              <StatCard key={card.key} label={card.label} value={card.value} fullValue={card.fullValue} />
+            ))}
+          </div>
+        </InfoCluster>
 
-      <section className="surface-card manage-section-nav-card">
-        <div className="manage-section-nav">
-          {sectionNavItems.map((item) => (
-            <button
-              key={item.key}
-              className="manage-section-nav-chip"
-              type="button"
-              onClick={() => {
-                const target = document.getElementById(`manage-section-${item.key}`)
-                target?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-              }}
-            >
-              {item.label}
-            </button>
-          ))}
+        <InfoCluster title={t('tokenManage.infoSections.lists.title')}>
+          <div className="manage-info-dense-grid">
+            {listSummaryCards.map((card) => (
+              <StatCard key={card.key} label={card.label} value={card.value} fullValue={card.fullValue} />
+            ))}
+          </div>
+        </InfoCluster>
+
+        <div className="manage-info-tax-block">
+          <div className="manage-info-block-head">
+            <h4>{t('tokenManage.infoSections.taxes.title')}</h4>
+          </div>
+          <div className="manage-info-tax-grid">
+            {taxInfoGroups.map((group) => (
+              <article className="manage-info-tax-card" key={group.key}>
+                <div className="manage-info-tax-head">
+                  <div className="manage-info-tax-copy">
+                    <strong>{group.title}</strong>
+                    <p>{t(`tokenManage.taxGroupDescriptions.${group.key}`)}</p>
+                  </div>
+                  <span className="tax-total-pill">{group.total}</span>
+                </div>
+                <div className="manage-info-tax-list">
+                  {group.items.map((item) => (
+                    <div className="manage-info-tax-item" key={item.key}>
+                      <span>{item.label}</span>
+                      <strong>{item.value}</strong>
+                    </div>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
-      </section>
+      </div>
+    </section>
+  )
+}
 
+export function DividendTokenManageActionsSection({
+  chainDefinition,
+  info,
+  role,
+  isConnected,
+  t,
+  runner,
+}: DividendTokenManageViewProps) {
+  const canManage = role === 'owner'
+  const [activeSection, setActiveSection] = useState<ActionSectionKey>('supply')
+  const sectionNavItems = buildSectionNavItems(t)
+
+  let activeSectionContent: ReactNode = null
+
+  if (activeSection === 'supply') {
+    activeSectionContent = (
       <SectionBlock
-        sectionId="supplyDividend"
+        sectionId="supply"
         icon={<WalletOutlined />}
-        title={t('tokenManage.sections.supplyDividend.title')}
-        description={t('tokenManage.sections.supplyDividend.description')}
+        title={t('tokenManage.sections.supply.title')}
+        showHeader={false}
       >
-        <div className="manage-section-grid">
-          <MintCard info={info} t={t} onSubmit={(recipient, amount) => {
-            runner.runAction({
-              key: 'mint',
-              title: t('tokenManage.actions.mint.title'),
-              functionName: 'mint',
-              args: [recipient, amount],
-              successMessage: t('tokenManage.actions.mint.success'),
-              failureMessage: t('tokenManage.actions.mint.failed'),
-            })
-          }} disabled={!canManage || runner.currentActionKey === 'mint'} />
-
+        <MintCard info={info} t={t} onSubmit={(recipient, amount) => {
+          runner.runAction({
+            key: 'mint',
+            title: t('tokenManage.actions.mint.title'),
+            functionName: 'mint',
+            args: [recipient, amount],
+            successMessage: t('tokenManage.actions.mint.success'),
+            failureMessage: t('tokenManage.actions.mint.failed'),
+          })
+        }} disabled={!canManage || runner.currentActionKey === 'mint'} />
+      </SectionBlock>
+    )
+  } else if (activeSection === 'dividend') {
+    activeSectionContent = (
+      <SectionBlock
+        sectionId="dividend"
+        icon={<WalletOutlined />}
+        title={t('tokenManage.sections.dividend.title')}
+        showHeader={false}
+      >
+        <div className="manage-supply-layout">
           <ThresholdsCard
             info={info}
             t={t}
@@ -179,20 +239,23 @@ export function DividendTokenManageView({
             loadingKey={runner.currentActionKey}
             onRunAction={(config) => runner.runAction(config)}
           />
-
-          <DividendQueryCard
-            chainDefinition={chainDefinition}
-            info={info}
-            t={t}
-          />
+          <div className="manage-supply-stack">
+            <DividendQueryCard
+              chainDefinition={chainDefinition}
+              info={info}
+              t={t}
+            />
+          </div>
         </div>
       </SectionBlock>
-
+    )
+  } else if (activeSection === 'listsPermissions') {
+    activeSectionContent = (
       <SectionBlock
         sectionId="listsPermissions"
         icon={<SafetyCertificateOutlined />}
         title={t('tokenManage.sections.listsPermissions.title')}
-        description={t('tokenManage.sections.listsPermissions.description')}
+        showHeader={false}
       >
         <div className="manage-section-grid">
           <AddressListCard
@@ -222,12 +285,14 @@ export function DividendTokenManageView({
           />
         </div>
       </SectionBlock>
-
+    )
+  } else if (activeSection === 'tradingFees') {
+    activeSectionContent = (
       <SectionBlock
         sectionId="tradingFees"
         icon={<FundOutlined />}
         title={t('tokenManage.sections.tradingFees.title')}
-        description={t('tokenManage.sections.tradingFees.description')}
+        showHeader={false}
       >
         <div className="manage-section-grid">
           <TaxSettingsCard
@@ -253,13 +318,15 @@ export function DividendTokenManageView({
           />
         </div>
       </SectionBlock>
-
+    )
+  } else if (activeSection === 'danger') {
+    activeSectionContent = (
       <SectionBlock
         sectionId="danger"
         icon={<FireOutlined />}
         title={t('tokenManage.sections.danger.title')}
-        description={t('tokenManage.sections.danger.description')}
         tone="danger"
+        showHeader={false}
       >
         <DangerZoneCard
           info={info}
@@ -269,6 +336,34 @@ export function DividendTokenManageView({
           onRunAction={(config) => runner.runAction(config)}
         />
       </SectionBlock>
+    )
+  }
+
+  return (
+    <>
+      {!isConnected || !canManage ? (
+        <Alert
+          className="manage-permission-alert"
+          type="info"
+          showIcon
+          message={
+            !isConnected
+              ? t('tokenManage.permission.connectWallet')
+              : t('tokenManage.permission.ownerOnly', { address: formatAddressText(info.owner) })
+          }
+        />
+      ) : null}
+
+      <section className="surface-card manage-section-nav-card">
+        <Segmented
+          className="manage-section-segmented"
+          value={activeSection}
+          options={sectionNavItems}
+          onChange={(value) => setActiveSection(value as ActionSectionKey)}
+        />
+      </section>
+
+      {activeSectionContent}
 
       <OperationStatus
         open={runner.open}
@@ -298,6 +393,27 @@ export function DividendTokenManageView({
   )
 }
 
+function buildSectionNavItems(t: (key: string, vars?: Record<string, string | number>) => string) {
+  return [
+    { label: t('tokenManage.actionTabs.supply'), value: 'supply' },
+    { label: t('tokenManage.actionTabs.dividend'), value: 'dividend' },
+    { label: t('tokenManage.actionTabs.listsPermissions'), value: 'listsPermissions' },
+    { label: t('tokenManage.actionTabs.tradingFees'), value: 'tradingFees' },
+    { label: t('tokenManage.actionTabs.danger'), value: 'danger' },
+  ]
+}
+
+function InfoCluster({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="manage-info-cluster">
+      <div className="manage-info-block-head">
+        <h4>{title}</h4>
+      </div>
+      {children}
+    </section>
+  )
+}
+
 function SectionBlock({
   sectionId,
   icon,
@@ -305,33 +421,61 @@ function SectionBlock({
   description,
   children,
   tone = 'default',
+  showHeader = true,
 }: {
   sectionId: string
   icon: ReactNode
   title: string
-  description: string
+  description?: string
   children: ReactNode
   tone?: 'default' | 'danger'
+  showHeader?: boolean
 }) {
   return (
     <section id={`manage-section-${sectionId}`} className={`surface-card manage-section-card ${tone}`}>
-      <div className="manage-section-head">
-        <div className="manage-section-icon">{icon}</div>
-        <div className="token-section-copy">
-          <h3>{title}</h3>
-          <p>{description}</p>
+      {showHeader ? (
+        <div className="manage-section-head">
+          <div className="manage-section-icon">{icon}</div>
+          <div className="token-section-copy">
+            <h3>{title}</h3>
+            {description ? <p>{description}</p> : null}
+          </div>
         </div>
-      </div>
+      ) : null}
       {children}
     </section>
   )
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function StatCard({ label, value, fullValue }: { label: string; value: string; fullValue?: string }) {
   return (
     <article className="summary-stat-card">
       <span>{label}</span>
-      <strong>{value}</strong>
+      <ValueWithTooltip value={value} fullValue={fullValue} />
+    </article>
+  )
+}
+
+function AddressStatCard({
+  chainDefinition,
+  label,
+  value,
+}: {
+  chainDefinition: ReturnType<typeof useRouteContext>['chainDefinition']
+  label: string
+  value: string
+}) {
+  const explorerUrl = getExplorerUrl(chainDefinition, 'address', value)
+
+  return (
+    <article className="summary-detail-card manage-address-card manage-address-stat-card">
+      <span>{label}</span>
+      <div className="result-inline-value manage-address-value">
+        <a className="value-link" href={explorerUrl} target="_blank" rel="noreferrer">
+          {formatText(value)}
+        </a>
+        <CopyButton ariaLabel={label} value={value} />
+      </div>
     </article>
   )
 }
@@ -348,9 +492,9 @@ function AddressCard({
   const explorerUrl = getExplorerUrl(chainDefinition, 'address', value)
 
   return (
-    <div className="summary-detail-card">
+    <div className="summary-detail-card manage-address-card">
       <span>{label}</span>
-      <div className="result-inline-value">
+      <div className="result-inline-value manage-address-value">
         <a className="value-link" href={explorerUrl} target="_blank" rel="noreferrer">
           {formatText(value)}
         </a>
@@ -373,6 +517,10 @@ function MintCard({
 }) {
   const [recipient, setRecipient] = useState(info.receiveAddress)
   const [amount, setAmount] = useState('')
+  const amountError = useMemo(
+    () => validateMintAmountInput(amount, info.decimals, info.remainingMintable, t),
+    [amount, info.decimals, info.remainingMintable, t],
+  )
 
   useEffect(() => {
     setRecipient(info.receiveAddress)
@@ -389,24 +537,12 @@ function MintCard({
       return
     }
 
-    let amountWei: bigint
-    try {
-      amountWei = parseUnits(amount, info.decimals)
-    } catch {
-      message.warning(t('tokenManage.errors.invalidAmount'))
+    if (amountError) {
+      message.warning(amountError)
       return
     }
 
-    if (amountWei <= 0n) {
-      message.warning(t('tokenManage.errors.invalidAmount'))
-      return
-    }
-
-    if (amountWei > info.remainingMintable) {
-      message.warning(t('tokenManage.errors.mintExceedsCap'))
-      return
-    }
-
+    const amountWei = parseUnits(amount, info.decimals)
     onSubmit(recipient, amountWei)
   }
 
@@ -416,28 +552,52 @@ function MintCard({
         <h4>{t('tokenManage.actions.mint.title')}</h4>
         <p>{t('tokenManage.actions.mint.description')}</p>
       </div>
-      <div className="manage-inline-summary">
-        <span>{t('tokenManage.actions.mint.cap')}</span>
-        <strong>{info.initialSupplyDisplay}</strong>
-        <span>{t('tokenManage.actions.mint.minted')}</span>
-        <strong>{info.totalMintedDisplay}</strong>
-        <span>{t('tokenManage.actions.mint.remaining')}</span>
-        <strong>{info.remainingMintableDisplay}</strong>
+      <div className="manage-inline-summary manage-mint-summary">
+        <div className="manage-summary-metric">
+          <span>{t('tokenManage.actions.mint.cap')}</span>
+          <ValueWithTooltip
+            value={formatCompactTokenAmount(info.initialSupply, info.decimals)}
+            fullValue={formatFullTokenAmount(info.initialSupply, info.decimals)}
+          />
+        </div>
+        <div className="manage-summary-metric">
+          <span>{t('tokenManage.actions.mint.minted')}</span>
+          <ValueWithTooltip
+            value={formatCompactTokenAmount(info.totalMinted, info.decimals)}
+            fullValue={formatFullTokenAmount(info.totalMinted, info.decimals)}
+          />
+        </div>
+        <div className="manage-summary-metric">
+          <span>{t('tokenManage.actions.mint.remaining')}</span>
+          <ValueWithTooltip
+            value={formatCompactTokenAmount(info.remainingMintable, info.decimals)}
+            fullValue={formatFullTokenAmount(info.remainingMintable, info.decimals)}
+          />
+        </div>
       </div>
       <div className="field-grid">
         <label className="field">
           <FieldLabelWithTooltip label={t('tokenManage.actions.mint.recipient')} tooltip={t('tokenManage.actions.mint.recipientTip')} />
-          <Input className="token-form-input" value={recipient} onChange={(event) => setRecipient(event.target.value)} />
+          <Input className="token-form-input" placeholder={t('tokenManage.placeholder')} value={recipient} onChange={(event) => setRecipient(event.target.value)} />
+          <small className="manage-field-hint">{t('tokenManage.actions.mint.receiveAddressDividendNotice')}</small>
         </label>
         <label className="field">
           <FieldLabelWithTooltip label={t('tokenManage.actions.mint.amount')} tooltip={t('tokenManage.actions.mint.amountTip')} />
-          <Input className="token-form-input" value={amount} onChange={(event) => setAmount(event.target.value)} suffix={info.symbol} />
+          <Input
+            className="token-form-input"
+            placeholder={t('tokenManage.placeholder')}
+            status={amountError ? 'error' : undefined}
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+            suffix={info.symbol}
+          />
+          {amountError ? <small className="field-error">{amountError}</small> : null}
         </label>
       </div>
       <Button type="primary" disabled={disabled || !info.mintEnabled} onClick={handleSubmit}>
-        {t('tokenManage.actions.mint.confirm')}
+        {t('tokenManage.actionButtons.mint')}
       </Button>
-      {!info.mintEnabled ? <small className="field-error">{t('tokenManage.errors.mintDisabled')}</small> : null}
+      {!info.mintEnabled ? <small className="field-error manage-disabled-note">{t('tokenManage.errors.mintDisabled')}</small> : null}
     </article>
   )
 }
@@ -516,11 +676,17 @@ function ThresholdsCard({
       <div className="manage-field-stack">
         <InlineActionRow
           label={t('tokenManage.actions.thresholds.minHolding')}
-          currentValue={info.minHoldingForDividendDisplay}
+          currentValue={(
+            <ValueWithTooltip
+              value={formatCompactTokenAmount(info.minHoldingForDividend, info.decimals)}
+              fullValue={formatFullTokenAmount(info.minHoldingForDividend, info.decimals)}
+              placement="left"
+            />
+          )}
           control={
-            <Input className="token-form-input" value={minHolding} onChange={(event) => setMinHolding(event.target.value)} />
+            <Input className="token-form-input" placeholder={t('tokenManage.placeholder')} value={minHolding} onChange={(event) => setMinHolding(event.target.value)} />
           }
-          buttonText={t('tokenManage.actions.thresholds.updateMinHolding')}
+          buttonText={t('tokenManage.actionButtons.edit')}
           disabled={disabled || loadingKey === 'minHolding'}
           onSubmit={() => runAmountAction({
             key: 'minHolding',
@@ -533,11 +699,17 @@ function ThresholdsCard({
         />
         <InlineActionRow
           label={t('tokenManage.actions.thresholds.triggerThreshold')}
-          currentValue={info.dividendTriggerThresholdDisplay}
+          currentValue={(
+            <ValueWithTooltip
+              value={formatCompactTokenAmount(info.dividendTriggerThreshold, info.decimals)}
+              fullValue={formatFullTokenAmount(info.dividendTriggerThreshold, info.decimals)}
+              placement="left"
+            />
+          )}
           control={
-            <Input className="token-form-input" value={threshold} onChange={(event) => setThreshold(event.target.value)} />
+            <Input className="token-form-input" placeholder={t('tokenManage.placeholder')} value={threshold} onChange={(event) => setThreshold(event.target.value)} />
           }
-          buttonText={t('tokenManage.actions.thresholds.updateTriggerThreshold')}
+          buttonText={t('tokenManage.actionButtons.edit')}
           disabled={disabled || loadingKey === 'triggerThreshold'}
           onSubmit={() => runAmountAction({
             key: 'triggerThreshold',
@@ -550,19 +722,27 @@ function ThresholdsCard({
         />
         <InlineActionRow
           label={t('tokenManage.actions.thresholds.autoGas')}
-          currentValue={String(info.autoProcessGasLimit)}
+          currentValue={(
+            <ValueWithTooltip
+              value={formatCompactNumber({ value: info.autoProcessGasLimit })}
+              fullValue={String(info.autoProcessGasLimit)}
+              placement="left"
+            />
+          )}
           control={
             <InputNumber
               className="token-form-number"
+              controls={false}
               stringMode
               min="1"
+              placeholder={t('tokenManage.placeholder')}
               precision={0}
               style={{ width: '100%' }}
               value={gasLimit}
               onChange={(value) => setGasLimit(String(value ?? ''))}
             />
           }
-          buttonText={t('tokenManage.actions.thresholds.updateAutoGas')}
+          buttonText={t('tokenManage.actionButtons.edit')}
           disabled={disabled || loadingKey === 'autoGas'}
           onSubmit={() => {
             if (!gasLimit.trim() || !/^\d+$/.test(gasLimit) || BigInt(gasLimit) <= 0n) {
@@ -580,20 +760,33 @@ function ThresholdsCard({
           }}
         />
         <InlineActionRow
+          className="manage-inline-action-row-manual-process"
           label={t('tokenManage.actions.thresholds.manualProcess')}
-          currentValue={info.pendingDividendsDisplay}
+          currentValue={(
+            <>
+              {t('tokenManage.actions.thresholds.pendingDividends')}: {' '}
+              <ValueWithTooltip
+                value={formatCompactTokenAmount(info.pendingDividends, info.dividendTokenInfo?.decimals ?? info.decimals)}
+                fullValue={formatFullTokenAmount(info.pendingDividends, info.dividendTokenInfo?.decimals ?? info.decimals)}
+                placement="left"
+              />
+            </>
+          )}
+          controlLabel={t('tokenManage.actions.thresholds.manualProcessGas')}
           control={
             <InputNumber
               className="token-form-number"
+              controls={false}
               stringMode
               min="1"
+              placeholder={t('tokenManage.placeholder')}
               precision={0}
               style={{ width: '100%' }}
               value={processGasLimit}
               onChange={(value) => setProcessGasLimit(String(value ?? ''))}
             />
           }
-          buttonText={t('tokenManage.actions.thresholds.processDividend')}
+          buttonText={t('tokenManage.actionButtons.execute')}
           disabled={disabled || loadingKey === 'processDividend'}
           onSubmit={() => {
             if (!processGasLimit.trim() || !/^\d+$/.test(processGasLimit) || BigInt(processGasLimit) <= 0n) {
@@ -625,7 +818,7 @@ function DividendQueryCard({
   t: (key: string, vars?: Record<string, string | number>) => string
 }) {
   const [queryAddress, setQueryAddress] = useState('')
-  const [result, setResult] = useState('')
+  const [result, setResult] = useState<{ value: string; fullValue: string } | null>(null)
   const [loading, setLoading] = useState(false)
 
   async function handleQuery() {
@@ -635,16 +828,21 @@ function DividendQueryCard({
     }
 
     setLoading(true)
-    setResult('')
+    setResult(null)
     try {
+      const rewardDecimals = info.dividendTokenInfo?.decimals ?? info.decimals
       const queried = await queryWithdrawableDividend({
         chainDefinition,
         tokenAddress: info.address,
         account: queryAddress,
-        rewardDecimals: info.dividendTokenInfo?.decimals ?? info.decimals,
+        rewardDecimals,
       })
       const suffix = info.dividendTokenInfo?.symbol ? ` ${info.dividendTokenInfo.symbol}` : ''
-      setResult(`${queried.displayAmount}${suffix}`)
+      const fullAmount = formatFullTokenAmount(queried.rawAmount, rewardDecimals)
+      setResult({
+        value: `${formatCompactTokenAmount(queried.rawAmount, rewardDecimals)}${suffix}`,
+        fullValue: `${fullAmount}${suffix}`,
+      })
     } catch {
       message.error(t('tokenManage.actions.query.failed'))
     } finally {
@@ -660,16 +858,16 @@ function DividendQueryCard({
       </div>
       <label className="field">
         <FieldLabelWithTooltip label={t('tokenManage.actions.query.address')} tooltip={t('tokenManage.actions.query.addressTip')} />
-        <Input className="token-form-input" value={queryAddress} onChange={(event) => setQueryAddress(event.target.value)} />
+        <Input className="token-form-input" placeholder={t('tokenManage.placeholder')} value={queryAddress} onChange={(event) => setQueryAddress(event.target.value)} />
       </label>
       {result ? (
         <div className="manage-query-result">
           <span>{t('tokenManage.actions.query.result')}</span>
-          <strong>{result}</strong>
+          <ValueWithTooltip value={result.value} fullValue={result.fullValue} />
         </div>
       ) : null}
       <Button type="default" onClick={handleQuery} disabled={loading}>
-        {loading ? t('tokenManage.actions.query.loading') : t('tokenManage.actions.query.confirm')}
+        {loading ? t('tokenManage.actions.query.loading') : t('tokenManage.actionButtons.query')}
       </Button>
     </article>
   )
@@ -700,34 +898,59 @@ function AddressListCard({
   }) => void
 }) {
   const [operation, setOperation] = useState<AddressListAction>('add')
-  const [accountAddress, setAccountAddress] = useState('')
+  const [addressInput, setAddressInput] = useState('')
   const list = mode === 'whitelist' ? info.whitelistAddresses : info.blacklistAddresses
   const enabled = mode === 'whitelist' ? info.whitelistEnabled : info.blacklistEnabled
+  const permissionClosed = !enabled
+  const addDisabled = permissionClosed && operation === 'add'
   const protectedSet = new Set(info.protectedAddresses.map((item) => normalizeTokenAddress(item)))
   const protectedItems = mode === 'whitelist' ? list.filter((item) => protectedSet.has(normalizeTokenAddress(item))) : []
   const editableItems = mode === 'whitelist' ? list.filter((item) => !protectedSet.has(normalizeTokenAddress(item))) : list
+  const clearableCount = editableItems.length
+  const listActionsUnavailable = permissionClosed && clearableCount === 0
 
   function handleSubmit() {
-    if (!accountAddress || !isValidAddress(accountAddress)) {
-      message.warning(t('tokenManage.errors.invalidAddress'))
+    const parsedAddresses = parseAddressTextArea(addressInput)
+    if (parsedAddresses.length === 0) {
+      message.warning(t('tokenManage.errors.invalidAddressList'))
       return
     }
 
-    const normalized = normalizeTokenAddress(accountAddress)
-    const exists = list.some((item) => normalizeTokenAddress(item) === normalized)
+    const invalidAddresses = parsedAddresses.filter((item) => !isValidAddress(item))
+    if (invalidAddresses.length > 0) {
+      message.warning(t('tokenManage.errors.invalidAddressList'))
+      return
+    }
+
+    const duplicateAddresses = findDuplicateAddresses(parsedAddresses)
+    if (duplicateAddresses.length > 0) {
+      message.warning(t('tokenManage.errors.duplicateAddressList', { count: duplicateAddresses.length }))
+      return
+    }
+
+    const protectedInputAddresses = parsedAddresses.filter((item) => protectedSet.has(normalizeTokenAddress(item)))
+    if (protectedInputAddresses.length > 0) {
+      message.warning(t('tokenManage.errors.protectedAddressList', { count: protectedInputAddresses.length }))
+      return
+    }
+
+    const submitAddresses = uniqueAddresses(parsedAddresses)
+    const existingSet = new Set(list.map((item) => normalizeTokenAddress(item)))
+    const existingInputAddresses = submitAddresses.filter((item) => existingSet.has(normalizeTokenAddress(item)))
+    const missingInputAddresses = submitAddresses.filter((item) => !existingSet.has(normalizeTokenAddress(item)))
 
     if (operation === 'add') {
       if (!enabled) {
         message.warning(t('tokenManage.errors.listDisabledAdd'))
         return
       }
-      if (exists) {
-        message.warning(t('tokenManage.errors.addressAlreadyInList'))
+      if (existingInputAddresses.length > 0) {
+        message.warning(t('tokenManage.errors.addressesAlreadyInList', { count: existingInputAddresses.length }))
         return
       }
     } else {
-      if (!exists) {
-        message.warning(t('tokenManage.errors.addressNotInList'))
+      if (missingInputAddresses.length > 0) {
+        message.warning(t('tokenManage.errors.addressesNotInList', { count: missingInputAddresses.length }))
         return
       }
     }
@@ -736,9 +959,25 @@ function AddressListCard({
       key: `${mode}-${operation}`,
       title: t(`tokenManage.actions.${mode}.title`),
       functionName: 'batchSetList',
-      args: [mode === 'whitelist', [accountAddress], operation === 'add'],
+      args: [mode === 'whitelist', submitAddresses, operation === 'add'],
       successMessage: t(`tokenManage.actions.${mode}.${operation}Success`),
       failureMessage: t(`tokenManage.actions.${mode}.${operation}Failed`),
+    })
+  }
+
+  function handleClearList() {
+    if (clearableCount === 0) {
+      message.warning(t(`tokenManage.actions.${mode}.clearEmpty`))
+      return
+    }
+
+    onRunAction({
+      key: `${mode}-clear`,
+      title: t(`tokenManage.actions.${mode}.clear`),
+      functionName: 'clearList',
+      args: [mode === 'whitelist'],
+      successMessage: t(`tokenManage.actions.${mode}.clearSuccess`),
+      failureMessage: t(`tokenManage.actions.${mode}.clearFailed`),
     })
   }
 
@@ -754,15 +993,10 @@ function AddressListCard({
         <span>{t('tokenManage.list.count')}</span>
         <strong>{String(list.length)}</strong>
       </div>
-      {mode === 'whitelist' && protectedItems.length > 0 ? (
-        <Alert
-          type="info"
-          showIcon
-          message={t('tokenManage.actions.whitelist.protectedNotice', { count: protectedItems.length })}
-        />
-      ) : null}
       <div className="manage-inline-form">
         <Segmented
+          className="manage-list-operation-switch"
+          disabled={disabled || listActionsUnavailable}
           value={operation}
           options={[
             { label: t('tokenManage.list.add'), value: 'add' },
@@ -770,23 +1004,39 @@ function AddressListCard({
           ]}
           onChange={(value) => setOperation(value as AddressListAction)}
         />
-        <Input className="token-form-input" value={accountAddress} onChange={(event) => setAccountAddress(event.target.value)} />
-        <Button type="primary" disabled={disabled || loadingKey === `${mode}-${operation}`} onClick={handleSubmit}>
+        <Input.TextArea
+          autoSize={{ minRows: 4, maxRows: 8 }}
+          className="manage-address-textarea"
+          disabled={disabled || addDisabled || listActionsUnavailable}
+          placeholder={t('tokenManage.list.addressInputPlaceholder')}
+          value={addressInput}
+          onChange={(event) => setAddressInput(event.target.value)}
+        />
+        <Button type="primary" disabled={disabled || addDisabled || listActionsUnavailable || loadingKey === `${mode}-${operation}`} onClick={handleSubmit}>
           {t(`tokenManage.actions.${mode}.${operation}`)}
         </Button>
+        <Button danger disabled={disabled || clearableCount === 0 || listActionsUnavailable || loadingKey === `${mode}-clear`} onClick={handleClearList}>
+          {t(`tokenManage.actions.${mode}.clear`)}
+        </Button>
       </div>
-      <div className="manage-address-list">
+      {permissionClosed ? (
+        <small className="field-error manage-disabled-note">
+          {t(`tokenManage.actions.${mode}.${clearableCount > 0 ? 'disabledNote' : 'disabledEmptyNote'}`)}
+        </small>
+      ) : null}
+      <ul className="manage-address-list">
         {(mode === 'whitelist' ? [...protectedItems, ...editableItems] : editableItems).map((item) => (
-          <AddressTag
-            key={item}
-            chainDefinition={chainDefinition}
-            address={item}
-            protectedTag={protectedSet.has(normalizeTokenAddress(item))}
-            protectedLabel={t('tokenManage.list.protected')}
-          />
+          <li className="manage-address-list-item" key={item}>
+            <AddressTag
+              chainDefinition={chainDefinition}
+              address={item}
+              protectedTag={protectedSet.has(normalizeTokenAddress(item))}
+              protectedLabel={t('tokenManage.list.protected')}
+            />
+          </li>
         ))}
-        {!list.length ? <span className="manage-address-empty">{t('tokenManage.list.empty')}</span> : null}
-      </div>
+        {!list.length ? <li className="manage-address-empty">{t('tokenManage.list.empty')}</li> : null}
+      </ul>
     </article>
   )
 }
@@ -825,7 +1075,7 @@ function TransferOwnershipCard({
       </div>
       <label className="field">
         <FieldLabelWithTooltip label={t('tokenManage.actions.transferOwnership.nextOwner')} tooltip={t('tokenManage.actions.transferOwnership.nextOwnerTip')} />
-        <Input className="token-form-input" value={nextOwner} onChange={(event) => setNextOwner(event.target.value)} />
+        <Input className="token-form-input" placeholder={t('tokenManage.placeholder')} value={nextOwner} onChange={(event) => setNextOwner(event.target.value)} />
       </label>
       <Button
         type="primary"
@@ -833,6 +1083,10 @@ function TransferOwnershipCard({
         onClick={() => {
           if (!nextOwner || !isValidAddress(nextOwner)) {
             message.warning(t('tokenManage.errors.invalidAddress'))
+            return
+          }
+          if (normalizeTokenAddress(nextOwner) === normalizeTokenAddress(info.owner)) {
+            message.warning(t('tokenManage.errors.sameAddressUnchanged'))
             return
           }
           onRunAction({
@@ -845,7 +1099,7 @@ function TransferOwnershipCard({
           })
         }}
       >
-        {t('tokenManage.actions.transferOwnership.confirm')}
+        {t('tokenManage.actionButtons.transfer')}
       </Button>
     </article>
   )
@@ -872,6 +1126,8 @@ function TaxSettingsCard({
   }) => void
 }) {
   const [formValues, setFormValues] = useState<Record<string, string>>(() => buildTaxFormState(info))
+  const grandTotal = calcDividendTaxGrandTotal(formValues as never)
+  const isGrandTotalExceeded = grandTotal > MAX_DIVIDEND_TAX_TOTAL
 
   useEffect(() => {
     setFormValues(buildTaxFormState(info))
@@ -887,13 +1143,20 @@ function TaxSettingsCard({
       message.warning(t('tokenManage.errors.taxInputInvalid'))
       return
     }
-    const exceededCategory = DIVIDEND_TAX_PREFIXES.find((prefix) => calcDividendTaxCategoryTotal(formValues as never, prefix) > 25)
+    const exceededCategory = DIVIDEND_TAX_PREFIXES.find(
+      (prefix) => calcDividendTaxCategoryTotal(formValues as never, prefix) > MAX_DIVIDEND_TAX_PER_GROUP,
+    )
     if (exceededCategory) {
-      message.warning(t('tokenManage.errors.taxCategoryExceeded', { type: t(`tokenManage.taxGroups.${exceededCategory}`), max: 25 }))
+      message.warning(
+        t('tokenManage.errors.taxCategoryExceeded', {
+          type: t(`tokenManage.taxGroups.${exceededCategory}`),
+          max: MAX_DIVIDEND_TAX_PER_GROUP,
+        }),
+      )
       return
     }
-    if (calcDividendTaxGrandTotal(formValues as never) > 75) {
-      message.warning(t('tokenManage.errors.taxGrandTotalExceeded', { max: 75 }))
+    if (isGrandTotalExceeded) {
+      message.warning(t('tokenManage.errors.taxGrandTotalExceeded', { max: MAX_DIVIDEND_TAX_TOTAL }))
       return
     }
 
@@ -912,50 +1175,60 @@ function TaxSettingsCard({
   }
 
   return (
-    <article className="manage-operation-card manage-operation-card-wide">
-      <div className="manage-operation-copy">
+    <article className="manage-operation-card manage-operation-card-wide manage-tax-settings-card">
+      <div className="tax-section-copy">
         <h4>{t('tokenManage.actions.taxRates.title')}</h4>
-        <p>{t('tokenManage.actions.taxRates.description')}</p>
       </div>
       <div className="tax-group-grid manage-tax-group-grid">
-        {DIVIDEND_TAX_PREFIXES.map((prefix) => (
-          <section className="dividend-tax-card" key={prefix}>
-            <div className="dividend-tax-card-head">
-              <div>
-                <strong>{t(`tokenManage.taxGroups.${prefix}`)}</strong>
-                <p>{t(`tokenManage.taxGroupDescriptions.${prefix}`)}</p>
+        {DIVIDEND_TAX_PREFIXES.map((prefix) => {
+          const categoryTotal = calcDividendTaxCategoryTotal(formValues as never, prefix)
+          const isGroupWarning = categoryTotal >= MEDIUM_DIVIDEND_TAX_HINT && categoryTotal < MAX_DIVIDEND_TAX_PER_GROUP
+          const isGroupExceeded = categoryTotal > MAX_DIVIDEND_TAX_PER_GROUP
+
+          return (
+            <section className={`dividend-tax-card ${isGroupExceeded ? 'is-error' : ''}`} key={prefix}>
+              <div className="dividend-tax-card-head">
+                <div>
+                  <strong>{t(`tokenManage.taxGroups.${prefix}`)}</strong>
+                </div>
+                <span className={`tax-total-pill ${isGroupWarning ? 'is-warning' : ''} ${isGroupExceeded ? 'is-error' : ''}`}>
+                  {categoryTotal}%
+                </span>
               </div>
-              <span className="tax-total-pill">{calcDividendTaxCategoryTotal(formValues as never, prefix)}%</span>
-            </div>
-            <div className="dividend-tax-field-grid">
-              {DIVIDEND_TAX_SUFFIXES.map((suffix) => {
-                const key = `${prefix}${suffix}`
-                return (
-                  <label className="field" key={key}>
-                    <FieldLabelWithTooltip
-                      label={t(`tokenManage.taxFields.${suffix}`)}
-                      tooltip={t(`tokenManage.taxTooltips.${suffix}`)}
-                    />
-                    <Input
-                      className="token-form-input tax-percent-input"
-                      suffix="%"
-                      value={formValues[key]}
-                      onChange={(event) => updateField(key, event.target.value)}
-                    />
-                  </label>
-                )
-              })}
-            </div>
-          </section>
-        ))}
+              <div className="dividend-tax-field-grid">
+                {DIVIDEND_TAX_SUFFIXES.map((suffix) => {
+                  const key = `${prefix}${suffix}`
+                  return (
+                    <label className="field" key={key}>
+                      <FieldLabelWithTooltip
+                        label={t(`tokenManage.taxFields.${suffix}`)}
+                        tooltip={t(`tokenManage.taxTooltips.${suffix}`)}
+                      />
+                      <Input
+                        className="token-form-input tax-percent-input"
+                        placeholder="0"
+                        suffix={<span className="tax-percent-suffix">%</span>}
+                        value={formValues[key]}
+                        onBlur={() => updateField(key, normalizeTaxBlurValue(formValues[key]))}
+                        onChange={(event) => updateField(key, normalizeTaxInput(event.target.value))}
+                      />
+                    </label>
+                  )
+                })}
+              </div>
+            </section>
+          )
+        })}
       </div>
       <div className="tax-total-bar">
         <span>{t('tokenManage.actions.taxRates.total')}</span>
-        <strong>{calcDividendTaxGrandTotal(formValues as never)}%</strong>
+        <strong className={isGrandTotalExceeded ? 'is-error' : ''}>{grandTotal}%</strong>
       </div>
-      <Button type="primary" disabled={disabled || loadingKey === 'taxRates'} onClick={handleSubmit}>
-        {t('tokenManage.actions.taxRates.confirm')}
-      </Button>
+      <div className="manage-tax-submit-row">
+        <Button type="primary" disabled={disabled || loadingKey === 'taxRates'} onClick={handleSubmit}>
+          {t('tokenManage.actionButtons.edit')}
+        </Button>
+      </div>
     </article>
   )
 }
@@ -994,7 +1267,7 @@ function FundAddressCard({
       </div>
       <label className="field">
         <FieldLabelWithTooltip label={t('tokenManage.actions.fundAddress.next')} tooltip={t('tokenManage.actions.fundAddress.nextTip')} />
-        <Input className="token-form-input" value={fundAddress} onChange={(event) => setFundAddress(event.target.value)} />
+        <Input className="token-form-input" placeholder={t('tokenManage.placeholder')} value={fundAddress} onChange={(event) => setFundAddress(event.target.value)} />
       </label>
       <Button
         type="primary"
@@ -1002,6 +1275,10 @@ function FundAddressCard({
         onClick={() => {
           if (!fundAddress || !isValidAddress(fundAddress)) {
             message.warning(t('tokenManage.errors.invalidAddress'))
+            return
+          }
+          if (normalizeTokenAddress(fundAddress) === normalizeTokenAddress(info.fundAddress)) {
+            message.warning(t('tokenManage.errors.sameAddressUnchanged'))
             return
           }
           onRunAction({
@@ -1014,7 +1291,7 @@ function FundAddressCard({
           })
         }}
       >
-        {t('tokenManage.actions.fundAddress.confirm')}
+        {t('tokenManage.actionButtons.edit')}
       </Button>
     </article>
   )
@@ -1040,11 +1317,9 @@ function TradingControlCard({
     failureMessage: string
   }) => void
 }) {
-  const [killBlockCount, setKillBlockCount] = useState(String(info.killBlockCount))
-
-  useEffect(() => {
-    setKillBlockCount(String(info.killBlockCount))
-  }, [info.killBlockCount])
+  const [killBlockDraft, setKillBlockDraft] = useState<{ address: string; value: string } | null>(null)
+  const killBlockCount = killBlockDraft?.address === info.address ? killBlockDraft.value : String(info.killBlockCount)
+  const killBlockLocked = info.tradingEnabled
 
   return (
     <article className="manage-operation-card">
@@ -1060,25 +1335,35 @@ function TradingControlCard({
       </div>
       <InlineActionRow
         label={t('tokenManage.actions.trading.killBlock')}
-        currentValue={String(info.killBlockCount)}
+        currentValue={(
+          <ValueWithTooltip
+            value={formatCompactNumber({ value: info.killBlockCount })}
+            fullValue={String(info.killBlockCount)}
+          />
+        )}
+        variant="plain"
         control={
           <InputNumber
             className="token-form-number"
+            controls={false}
+            disabled={killBlockLocked}
             stringMode
             min="0"
+            placeholder={t('tokenManage.placeholder')}
             precision={0}
             style={{ width: '100%' }}
             value={killBlockCount}
-            onChange={(value) => setKillBlockCount(String(value ?? ''))}
+            onChange={(value) => setKillBlockDraft({ address: info.address, value: String(value ?? '') })}
           />
         }
-        buttonText={t('tokenManage.actions.trading.updateKillBlock')}
-        disabled={disabled || loadingKey === 'killBlock'}
+        buttonText={t('tokenManage.actionButtons.edit')}
+        disabled={disabled || loadingKey === 'killBlock' || killBlockLocked}
         onSubmit={() => {
           if (!/^\d+$/.test(killBlockCount)) {
             message.warning(t('tokenManage.errors.invalidKillBlock'))
             return
           }
+          setKillBlockDraft(null)
           onRunAction({
             key: 'killBlock',
             title: t('tokenManage.actions.trading.title'),
@@ -1105,7 +1390,9 @@ function TradingControlCard({
       >
         {t('tokenManage.actions.trading.enableTrading')}
       </Button>
-      {!info.manualTradingEnable ? <small className="field-error">{t('tokenManage.actions.trading.manualTradingDisabled')}</small> : null}
+      {!info.manualTradingEnable ? (
+        <small className="field-error manage-disabled-note">{t('tokenManage.actions.trading.manualTradingDisabled')}</small>
+      ) : null}
     </article>
   )
 }
@@ -1133,35 +1420,45 @@ function DangerZoneCard({
   const actions = [
     {
       key: 'disableMint',
-      label: t('tokenManage.danger.disableMint'),
+      label: t('tokenManage.danger.mintFeature'),
+      description: t('tokenDividendCreation.tooltips.mintEnabled'),
       enabled: info.mintEnabled,
       functionName: 'disableMintForever',
+      buttonText: info.mintEnabled ? t('tokenManage.danger.closeAction') : t('tokenManage.danger.closedAction'),
       successMessage: t('tokenManage.danger.disableMintSuccess'),
       failureMessage: t('tokenManage.danger.disableMintFailed'),
     },
     {
       key: 'disableWhitelist',
-      label: t('tokenManage.danger.disableWhitelist'),
+      label: t('tokenManage.danger.whitelistFeature'),
+      description: t('tokenDividendCreation.tooltips.whitelistEnabled'),
       enabled: info.whitelistEnabled,
       functionName: 'setWhitelistEnabled',
       args: [false],
+      buttonText: info.whitelistEnabled ? t('tokenManage.danger.closeAction') : t('tokenManage.danger.closedAction'),
       successMessage: t('tokenManage.danger.disableWhitelistSuccess'),
       failureMessage: t('tokenManage.danger.disableWhitelistFailed'),
     },
     {
       key: 'disableBlacklist',
-      label: t('tokenManage.danger.disableBlacklist'),
+      label: t('tokenManage.danger.blacklistFeature'),
+      description: t('tokenDividendCreation.tooltips.blacklistEnabled'),
       enabled: info.blacklistEnabled,
       functionName: 'setBlacklistEnabled',
       args: [false],
+      buttonText: info.blacklistEnabled ? t('tokenManage.danger.closeAction') : t('tokenManage.danger.closedAction'),
       successMessage: t('tokenManage.danger.disableBlacklistSuccess'),
       failureMessage: t('tokenManage.danger.disableBlacklistFailed'),
     },
     {
       key: 'renounceOwnership',
-      label: t('tokenManage.danger.renounceOwnership'),
+      label: t('tokenManage.danger.ownershipFeature'),
+      description: t('tokenManage.danger.ownershipDescription'),
       enabled: normalizeTokenAddress(info.owner) !== normalizeTokenAddress('0x0000000000000000000000000000000000000000'),
       functionName: 'renounceOwnership',
+      buttonText: normalizeTokenAddress(info.owner) !== normalizeTokenAddress('0x0000000000000000000000000000000000000000')
+        ? t('tokenManage.danger.renounceAction')
+        : t('tokenManage.danger.renouncedAction'),
       successMessage: t('tokenManage.danger.renounceOwnershipSuccess'),
       failureMessage: t('tokenManage.danger.renounceOwnershipFailed'),
     },
@@ -1170,6 +1467,7 @@ function DangerZoneCard({
   return (
     <article className="manage-danger-grid">
       <Alert
+        className="manage-danger-alert"
         type="warning"
         showIcon
         message={t('tokenManage.danger.warning')}
@@ -1177,11 +1475,12 @@ function DangerZoneCard({
       />
       {actions.map((action) => (
         <div className="manage-danger-item" key={action.key}>
-          <div>
+          <div className="manage-danger-copy">
             <strong>{action.label}</strong>
-            <p>{action.enabled ? t('tokenManage.danger.available') : t('tokenManage.danger.unavailable')}</p>
+            <p>{action.description}</p>
           </div>
           <Button
+            className="manage-danger-button"
             danger
             disabled={disabled || loadingKey === action.key || !action.enabled}
             onClick={() =>
@@ -1195,7 +1494,7 @@ function DangerZoneCard({
               })
             }
           >
-            {action.label}
+            {action.buttonText}
           </Button>
         </div>
       ))}
@@ -1204,28 +1503,43 @@ function DangerZoneCard({
 }
 
 function InlineActionRow({
+  className,
   label,
   currentValue,
+  controlLabel,
   control,
   buttonText,
   disabled,
   onSubmit,
+  variant = 'card',
 }: {
+  className?: string
   label: string
-  currentValue: string
+  currentValue: ReactNode
+  controlLabel?: string
   control: ReactNode
   buttonText: string
   disabled: boolean
   onSubmit: () => void
+  variant?: 'card' | 'plain'
 }) {
+  const rowClassName = [
+    'manage-inline-action-row',
+    variant === 'plain' ? 'plain' : '',
+    className ?? '',
+  ].filter(Boolean).join(' ')
+
   return (
-    <div className="manage-inline-action-row">
+    <div className={rowClassName}>
       <div className="manage-inline-action-head">
         <strong>{label}</strong>
         <span>{currentValue}</span>
       </div>
       <div className="manage-inline-action-controls">
-        <div className="manage-inline-action-input">{control}</div>
+        <div className="manage-inline-action-input">
+          {controlLabel ? <span className="manage-inline-control-label">{controlLabel}</span> : null}
+          {control}
+        </div>
         <Button type="default" disabled={disabled} onClick={onSubmit}>
           {buttonText}
         </Button>
@@ -1246,73 +1560,148 @@ function AddressTag({
   protectedLabel: string
 }) {
   return (
-    <span className={`manage-address-tag ${protectedTag ? 'protected' : ''}`}>
+    <div className={`manage-address-tag ${protectedTag ? 'protected' : ''}`}>
       <a href={getExplorerUrl(chainDefinition, 'address', address)} target="_blank" rel="noreferrer">
         {formatAddressText(address)}
       </a>
-      {protectedTag ? <Tag color="gold">{protectedLabel}</Tag> : null}
-      <CopyButton ariaLabel={address} value={address} />
-    </span>
+      <div className="manage-address-tag-actions">
+        {protectedTag ? <span className="manage-address-badge">{protectedLabel}</span> : null}
+        <CopyButton ariaLabel={address} value={address} />
+      </div>
+    </div>
   )
 }
 
-function buildOverviewCards(info: DividendTokenManageInfo, t: (key: string, vars?: Record<string, string | number>) => string): OverviewCardModel[] {
+function buildSupplyCards(info: DividendTokenManageInfo, t: (key: string, vars?: Record<string, string | number>) => string): ManageStatCard[] {
   return [
     {
-      key: 'owner',
-      label: t('tokenManage.overviewCards.owner'),
-      value: normalizeTokenAddress(info.owner) === normalizeTokenAddress('0x0000000000000000000000000000000000000000')
-        ? t('tokenManage.overviewCards.renounced')
-        : t('tokenManage.overviewCards.active'),
-      tone: normalizeTokenAddress(info.owner) === normalizeTokenAddress('0x0000000000000000000000000000000000000000') ? 'danger' : 'success',
+      key: 'initialSupply',
+      label: t('tokenManage.infoFields.initialSupply'),
+      value: formatCompactTokenAmount(info.initialSupply, info.decimals),
+      fullValue: formatFullTokenAmount(info.initialSupply, info.decimals),
     },
     {
-      key: 'mint',
-      label: t('tokenManage.overviewCards.mint'),
-      value: info.mintEnabled ? t('tokenManage.header.enabled') : t('tokenManage.header.disabled'),
-      tone: info.mintEnabled ? 'success' : 'warning',
+      key: 'totalMinted',
+      label: t('tokenManage.infoFields.totalMinted'),
+      value: formatCompactTokenAmount(info.totalMinted, info.decimals),
+      fullValue: formatFullTokenAmount(info.totalMinted, info.decimals),
     },
     {
-      key: 'blacklist',
-      label: t('tokenManage.overviewCards.blacklist'),
-      value: info.blacklistEnabled ? t('tokenManage.header.enabled') : t('tokenManage.header.disabled'),
-      tone: info.blacklistEnabled ? 'success' : 'warning',
+      key: 'remainingMintable',
+      label: t('tokenManage.infoFields.remainingMintable'),
+      value: formatCompactTokenAmount(info.remainingMintable, info.decimals),
+      fullValue: formatFullTokenAmount(info.remainingMintable, info.decimals),
     },
-    {
-      key: 'whitelist',
-      label: t('tokenManage.overviewCards.whitelist'),
-      value: info.whitelistEnabled ? t('tokenManage.header.enabled') : t('tokenManage.header.disabled'),
-      tone: info.whitelistEnabled ? 'success' : 'warning',
-    },
-    {
-      key: 'pendingDividends',
-      label: t('tokenManage.overviewCards.pendingDividends'),
-      value: info.pendingDividendsDisplay,
-    },
-    {
-      key: 'distributed',
-      label: t('tokenManage.overviewCards.totalDistributed'),
-      value: info.totalDividendsDistributedDisplay,
-    },
+    { key: 'mintEnabled', label: t('tokenManage.infoFields.mintEnabled'), value: formatEnabledLabel(info.mintEnabled, t) },
+  ]
+}
+
+function buildDividendCards(info: DividendTokenManageInfo, t: (key: string, vars?: Record<string, string | number>) => string): ManageStatCard[] {
+  const rewardTokenDecimals = info.dividendTokenInfo?.decimals ?? info.decimals
+
+  return [
+    { key: 'dividendMode', label: t('tokenManage.infoFields.dividendMode'), value: info.isSameTokenDividend ? t('tokenManage.infoFields.sameTokenDividend') : t('tokenManage.infoFields.externalTokenDividend') },
+    { key: 'poolToken', label: t('tokenManage.infoFields.poolToken'), value: info.basePoolTokenInfo?.symbol ?? formatAddressText(info.basePoolToken) },
     {
       key: 'minHolding',
-      label: t('tokenManage.overviewCards.minHolding'),
-      value: info.minHoldingForDividendDisplay,
+      label: t('tokenManage.infoFields.minHolding'),
+      value: formatCompactTokenAmount(info.minHoldingForDividend, info.decimals),
+      fullValue: formatFullTokenAmount(info.minHoldingForDividend, info.decimals),
     },
     {
       key: 'triggerThreshold',
-      label: t('tokenManage.overviewCards.triggerThreshold'),
-      value: info.dividendTriggerThresholdDisplay,
+      label: t('tokenManage.infoFields.triggerThreshold'),
+      value: formatCompactTokenAmount(info.dividendTriggerThreshold, info.decimals),
+      fullValue: formatFullTokenAmount(info.dividendTriggerThreshold, info.decimals),
     },
     {
-      key: 'autoProcessGas',
-      label: t('tokenManage.overviewCards.autoGas'),
-      value: String(info.autoProcessGasLimit),
+      key: 'autoGas',
+      label: t('tokenManage.infoFields.autoGas'),
+      value: formatCompactNumber({ value: info.autoProcessGasLimit }),
+      fullValue: String(info.autoProcessGasLimit),
     },
     {
-      key: 'rewardToken',
-      label: t('tokenManage.overviewCards.rewardToken'),
-      value: info.dividendTokenInfo?.symbol ?? formatAddressText(info.dividendToken),
+      key: 'pendingDividends',
+      label: t('tokenManage.infoFields.pendingDividends'),
+      value: formatCompactTokenAmount(info.pendingDividends, rewardTokenDecimals),
+      fullValue: formatFullTokenAmount(info.pendingDividends, rewardTokenDecimals),
+    },
+    {
+      key: 'totalDistributed',
+      label: t('tokenManage.infoFields.totalDistributed'),
+      value: formatCompactTokenAmount(info.totalDividendsDistributed, rewardTokenDecimals),
+      fullValue: formatFullTokenAmount(info.totalDividendsDistributed, rewardTokenDecimals),
+    },
+    { key: 'tradingEnabled', label: t('tokenManage.infoFields.tradingEnabled'), value: formatTradingStatusLabel(info.tradingEnabled, t) },
+    { key: 'manualTrading', label: t('tokenManage.infoFields.manualTrading'), value: formatEnabledLabel(info.manualTradingEnable, t) },
+    {
+      key: 'killBlock',
+      label: t('tokenManage.infoFields.killBlock'),
+      value: formatCompactNumber({ value: info.killBlockCount }),
+      fullValue: String(info.killBlockCount),
+    },
+  ]
+}
+
+function buildTaxInfoGroups(info: DividendTokenManageInfo, t: (key: string, vars?: Record<string, string | number>) => string) {
+  return [
+    {
+      key: 'buy',
+      title: t('tokenManage.taxGroups.buy'),
+      total: formatPercent(info.buyFundFee + info.buyLPFee + info.buyBurnFee + info.buyDividendFee),
+      items: [
+        { key: 'marketing', label: t('tokenManage.taxFields.MarketingTax'), value: formatPercent(info.buyFundFee) },
+        { key: 'reflow', label: t('tokenManage.taxFields.ReflowTax'), value: formatPercent(info.buyLPFee) },
+        { key: 'burn', label: t('tokenManage.taxFields.BurnTax'), value: formatPercent(info.buyBurnFee) },
+        { key: 'dividend', label: t('tokenManage.taxFields.DividendTax'), value: formatPercent(info.buyDividendFee) },
+      ],
+    },
+    {
+      key: 'sell',
+      title: t('tokenManage.taxGroups.sell'),
+      total: formatPercent(info.sellFundFee + info.sellLPFee + info.sellBurnFee + info.sellDividendFee),
+      items: [
+        { key: 'marketing', label: t('tokenManage.taxFields.MarketingTax'), value: formatPercent(info.sellFundFee) },
+        { key: 'reflow', label: t('tokenManage.taxFields.ReflowTax'), value: formatPercent(info.sellLPFee) },
+        { key: 'burn', label: t('tokenManage.taxFields.BurnTax'), value: formatPercent(info.sellBurnFee) },
+        { key: 'dividend', label: t('tokenManage.taxFields.DividendTax'), value: formatPercent(info.sellDividendFee) },
+      ],
+    },
+    {
+      key: 'transfer',
+      title: t('tokenManage.taxGroups.transfer'),
+      total: formatPercent(info.transferFundFee + info.transferLPFee + info.transferBurnFee + info.transferDividendFee),
+      items: [
+        { key: 'marketing', label: t('tokenManage.taxFields.MarketingTax'), value: formatPercent(info.transferFundFee) },
+        { key: 'reflow', label: t('tokenManage.taxFields.ReflowTax'), value: formatPercent(info.transferLPFee) },
+        { key: 'burn', label: t('tokenManage.taxFields.BurnTax'), value: formatPercent(info.transferBurnFee) },
+        { key: 'dividend', label: t('tokenManage.taxFields.DividendTax'), value: formatPercent(info.transferDividendFee) },
+      ],
+    },
+  ] as const
+}
+
+function buildListSummaryCards(info: DividendTokenManageInfo, t: (key: string, vars?: Record<string, string | number>) => string): ManageStatCard[] {
+  return [
+    { key: 'whitelistEnabled', label: t('tokenManage.infoFields.whitelistEnabled'), value: formatEnabledLabel(info.whitelistEnabled, t) },
+    {
+      key: 'whitelistCount',
+      label: t('tokenManage.infoFields.whitelistCount'),
+      value: formatCompactNumber({ value: info.whitelistAddresses.length }),
+      fullValue: String(info.whitelistAddresses.length),
+    },
+    { key: 'blacklistEnabled', label: t('tokenManage.infoFields.blacklistEnabled'), value: formatEnabledLabel(info.blacklistEnabled, t) },
+    {
+      key: 'blacklistCount',
+      label: t('tokenManage.infoFields.blacklistCount'),
+      value: formatCompactNumber({ value: info.blacklistAddresses.length }),
+      fullValue: String(info.blacklistAddresses.length),
+    },
+    {
+      key: 'protectedCount',
+      label: t('tokenManage.infoFields.protectedCount'),
+      value: formatCompactNumber({ value: info.protectedAddresses.length }),
+      fullValue: String(info.protectedAddresses.length),
     },
   ]
 }
@@ -1345,4 +1734,120 @@ function buildTaxRateArgs(values: Record<string, string>, prefix: 'buy' | 'sell'
 
 function isValidAddress(value: string) {
   return /^0x[a-fA-F0-9]{40}$/.test(value.trim())
+}
+
+function parseAddressTextArea(value: string) {
+  return value
+    .split(/\r?\n/)
+    .map((rawLine) => rawLine.trim())
+    .filter(Boolean)
+}
+
+function uniqueAddresses(addresses: string[]) {
+  const addressMap = new Map<string, string>()
+
+  for (const address of addresses) {
+    addressMap.set(normalizeTokenAddress(address), address)
+  }
+
+  return Array.from(addressMap.values())
+}
+
+function findDuplicateAddresses(addresses: string[]) {
+  const seen = new Set<string>()
+  const duplicated = new Set<string>()
+
+  for (const address of addresses) {
+    const normalized = normalizeTokenAddress(address)
+    if (seen.has(normalized)) {
+      duplicated.add(normalized)
+      continue
+    }
+    seen.add(normalized)
+  }
+
+  return Array.from(duplicated)
+}
+
+function formatCompactTokenAmount(value: bigint, decimals: number) {
+  return formatCompactNumber({ value: formatFullTokenAmount(value, decimals) })
+}
+
+function formatFullTokenAmount(value: bigint, decimals: number) {
+  const safeDecimals = Math.max(0, Math.trunc(decimals))
+  const sign = value < 0n ? '-' : ''
+  const absValue = value < 0n ? -value : value
+
+  if (safeDecimals === 0) {
+    return `${sign}${absValue.toString()}`
+  }
+
+  const base = 10n ** BigInt(safeDecimals)
+  const integerPart = absValue / base
+  const fractionPart = absValue % base
+  const fractionText = fractionPart.toString().padStart(safeDecimals, '0').replace(/0+$/, '')
+
+  return fractionText ? `${sign}${integerPart.toString()}.${fractionText}` : `${sign}${integerPart.toString()}`
+}
+
+function formatPercent(value: bigint) {
+  return `${formatBasisPoints(value)}%`
+}
+
+function formatEnabledLabel(value: boolean, t: (key: string, vars?: Record<string, string | number>) => string) {
+  return value ? t('tokenManage.header.enabled') : t('tokenManage.header.disabled')
+}
+
+function formatTradingStatusLabel(value: boolean, t: (key: string, vars?: Record<string, string | number>) => string) {
+  return value ? t('tokenManage.header.tradingEnabled') : t('tokenManage.header.tradingClosed')
+}
+
+function normalizeTaxBlurValue(value: string) {
+  const normalized = normalizeTaxInput(value)
+  if (!normalized) {
+    return ''
+  }
+
+  const [integerPart, decimalPart = ''] = normalized.split('.')
+  if (!decimalPart) {
+    return integerPart
+  }
+
+  const trimmedDecimalPart = decimalPart.replace(/0+$/, '')
+  return trimmedDecimalPart ? `${integerPart}.${trimmedDecimalPart}` : integerPart
+}
+
+function validateMintAmountInput(
+  value: string,
+  decimals: number,
+  remainingMintable: bigint,
+  t: (key: string, vars?: Record<string, string | number>) => string,
+) {
+  const normalized = value.trim()
+  if (!normalized) {
+    return null
+  }
+
+  if (!/^\d+(\.\d+)?$/.test(normalized)) {
+    return t('tokenManage.errors.invalidAmount')
+  }
+
+  const [, fractionPart = ''] = normalized.split('.')
+  if (fractionPart.length > decimals) {
+    return t('tokenManage.errors.mintAmountDecimalsExceeded', { decimals })
+  }
+
+  try {
+    const amountWei = parseUnits(normalized, decimals)
+    if (amountWei <= 0n) {
+      return t('tokenManage.errors.invalidAmount')
+    }
+    if (amountWei > remainingMintable) {
+      return t('tokenManage.errors.mintExceedsCap')
+    }
+  } catch {
+    return t('tokenManage.errors.invalidAmount')
+  }
+
+  return null
 }

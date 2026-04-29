@@ -22,11 +22,10 @@ function buildPreferredPath(pathname: string, search: string, fallbackPage = DEF
   })
 
   const resolvedPage = isSupportedPage(page) ? page : fallbackPage
+  const preferredPath = buildPagePath(resolvedPreferences.lang, resolvedPreferences.chain, resolvedPage)
+  const query = searchParams.toString()
 
-  return buildPagePath(resolvedPreferences.lang, resolvedPreferences.chain, resolvedPage, {
-    theme: resolvedPreferences.theme,
-    themeColor: resolvedPreferences.themeColor,
-  })
+  return `${preferredPath}${query ? `?${query}` : ''}`
 }
 
 function RootRedirect() {

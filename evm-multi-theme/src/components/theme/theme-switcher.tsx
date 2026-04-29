@@ -20,7 +20,7 @@ export function ThemeSwitcher({ showValue = false, className }: { showValue?: bo
           code: themeOption.id === 'light' ? 'DAY' : 'NIGHT',
           prefix: themeOption.id === 'light' ? <SunIcon /> : <ThemeIcon />,
         }))}
-        onChange={(nextTheme) => navigateToPage(page, { nextTheme: nextTheme as ThemeModeId })}
+        onChange={(nextTheme) => navigateToPage(page, { nextTheme: nextTheme as ThemeModeId, preserveSearch: true })}
       />
 
       <TopbarMenuButton
@@ -35,7 +35,7 @@ export function ThemeSwitcher({ showValue = false, className }: { showValue?: bo
           code: themeOption.id.toUpperCase(),
           prefix: <span className={`theme-color-dot ${themeOption.id}`} />,
         }))}
-        onChange={(nextThemeColor) => navigateToPage(page, { nextThemeColor: nextThemeColor as ThemeColorId })}
+        onChange={(nextThemeColor) => navigateToPage(page, { nextThemeColor: nextThemeColor as ThemeColorId, preserveSearch: true })}
       />
     </>
   )

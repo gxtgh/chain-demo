@@ -80,8 +80,8 @@ export async function submitTokenDividendCreation(
     manualTradingEnable: values.manualTradingEnable,
     blacklistEnabled: values.blacklistEnabled,
     whitelistEnabled: values.whitelistEnabled,
-    initialBlacklist: parseAddressList(values.initialBlacklist),
-    initialWhitelist: parseAddressList(values.initialWhitelist),
+    initialBlacklist: values.blacklistEnabled ? parseAddressList(values.initialBlacklist) : [],
+    initialWhitelist: values.whitelistEnabled ? parseAddressList(values.initialWhitelist) : [],
     isSameTokenDividend: values.isSameTokenDividend,
     dividendToken: rewardTokenAddress,
   }

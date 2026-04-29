@@ -55,9 +55,12 @@ export function TokenDividendFormPanel({ model }: { model: TokenDividendViewMode
 
   const txExplorerUrl = getExplorerUrl(chainDefinition, 'hash', result?.txHash)
   const tokenExplorerUrl = getExplorerUrl(chainDefinition, 'token', result?.tokenAddress)
-  const exchangeTooltip = t('tokenDividendCreation.tooltips.exchange')
   const exchangeDisabled = exchanges.length === 0
   const selectedExchange = exchanges.find((item) => item.value === formValues.exchange)
+  const exchangeTooltip = t('tokenDividendCreation.tooltips.exchange', {
+    dex: selectedExchange?.label ?? selectedExchange?.dex ?? '-',
+  })
+  const secondaryPoolTokenSymbol = poolTokens.find((token) => !token.isNative)?.symbol ?? '-'
   const dividendModeHelp = formValues.isSameTokenDividend
     ? t('tokenDividendCreation.labels.sameTokenModeHelp')
     : t('tokenDividendCreation.labels.externalTokenModeHelp')
@@ -225,7 +228,8 @@ export function TokenDividendFormPanel({ model }: { model: TokenDividendViewMode
               <FieldLabelWithTooltip
                 label={t('tokenDividendCreation.fields.poolToken')}
                 tooltip={t('tokenDividendCreation.tooltips.poolToken', {
-                  nativeSymbol: chainDefinition.nativeToken.symbol,
+                  symbol: chainDefinition.nativeToken.symbol,
+                  symbol2: secondaryPoolTokenSymbol,
                 })}
               />
               <TokenDisplay
@@ -331,6 +335,27 @@ export function TokenDividendFormPanel({ model }: { model: TokenDividendViewMode
               {errors.dividendTriggerThreshold ? <small className="field-error">{errors.dividendTriggerThreshold}</small> : null}
             </label>
 
+            <label className="field">
+              <FieldLabelWithTooltip
+                label={t('tokenDividendCreation.fields.autoProcessGasLimit')}
+                tooltip={t('tokenDividendCreation.tooltips.autoProcessGasLimit')}
+              />
+              <InputNumber
+                className="token-form-number"
+                controls={false}
+                min="1"
+                precision={0}
+                stringMode
+                style={{ width: '100%' }}
+                placeholder={t('tokenDividendCreation.placeholders.autoProcessGasLimit')}
+                value={formValues.autoProcessGasLimit || undefined}
+                onChange={(value) => updateField('autoProcessGasLimit', String(value ?? ''))}
+                onBlur={() => updateField('autoProcessGasLimit', normalizeIntegerBlurValue(formValues.autoProcessGasLimit))}
+                status={errors.autoProcessGasLimit ? 'error' : undefined}
+              />
+              {errors.autoProcessGasLimit ? <small className="field-error">{errors.autoProcessGasLimit}</small> : null}
+            </label>
+
           </div>
         </section>
 
@@ -431,7 +456,7 @@ export function TokenDividendFormPanel({ model }: { model: TokenDividendViewMode
                   <label className="field">
                     <FieldLabelWithTooltip
                       label={t('tokenDividendCreation.fields.killBlockCount')}
-                      tooltip={t('tokenDividendCreation.tooltips.killBlockCount')}
+                      tooltip={t('tokenDividendCreation.tooltips.killBlockCount', { count: formValues.killBlockCount || '0' })}
                     />
                     <InputNumber
                       className="token-form-number"

@@ -1,3 +1,11 @@
+import {
+  ControlOutlined,
+  DashboardOutlined,
+  SafetyOutlined,
+  SafetyCertificateOutlined,
+  SearchOutlined,
+  ToolOutlined,
+} from '@ant-design/icons'
 import type { ReactNode } from 'react'
 import { Alert, Button, Input, Spin } from 'antd'
 import { PageHeader } from '@/components/common/page-header'
@@ -21,7 +29,8 @@ type TokenManageShellProps = {
   isLoading: boolean
   isError: boolean
   errorKey?: string
-  children?: ReactNode
+  tokenInfoContent?: ReactNode
+  tokenActionContent?: ReactNode
   t: (key: string, vars?: Record<string, string | number>) => string
 }
 
@@ -39,10 +48,27 @@ export function TokenManageShell({
   isLoading,
   isError,
   errorKey,
-  children,
+  tokenInfoContent,
+  tokenActionContent,
   t,
 }: TokenManageShellProps) {
   const chainLabel = getChainFullName(chainDefinition)
+  const emptyFlowItems = [
+    { key: 'target', icon: <SearchOutlined /> },
+    { key: 'read', icon: <DashboardOutlined /> },
+    { key: 'modules', icon: <ToolOutlined /> },
+  ] as const
+  const emptyPreviewItems = [
+    { key: 'profile', icon: <DashboardOutlined /> },
+    { key: 'parameters', icon: <ControlOutlined /> },
+    { key: 'permissions', icon: <SafetyCertificateOutlined /> },
+    { key: 'actions', icon: <SafetyOutlined /> },
+  ] as const
+  const emptyNotes = [
+    { key: 'owner' },
+    { key: 'detection' },
+    { key: 'network' },
+  ] as const
   const header = (
     <PageHeader
       eyebrow={t('tokenManage.eyebrow')}
@@ -50,6 +76,7 @@ export function TokenManageShell({
       description={t('tokenManage.description', { chain: chainLabel })}
     />
   )
+  const hasTokenContent = Boolean(tokenInfoContent || tokenActionContent)
 
   return (
     <section className={`page-stack token-creation-page token-manage-page token-creation-${themeColor}`}>
@@ -95,9 +122,55 @@ export function TokenManageShell({
             </section>
             {!tokenAddress ? (
               <section className="surface-card manage-empty-card">
-                <div className="manage-empty-copy">
-                  <h3>{t('tokenManage.empty.title')}</h3>
-                  <p>{t('tokenManage.empty.description')}</p>
+                <div className="manage-empty-layout">
+                  <article className="manage-empty-hero">
+                    <span className="manage-empty-kicker">
+                      {t('tokenManage.empty.kicker', { chain: chainLabel })}
+                    </span>
+                    <div className="manage-empty-copy">
+                      <h3>{t('tokenManage.empty.title')}</h3>
+                      <p>{t('tokenManage.empty.description')}</p>
+                    </div>
+                    <div className="manage-empty-flow">
+                      {emptyFlowItems.map((item, index) => (
+                        <article className="manage-empty-flow-item" key={item.key}>
+                          <div className="manage-empty-flow-icon">{item.icon}</div>
+                          <div className="manage-empty-flow-copy">
+                            <span>{String(index + 1).padStart(2, '0')}</span>
+                            <strong>{t(`tokenManage.empty.flow.${item.key}.title`)}</strong>
+                            <p>{t(`tokenManage.empty.flow.${item.key}.description`)}</p>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </article>
+
+                  <aside className="manage-empty-preview">
+                    <div className="manage-empty-preview-head">
+                      <span>{t('tokenManage.empty.previewLabel')}</span>
+                    </div>
+                    <div className="manage-empty-preview-grid">
+                      {emptyPreviewItems.map((item) => (
+                        <article className="manage-empty-preview-item" key={item.key}>
+                          <div className="manage-empty-preview-icon">{item.icon}</div>
+                          <div className="manage-empty-preview-copy">
+                            <strong>{t(`tokenManage.empty.preview.${item.key}.title`)}</strong>
+                            <p>{t(`tokenManage.empty.preview.${item.key}.description`)}</p>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </aside>
+                </div>
+
+                <div className="manage-empty-note-grid">
+                  {emptyNotes.map((item) => (
+                    <article className="manage-empty-note" key={item.key}>
+                      <span>{t(`tokenManage.empty.notes.${item.key}.label`)}</span>
+                      <strong>{t(`tokenManage.empty.notes.${item.key}.title`)}</strong>
+                      <p>{t(`tokenManage.empty.notes.${item.key}.description`, { chain: chainLabel })}</p>
+                    </article>
+                  ))}
                 </div>
               </section>
             ) : null}
@@ -118,10 +191,59 @@ export function TokenManageShell({
               />
             ) : null}
 
-            {children}
+            {hasTokenContent ? (
+              <>
+                {tokenInfoContent ? (
+                  <ManageZone
+                    label={t('tokenManage.zones.info.label')}
+                    title={t('tokenManage.zones.info.title')}
+                    tone="info"
+                  >
+                    {tokenInfoContent}
+                  </ManageZone>
+                ) : null}
+
+                {tokenActionContent ? (
+                  <ManageZone
+                    label={t('tokenManage.zones.actions.label')}
+                    title={t('tokenManage.zones.actions.title')}
+                    tone="actions"
+                  >
+                    {tokenActionContent}
+                  </ManageZone>
+                ) : null}
+              </>
+            ) : null}
           </div>
         </div>
       </div>
+    </section>
+  )
+}
+
+function ManageZone({
+  label,
+  title,
+  description,
+  tone,
+  children,
+}: {
+  label: string
+  title: string
+  description?: string
+  tone: 'info' | 'actions'
+  children: ReactNode
+}) {
+  return (
+    <section className={`manage-zone-shell ${tone}`}>
+      <div className="manage-zone-head">
+        <span className="manage-zone-kicker">{label}</span>
+        <div className="manage-zone-copy">
+          <h3>{title}</h3>
+          {description ? <p>{description}</p> : null}
+        </div>
+      </div>
+      <div className="manage-zone-stack">{children}</div>
     </section>
   )
 }

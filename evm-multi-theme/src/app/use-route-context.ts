@@ -72,6 +72,7 @@ export function useRouteContext() {
       nextChain?: SupportedChainKey
       nextTheme?: ThemeModeId
       nextThemeColor?: ThemeColorId
+      preserveSearch?: boolean
       replace?: boolean
       persist?: PreferencePersistenceMode
     },
@@ -87,6 +88,26 @@ export function useRouteContext() {
       rememberSessionPreferences(nextPreferences)
     } else if ((options?.persist ?? 'session+local') === 'session+local') {
       rememberUserPreferences(nextPreferences)
+    }
+
+    if (options?.preserveSearch) {
+      const nextSearchParams = new URLSearchParams(searchParams)
+
+      if (options?.nextTheme) {
+        nextSearchParams.set('theme', nextPreferences.theme)
+      }
+
+      if (options?.nextThemeColor) {
+        nextSearchParams.set('themeColor', nextPreferences.themeColor)
+      }
+
+      const nextPath = buildPagePath(nextPreferences.lang, nextPreferences.chain, nextPage)
+      const nextQuery = nextSearchParams.toString()
+
+      navigate(`${nextPath}${nextQuery ? `?${nextQuery}` : ''}`, {
+        replace: options?.replace ?? false,
+      })
+      return
     }
 
     navigate(

@@ -32,7 +32,7 @@ export function FieldLabelWithTooltip({ label, tooltip }: FieldLabelWithTooltipP
     <div className="field-label-row">
       <span>{label}</span>
       <Tooltip
-        classNames={`app-tooltip token-creation-tooltip token-creation-tooltip-${theme}`}
+        rootClassName={`app-tooltip token-creation-tooltip token-creation-tooltip-${theme}`}
         getPopupContainer={getTooltipContainer}
         placement={placement}
         title={tooltip}

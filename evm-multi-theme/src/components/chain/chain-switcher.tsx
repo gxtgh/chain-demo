@@ -41,7 +41,7 @@ function StaticChainSwitcher() {
 }
 
 function InteractiveChainSwitcher() {
-  const { t, chain, page, lang, theme, themeColor, navigateToPage } = useRouteContext()
+  const { t, chain, page, lang, navigateToPage } = useRouteContext()
   const { isConnected, chainId } = useAccount()
   const { switchChainAsync } = useSwitchChain()
   const pageSupportedChains = getPageSupportedChains(page)
@@ -72,8 +72,7 @@ function InteractiveChainSwitcher() {
             navigateToPage(page, {
               nextLang: lang,
               nextChain: nextChainKey,
-              nextTheme: theme,
-              nextThemeColor: themeColor,
+              preserveSearch: true,
               replace: true,
             })
             return
@@ -84,8 +83,7 @@ function InteractiveChainSwitcher() {
               navigateToPage(page, {
                 nextLang: lang,
                 nextChain: nextChainKey,
-                nextTheme: theme,
-                nextThemeColor: themeColor,
+                preserveSearch: true,
                 persist: 'session',
                 replace: true,
               })
@@ -97,8 +95,7 @@ function InteractiveChainSwitcher() {
         navigateToPage(page, {
           nextLang: lang,
           nextChain: nextChainKey,
-          nextTheme: theme,
-          nextThemeColor: themeColor,
+          preserveSearch: true,
           replace: true,
         })
       }}

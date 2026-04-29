@@ -59,6 +59,21 @@ export function TokenDividendSummary({
       value: formatGroupTax(formValues, 'transfer'),
     },
     {
+      key: 'minHoldingForDividend',
+      label: t('tokenDividendCreation.successSummary.minHoldingForDividend'),
+      value: formValues.minHoldingForDividend || '--',
+    },
+    {
+      key: 'dividendTriggerThreshold',
+      label: t('tokenDividendCreation.successSummary.dividendTriggerThreshold'),
+      value: formValues.dividendTriggerThreshold || '--',
+    },
+    {
+      key: 'autoProcessGasLimit',
+      label: t('tokenDividendCreation.successSummary.autoProcessGasLimit'),
+      value: formatSupply(formValues.autoProcessGasLimit) || '--',
+    },
+    {
       key: 'exchange',
       label: t('tokenDividendCreation.successSummary.exchange'),
       value: selectedExchange?.label ?? '--',
@@ -74,6 +89,26 @@ export function TokenDividendSummary({
       value: formValues.isSameTokenDividend
         ? t('tokenDividendCreation.modes.sameToken')
         : selectedRewardToken?.symbol ?? formatAddressLabel(formValues.dividendToken, chainDefinition.nativeToken.symbol),
+    },
+    {
+      key: 'mintEnabled',
+      label: t('tokenDividendCreation.successSummary.mintEnabled'),
+      value: formatBooleanSetting(formValues.mintEnabled, t),
+    },
+    {
+      key: 'manualTradingEnable',
+      label: t('tokenDividendCreation.successSummary.manualTradingEnable'),
+      value: formatBooleanSetting(formValues.manualTradingEnable, t),
+    },
+    {
+      key: 'whitelistEnabled',
+      label: t('tokenDividendCreation.successSummary.whitelistEnabled'),
+      value: formatBooleanSetting(formValues.whitelistEnabled, t),
+    },
+    {
+      key: 'blacklistEnabled',
+      label: t('tokenDividendCreation.successSummary.blacklistEnabled'),
+      value: formatBooleanSetting(formValues.blacklistEnabled, t),
     },
   ]
 
@@ -175,4 +210,8 @@ function formatGroupTax(formValues: TokenDividendFormValues, prefix: 'buy' | 'se
 
   const total = parts.reduce((sum, value) => sum + Number(value || '0'), 0)
   return formatTaxPercent(String(total))
+}
+
+function formatBooleanSetting(value: boolean, t: (key: string) => string) {
+  return value ? t('tokenDividendCreation.successSummary.enabled') : t('tokenDividendCreation.successSummary.disabled')
 }

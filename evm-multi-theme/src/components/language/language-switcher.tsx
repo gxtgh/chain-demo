@@ -4,7 +4,7 @@ import { LanguageIcon } from '@/components/common/topbar-icons'
 import { TopbarMenuButton } from '@/components/common/topbar-menu-button'
 
 export function LanguageSwitcher({ showValue = false, className }: { showValue?: boolean; className?: string } = {}) {
-  const { t, lang, page, chain, theme, themeColor, navigateToPage } = useRouteContext()
+  const { t, lang, page, chain, navigateToPage } = useRouteContext()
 
   return (
     <TopbarMenuButton
@@ -23,8 +23,7 @@ export function LanguageSwitcher({ showValue = false, className }: { showValue?:
         navigateToPage(page, {
           nextLang: nextLang as typeof lang,
           nextChain: chain,
-          nextTheme: theme,
-          nextThemeColor: themeColor,
+          preserveSearch: true,
         })
       }
     />

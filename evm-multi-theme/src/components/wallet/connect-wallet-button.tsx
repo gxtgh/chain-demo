@@ -45,7 +45,7 @@ function StaticConnectWalletButton() {
 }
 
 function InteractiveConnectWalletButton() {
-  const { t, chain, page, lang, theme, themeColor, chainDefinition, navigateToPage } = useRouteContext()
+  const { t, chain, page, lang, chainDefinition, navigateToPage } = useRouteContext()
   const { open } = useAppKit()
   const { address, isConnected, status } = useAppKitAccount()
   const { chainId, switchNetwork } = useAppKitNetwork()
@@ -72,12 +72,11 @@ function InteractiveConnectWalletButton() {
     navigateToPage(page, {
       nextLang: lang,
       nextChain: walletChain.key,
-      nextTheme: theme,
-      nextThemeColor: themeColor,
+      preserveSearch: true,
       persist: 'session',
       replace: true,
     })
-  }, [chain, isConnected, lang, navigateToPage, page, theme, themeColor, walletChain])
+  }, [chain, isConnected, lang, navigateToPage, page, walletChain])
 
   if (isConnected && address) {
     if (isWrongChain) {

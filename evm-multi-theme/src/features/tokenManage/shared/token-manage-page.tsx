@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { message } from 'antd'
 import { useAccount } from 'wagmi'
@@ -67,6 +67,23 @@ export function TokenManagePage() {
       ? tokenManageRendererRegistry[tokenState.tokenType]
       : null
 
+  let tokenInfoContent: ReactNode = null
+  let tokenActionContent: ReactNode = null
+
+  if (renderer && tokenState.tokenType === 'dividend') {
+    const rendererProps = {
+      chainDefinition,
+      info: tokenState.tokenInfo,
+      role,
+      isConnected,
+      t,
+      runner,
+    }
+
+    tokenInfoContent = renderer.renderInfo(rendererProps)
+    tokenActionContent = renderer.renderActions(rendererProps)
+  }
+
   return (
     <TokenManageShell
       lang={lang}
@@ -82,19 +99,10 @@ export function TokenManagePage() {
       isLoading={tokenState.isLoading}
       isError={tokenState.isError}
       errorKey={tokenState.errorKey}
+      tokenInfoContent={tokenInfoContent}
+      tokenActionContent={tokenActionContent}
       t={t}
-    >
-      {renderer && tokenState.tokenType === 'dividend'
-        ? renderer({
-            chainDefinition,
-            info: tokenState.tokenInfo,
-            role,
-            isConnected,
-            t,
-            runner,
-          })
-        : null}
-    </TokenManageShell>
+    />
   )
 }
 
