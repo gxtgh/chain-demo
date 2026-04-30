@@ -37,9 +37,39 @@
   }
 
   .manage-loading-card,
-  .manage-error-card,
-  .manage-permission-alert {
+  .manage-error-card {
     border-radius: 24px;
+  }
+
+  .manage-permission-alert.ant-alert {
+    align-items: center;
+    border: 1px solid color-mix(in srgb, var(--error) 24%, transparent);
+    border-radius: 20px;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--error) 7%, transparent), transparent 100%),
+      color-mix(in srgb, var(--theme-surface) 94%, white 6%);
+    padding: 12px 16px;
+
+    .ant-alert-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-inline-end: 10px;
+      color: var(--error);
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .ant-alert-content {
+      min-width: 0;
+    }
+
+    .ant-alert-section {
+      color: var(--text);
+      font-size: 12px;
+      // font-weight: 600;
+      // line-height: 1.55;
+    }
   }
 
   .manage-loading-card {
@@ -1308,17 +1338,17 @@
   }
 
   .manage-danger-alert.ant-alert {
-    border: 1px solid color-mix(in srgb, var(--warning) 24%, transparent);
+    border: 1px solid color-mix(in srgb, var(--error) 24%, transparent);
     border-radius: 20px;
     background:
-      linear-gradient(180deg, color-mix(in srgb, var(--warning) 7%, transparent), transparent 100%),
+      linear-gradient(180deg, color-mix(in srgb, var(--error) 7%, transparent), transparent 100%),
       color-mix(in srgb, var(--theme-surface) 94%, white 6%);
     padding: 14px 16px;
 
     .ant-alert-icon {
       margin-top: 2px;
       font-size: 16px;
-      color: var(--warning);
+      color: var(--error);
     }
 
     .ant-alert-message {

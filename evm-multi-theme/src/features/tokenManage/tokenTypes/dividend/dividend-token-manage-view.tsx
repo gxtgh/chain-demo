@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import {
   DeploymentUnitOutlined,
+  ExclamationCircleFilled,
   FireOutlined,
   FundOutlined,
   SafetyCertificateOutlined,
@@ -344,8 +345,9 @@ export function DividendTokenManageActionsSection({
       {!isConnected || !canManage ? (
         <Alert
           className="manage-permission-alert"
-          type="info"
+          type="warning"
           showIcon
+          icon={<ExclamationCircleFilled />}
           message={
             !isConnected
               ? t('tokenManage.permission.connectWallet')
@@ -1470,6 +1472,7 @@ function DangerZoneCard({
         className="manage-danger-alert"
         type="warning"
         showIcon
+        icon={<ExclamationCircleFilled />}
         message={t('tokenManage.danger.warning')}
         description={t('tokenManage.danger.description')}
       />
