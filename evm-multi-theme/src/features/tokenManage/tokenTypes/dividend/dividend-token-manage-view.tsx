@@ -16,7 +16,7 @@ import { CopyButton } from '@/components/common/copy-button'
 import { ValueWithTooltip } from '@/components/common/value-with-tooltip'
 import { FieldLabelWithTooltip } from '@/features/tokenCreation/shared/field-label-with-tooltip'
 import { formatCompactNumber, formatText } from '@/utils'
-import { getExplorerUrl } from '@/config/chains'
+import { getExplorerUrl, type DexDefinition, type TokenMeta } from '@/config/chains'
 import {
   calcDividendTaxCategoryTotal,
   calcDividendTaxGrandTotal,
@@ -47,6 +47,11 @@ type ManageStatCard = {
   value: string
   fullValue?: string
 }
+type ConfiguredTokenMatch = {
+  token: TokenMeta
+  displayToken: TokenMeta
+  isNativeDisplay: boolean
+}
 
 export type DividendTokenManageViewProps = {
   chainDefinition: ReturnType<typeof useRouteContext>['chainDefinition']
@@ -68,6 +73,8 @@ export function DividendTokenManageInfoSection({
   const dividendCards = useMemo(() => buildDividendCards(info, t), [info, t])
   const taxInfoGroups = useMemo(() => buildTaxInfoGroups(info, t), [info, t])
   const listSummaryCards = useMemo(() => buildListSummaryCards(info, t), [info, t])
+  const routerDex = findDexByRouterAddress(chainDefinition.dexs, info.swapRouter)
+  const basePoolToken = findConfiguredPoolTokenByAddress(chainDefinition, info.basePoolToken)
 
   return (
     <section className="surface-card token-manage-header-card manage-info-unified-card">
@@ -126,11 +133,22 @@ export function DividendTokenManageInfoSection({
             <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.ownerAddress')} value={info.owner} />
             <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.receiveAddress')} value={info.receiveAddress} />
             <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.fundAddress')} value={info.fundAddress} />
-            <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.routerAddress')} value={info.swapRouter} />
+            <AddressCard
+              chainDefinition={chainDefinition}
+              dex={routerDex}
+              label={t('tokenManage.header.routerAddress')}
+              value={info.swapRouter}
+            />
             <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.mainPair')} value={info.mainPair} />
             <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.dividendTracker')} value={info.dividendTracker} />
             <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.rewardTokenAddress')} value={info.dividendToken} />
-            <AddressCard chainDefinition={chainDefinition} label={t('tokenManage.header.poolTokenAddress')} value={info.basePoolToken} />
+            <AddressCard
+              chainDefinition={chainDefinition}
+              label={t('tokenManage.header.poolTokenAddress')}
+              nativeLabel={t('common.nativeToken')}
+              token={basePoolToken}
+              value={info.basePoolToken}
+            />
           </div>
         </InfoCluster>
 
@@ -278,6 +296,7 @@ export function DividendTokenManageActionsSection({
             onRunAction={(config) => runner.runAction(config)}
           />
           <TransferOwnershipCard
+            chainDefinition={chainDefinition}
             info={info}
             t={t}
             disabled={!canManage}
@@ -304,6 +323,7 @@ export function DividendTokenManageActionsSection({
             onRunAction={(config) => runner.runAction(config)}
           />
           <FundAddressCard
+            chainDefinition={chainDefinition}
             info={info}
             t={t}
             disabled={!canManage}
@@ -484,11 +504,17 @@ function AddressStatCard({
 
 function AddressCard({
   chainDefinition,
+  dex,
   label,
+  nativeLabel,
+  token,
   value,
 }: {
   chainDefinition: ReturnType<typeof useRouteContext>['chainDefinition']
+  dex?: DexDefinition
   label: string
+  nativeLabel?: string
+  token?: ConfiguredTokenMatch
   value: string
 }) {
   const explorerUrl = getExplorerUrl(chainDefinition, 'address', value)
@@ -497,11 +523,125 @@ function AddressCard({
     <div className="summary-detail-card manage-address-card">
       <span>{label}</span>
       <div className="result-inline-value manage-address-value">
-        <a className="value-link" href={explorerUrl} target="_blank" rel="noreferrer">
-          {formatText(value)}
-        </a>
+        {dex ? (
+          <DexBadge dex={dex} />
+        ) : token ? (
+          <ConfiguredTokenValue
+            chainDefinition={chainDefinition}
+            match={token}
+            nativeLabel={nativeLabel ?? 'Native'}
+            value={value}
+          />
+        ) : (
+          <a className="value-link" href={explorerUrl} target="_blank" rel="noreferrer">
+            {formatText(value)}
+          </a>
+        )}
         <CopyButton ariaLabel={label} value={value} />
       </div>
+    </div>
+  )
+}
+
+function ConfiguredTokenValue({
+  chainDefinition,
+  match,
+  nativeLabel,
+  value,
+}: {
+  chainDefinition: ReturnType<typeof useRouteContext>['chainDefinition']
+  match: ConfiguredTokenMatch
+  nativeLabel: string
+  value: string
+}) {
+  const explorerUrl = getExplorerUrl(chainDefinition, 'address', value)
+  const { displayToken, isNativeDisplay } = match
+
+  return (
+    <span className="manage-token-value">
+      {displayToken.logo ? (
+        <img className="manage-token-logo" src={displayToken.logo} alt={displayToken.symbol} title={displayToken.symbol} />
+      ) : null}
+      <span className="manage-token-value-symbol">{displayToken.symbol}</span>
+      <span className="manage-token-divider">|</span>
+      {isNativeDisplay ? (
+        <span className="manage-token-meta">{nativeLabel}</span>
+      ) : (
+        <a className="manage-token-meta value-link" href={explorerUrl} target="_blank" rel="noreferrer">
+          {formatText(value)}
+        </a>
+      )}
+    </span>
+  )
+}
+
+function DexBadge({ dex }: { dex: DexDefinition }) {
+  return (
+    <span className="manage-dex-badge" title={dex.name}>
+      {dex.logo ? <img src={dex.logo} alt="" aria-hidden="true" /> : null}
+      <span>{dex.type}</span>
+      {dex.version ? <small>{dex.version.toUpperCase()}</small> : null}
+    </span>
+  )
+}
+
+function findConfiguredPoolTokenByAddress(
+  chainDefinition: ReturnType<typeof useRouteContext>['chainDefinition'],
+  tokenAddress: string,
+): ConfiguredTokenMatch | undefined {
+  const normalizedTokenAddress = normalizeTokenAddress(tokenAddress)
+
+  if (
+    normalizeTokenAddress(chainDefinition.nativeToken.address) === normalizedTokenAddress ||
+    normalizeTokenAddress(chainDefinition.wtoken.address) === normalizedTokenAddress
+  ) {
+    return {
+      token: chainDefinition.wtoken,
+      displayToken: chainDefinition.nativeToken,
+      isNativeDisplay: true,
+    }
+  }
+
+  const stableToken = chainDefinition.stableCoins?.find(
+    (token) => normalizeTokenAddress(token.address) === normalizedTokenAddress,
+  )
+
+  return stableToken
+    ? {
+        token: stableToken,
+        displayToken: stableToken,
+        isNativeDisplay: false,
+      }
+    : undefined
+}
+
+function findDexByRouterAddress(dexs: DexDefinition[] | undefined, routerAddress: string) {
+  const normalizedRouterAddress = normalizeTokenAddress(routerAddress)
+
+  return dexs?.find((dex) =>
+    [dex.routerAddress, dex.swapRouterAddress].some(
+      (address) => address && normalizeTokenAddress(address) === normalizedRouterAddress,
+    ),
+  )
+}
+
+function InlineAddressValue({
+  chainDefinition,
+  address,
+  ariaLabel,
+}: {
+  chainDefinition: ReturnType<typeof useRouteContext>['chainDefinition']
+  address: string
+  ariaLabel: string
+}) {
+  const explorerUrl = getExplorerUrl(chainDefinition, 'address', address)
+
+  return (
+    <div className="manage-current-address-value">
+      <a className="value-link" href={explorerUrl} target="_blank" rel="noreferrer">
+        {formatAddressText(address)}
+      </a>
+      <CopyButton ariaLabel={ariaLabel} value={address} />
     </div>
   )
 }
@@ -1044,12 +1184,14 @@ function AddressListCard({
 }
 
 function TransferOwnershipCard({
+  chainDefinition,
   info,
   t,
   disabled,
   loadingKey,
   onRunAction,
 }: {
+  chainDefinition: ReturnType<typeof useRouteContext>['chainDefinition']
   info: DividendTokenManageInfo
   t: (key: string, vars?: Record<string, string | number>) => string
   disabled: boolean
@@ -1071,9 +1213,13 @@ function TransferOwnershipCard({
         <h4>{t('tokenManage.actions.transferOwnership.title')}</h4>
         <p>{t('tokenManage.actions.transferOwnership.description')}</p>
       </div>
-      <div className="manage-inline-summary">
+      <div className="manage-inline-summary manage-current-address-summary">
         <span>{t('tokenManage.actions.transferOwnership.current')}</span>
-        <strong>{formatAddressText(info.owner)}</strong>
+        <InlineAddressValue
+          chainDefinition={chainDefinition}
+          address={info.owner}
+          ariaLabel={t('tokenManage.actions.transferOwnership.current')}
+        />
       </div>
       <label className="field">
         <FieldLabelWithTooltip label={t('tokenManage.actions.transferOwnership.nextOwner')} tooltip={t('tokenManage.actions.transferOwnership.nextOwnerTip')} />
@@ -1236,12 +1382,14 @@ function TaxSettingsCard({
 }
 
 function FundAddressCard({
+  chainDefinition,
   info,
   t,
   disabled,
   loadingKey,
   onRunAction,
 }: {
+  chainDefinition: ReturnType<typeof useRouteContext>['chainDefinition']
   info: DividendTokenManageInfo
   t: (key: string, vars?: Record<string, string | number>) => string
   disabled: boolean
@@ -1263,9 +1411,13 @@ function FundAddressCard({
         <h4>{t('tokenManage.actions.fundAddress.title')}</h4>
         <p>{t('tokenManage.actions.fundAddress.description')}</p>
       </div>
-      <div className="manage-inline-summary">
+      <div className="manage-inline-summary manage-current-address-summary">
         <span>{t('tokenManage.actions.fundAddress.current')}</span>
-        <strong>{formatAddressText(info.fundAddress)}</strong>
+        <InlineAddressValue
+          chainDefinition={chainDefinition}
+          address={info.fundAddress}
+          ariaLabel={t('tokenManage.actions.fundAddress.current')}
+        />
       </div>
       <label className="field">
         <FieldLabelWithTooltip label={t('tokenManage.actions.fundAddress.next')} tooltip={t('tokenManage.actions.fundAddress.nextTip')} />

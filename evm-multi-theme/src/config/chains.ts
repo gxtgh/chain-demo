@@ -23,6 +23,7 @@ import {
   xLayer,
 } from 'wagmi/chains'
 import { defineChain, type Chain } from 'viem'
+import { getDexMeta, type DexValue } from './dex'
 
 export type SupportedLang = 'en-us' | 'zh-cn'
 export type SupportedChainKey =
@@ -85,6 +86,10 @@ export type DexDefinition = {
   nonfungiblePositionManager?: `0x${string}`
   swapRouterAddress?: `0x${string}`
   rates?: number[]
+}
+
+type DexConfig = Omit<DexDefinition, 'type' | 'name' | 'logo'> & {
+  displayName?: string
 }
 
 export type ExplorerPathTemplates = {
@@ -210,6 +215,19 @@ export const supportedLanguages: Array<{ key: SupportedLang; label: string }> = 
   { key: 'zh-cn', label: '简体中文' },
 ]
 
+function createDexDefinition(value: DexValue, config: DexConfig): DexDefinition {
+  const meta = getDexMeta(value)
+  const { displayName, ...dexConfig } = config
+  const versionLabel = dexConfig.version ? dexConfig.version.toUpperCase() : ''
+
+  return {
+    type: meta.value,
+    name: displayName ?? [meta.name, versionLabel].filter(Boolean).join(' '),
+    logo: meta.logo,
+    ...dexConfig,
+  }
+}
+
 const supportedChainsBase: ChainDefinition[] = [
   {
     isEnable: true,
@@ -227,26 +245,20 @@ const supportedChainsBase: ChainDefinition[] = [
     deployUrl: '',
     rpcList: [DEFAULT_RPC.bsc],
     dexs: [
-      {
-        type: 'PancakeSwap',
+      createDexDefinition('PancakeSwap', {
         version: 'v2',
-        name: 'PancakeSwap V2',
-        logo: '/img/dex/pancake.svg',
         routerAddress: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
         factoryAddress: '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73',
         rates: [2500],
-      },
-      {
-        type: 'PancakeSwap',
+      }),
+      createDexDefinition('PancakeSwap', {
         version: 'v3',
-        name: 'PancakeSwap V3',
-        logo: '/img/dex/pancake.svg',
         routerAddress: '0x13f4EA83D0bd40E75C8222255bc855a974568Dd4',
         factoryAddress: '0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865',
         quoterV2Address: '0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997',
         nonfungiblePositionManager: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
         rates: [100, 500, 2500, 10000],
-      },
+      }),
     ],
     explorerBaseUrl: 'https://bscscan.com',
     nativeToken: {
@@ -308,26 +320,20 @@ const supportedChainsBase: ChainDefinition[] = [
     deployUrl: '',
     rpcList: [DEFAULT_RPC['bsc-testnet']],
     dexs: [
-      {
-        type: 'PancakeSwap',
+      createDexDefinition('PancakeSwap', {
         version: 'v2',
-        name: 'PancakeSwap V2',
-        logo: '/img/dex/pancake.svg',
         routerAddress: '0xD99D1c33F9fC3444f8101754aBC46c52416550D1',
         factoryAddress: '0x6725F303b657a9451d8BA641348b6761A6CC7a17',
         rates: [2500],
-      },
-      {
-        type: 'PancakeSwap',
+      }),
+      createDexDefinition('PancakeSwap', {
         version: 'v3',
-        name: 'PancakeSwap V3',
-        logo: '/img/dex/pancake.svg',
         routerAddress: '0x9a489505a00cE272eAa5e07Dba6491314CaE3796',
         factoryAddress: '0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865',
         quoterV2Address: '0xB048BBC1Ee6B733FFfcfb9e9CEF7375518e25997',
         nonfungiblePositionManager: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
         rates: [100, 500, 2500, 10000],
-      },
+      }),
     ],
     explorerBaseUrl: 'https://testnet.bscscan.com',
     nativeToken: {
@@ -382,25 +388,19 @@ const supportedChainsBase: ChainDefinition[] = [
     deployUrl: '',
     rpcList: [DEFAULT_RPC.eth],
     dexs: [
-      {
-        type: 'Uniswap',
+      createDexDefinition('Uniswap', {
         version: 'v2',
-        name: 'Uniswap V2',
-        logo: '/img/dex/uniswap.png',
         routerAddress: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
         factoryAddress: '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f',
         rates: [3000],
-      },
-      {
-        type: 'Uniswap',
+      }),
+      createDexDefinition('Uniswap', {
         version: 'v3',
-        name: 'Uniswap V3',
-        logo: '/img/dex/uniswap.png',
         routerAddress: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
         factoryAddress: '0x1F98431c8aD98523631AE4a59f267346ea31F984',
         quoterV2Address: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e',
         rates: [100, 500, 3000, 10000],
-      },
+      }),
     ],
     explorerBaseUrl: 'https://etherscan.io',
     nativeToken: {
@@ -455,25 +455,19 @@ const supportedChainsBase: ChainDefinition[] = [
     deployUrl: '',
     rpcList: [DEFAULT_RPC.base],
     dexs: [
-      {
-        type: 'Uniswap',
+      createDexDefinition('Uniswap', {
         version: 'v2',
-        name: 'Uniswap V2',
-        logo: '/img/dex/uniswap.png',
         routerAddress: '0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24',
         factoryAddress: '0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6',
         rates: [3000],
-      },
-      {
-        type: 'Uniswap',
+      }),
+      createDexDefinition('Uniswap', {
         version: 'v3',
-        name: 'Uniswap V3',
-        logo: '/img/dex/uniswap.png',
         routerAddress: '0x2626664c2603336E57B271c5C0b26F421741e481',
         factoryAddress: '0x33128a8fC17869897dcE68Ed026d694621f6FDfD',
         quoterV2Address: '0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a',
         rates: [100, 500, 3000, 10000],
-      },
+      }),
     ],
     explorerBaseUrl: 'https://basescan.org',
     nativeToken: {
@@ -542,43 +536,31 @@ const supportedChainsBase: ChainDefinition[] = [
     deployUrl: '',
     rpcList: [DEFAULT_RPC['x-layer']],
     dexs: [
-      {
-        type: 'SlerfSwap',
+      createDexDefinition('SlerfSwap', {
         version: 'v2',
-        name: 'SlerfSwap V2',
-        logo: '/img/dex/slerfswap.png',
         routerAddress: '0x04aE0E6364635f307A7c81Bee1F8612C14d19917',
         factoryAddress: '0x702758afEDBD000A982D5A9845b0B0b32916d97b',
         rates: [2000],
-      },
-      {
-        type: 'SlerfSwap',
+      }),
+      createDexDefinition('SlerfSwap', {
         version: 'v3',
-        name: 'SlerfSwap V3',
-        logo: '/img/dex/slerfswap.png',
         routerAddress: '0x88CBD52c55FEDA2E64faD06E99aA53b24272a9CB',
         factoryAddress: '0x2299c38c6e8855e18Db808386a1cd1bC9abDc625',
         quoterV2Address: '0xb77ccb98b88D39f570Ef6121Ab5B1a2850fce3c6',
         rates: [2000],
-      },
-      {
-        type: 'Dyorswap',
+      }),
+      createDexDefinition('Dyorswap', {
         version: 'v2',
-        name: 'Dyorswap V2',
-        logo: '/img/dex/dyorswap.svg',
         routerAddress: '0x1E690F24F704672e44255013C2cB22FC04c46036',
         factoryAddress: '0x2CcaDb1e437AA9cDc741574bDa154686B1F04C09',
         rates: [3000],
-      },
-      {
-        type: 'PotatoSwap',
+      }),
+      createDexDefinition('PotatoSwap', {
         version: 'v2',
-        name: 'PotatoSwap V2',
-        logo: '/img/dex/potatoswap.svg',
         routerAddress: '0x881fB2f98c13d521009464e7D1CBf16E1b394e8E',
         factoryAddress: '0x630DB8E822805c82Ca40a54daE02dd5aC31f7fcF',
         rates: [3000],
-      },
+      }),
     ],
     explorerBaseUrl: 'https://www.oklink.com/xlayer',
     nativeToken: {
@@ -642,14 +624,12 @@ const supportedChainsBase: ChainDefinition[] = [
     deployUrl: '',
     rpcList: [DEFAULT_RPC.plasma],
     dexs: [
-      {
-        type: 'Lithos',
+      createDexDefinition('Lithos', {
         version: 'v2',
-        name: 'Lithos RouterV2',
-        logo: '/img/dex/lithos.svg',
+        displayName: 'Lithos RouterV2',
         routerAddress: '0xD70962bd7C6B3567a8c893b55a8aBC1E151759f3',
         factoryAddress: '0x71a870D1c935C2146b87644DF3B5316e8756aE18',
-      },
+      }),
       // {
       //   type: 'Uniswap',
       //   version: 'v3',
@@ -707,16 +687,13 @@ const supportedChainsBase: ChainDefinition[] = [
     deployUrl: '',
     rpcList: [DEFAULT_RPC.monad],
     dexs: [
-      {
-        type: 'Uniswap',
+      createDexDefinition('Uniswap', {
         version: 'v2',
-        name: 'Uniswap V2',
-        logo: '/img/dex/uniswap.png',
         routerAddress: '0x4b2ab38dbf28d31d467aa8993f6c2585981d6804',
         factoryAddress: '0x182a927119d56008d921126764bf884221b10f59',
         swapRouterAddress: '0x392EedB445Fc8fD1763Bf057A7d8440A25500eF0',
         rates: [3000],
-      },
+      }),
     ],
     explorerBaseUrl: 'https://monadvision.com',
     nativeToken: {
@@ -771,16 +748,13 @@ const supportedChainsBase: ChainDefinition[] = [
     deployUrl: '',
     rpcList: [DEFAULT_RPC.polygon],
     dexs: [
-      {
-        type: 'Uniswap',
+      createDexDefinition('Uniswap', {
         version: 'v2',
-        name: 'Uniswap V2',
-        logo: '/img/dex/uniswap.png',
         routerAddress: '0xedf6066a2b290C185783862C7F4776A2C8077AD1',
         factoryAddress: '0x9e5A52f57b3038F1B8EeE45F28b3C1967e22799C',
         swapRouterAddress: '0x26148F758BCb16640305FC73a289b03456B3248c',
         rates: [3000],
-      },
+      }),
     ],
     explorerBaseUrl: 'https://polygonscan.com',
     nativeToken: {
@@ -842,16 +816,13 @@ const supportedChainsBase: ChainDefinition[] = [
     deployUrl: '',
     rpcList: [DEFAULT_RPC.avalanche],
     dexs: [
-      {
-        type: 'Uniswap',
+      createDexDefinition('Uniswap', {
         version: 'v2',
-        name: 'Uniswap V2',
-        logo: '/img/dex/uniswap.png',
         routerAddress: '0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24',
         factoryAddress: '0x9e5A52f57b3038F1B8EeE45F28b3C1967e22799C',
         swapRouterAddress: '0xcC22A79a34370f969AEBAC9f6079253aaeC1d0EC',
         rates: [3000],
-      },
+      }),
     ],
     explorerBaseUrl: 'https://snowtrace.io',
     nativeToken: {
@@ -906,16 +877,13 @@ const supportedChainsBase: ChainDefinition[] = [
     deployUrl: '',
     rpcList: [DEFAULT_RPC.arbitrum],
     dexs: [
-      {
-        type: 'Uniswap',
+      createDexDefinition('Uniswap', {
         version: 'v2',
-        name: 'Uniswap V2',
-        logo: '/img/dex/uniswap.png',
         routerAddress: '0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24',
         factoryAddress: '0xf1D7CC64Fb4452F05c498126312eBE29f30Fbcf9',
         swapRouterAddress: '0xF5fc7a89beE9260c5CB7103B1a9585ab1a427c4C',
         rates: [3000],
-      },
+      }),
     ],
     explorerBaseUrl: 'https://arbiscan.io',
     nativeToken: {
@@ -970,16 +938,13 @@ const supportedChainsBase: ChainDefinition[] = [
     deployUrl: '',
     rpcList: [DEFAULT_RPC.optimism],
     dexs: [
-      {
-        type: 'Uniswap',
+      createDexDefinition('Uniswap', {
         version: 'v2',
-        name: 'Uniswap V2',
-        logo: '/img/dex/uniswap.png',
         routerAddress: '0x4A7b5Da61326A6379179b40d00F57E5bbDC962c2',
         factoryAddress: '0x0c3c1c532F1e39EdF36BE9Fe0bE1410313E074Bf',
         swapRouterAddress: '0x5eF35d1ccB6724847026D4f7Bb08d0181047bAFf',
         rates: [3000],
-      },
+      }),
     ],
     explorerBaseUrl: 'https://optimistic.etherscan.io',
     nativeToken: {
@@ -1033,27 +998,21 @@ const supportedChainsBase: ChainDefinition[] = [
     deployUrl: '',
     rpcList: [DEFAULT_RPC.sonic],
     dexs: [
-      {
-        type: 'Shadow',
+      createDexDefinition('Shadow', {
         version: 'v2',
-        name: 'Shadow V2',
-        logo: '/img/dex/shadow.svg',
         routerAddress: '0x1D368773735ee1E678950B7A97bcA2CafB330CDc',
         factoryAddress: '0x2dA25E7446A70D7be65fd4c053948BEcAA6374c8',
         // swapRouterAddress: '',
         rates: [3000]
-      },
-      {
-        type: 'Shadow',
+      }),
+      createDexDefinition('Shadow', {
         version: 'v3',
-        name: 'Shadow V3',
-        logo: '/img/dex/shadow.svg',
         routerAddress: '0x5543c6176FEb9B4b179078205d7C29EEa2e2d695',
         factoryAddress: '0xcD2d0637c94fe77C2896BbCBB174cefFb08DE6d7',
         quoterV2Address: '0x219b7ADebc0935a3eC889a148c6924D51A07535A',
         nonfungiblePositionManager: "0x12E66C8F215DdD5d48d150c8f46aD0c6fB0F4406",
         rates: [100, 500, 2500, 10000],
-      }
+      })
     ],
     explorerBaseUrl: 'https://sonicscan.org',
     nativeToken: {
@@ -1108,16 +1067,13 @@ const supportedChainsBase: ChainDefinition[] = [
     deployUrl: '',
     rpcList: [DEFAULT_RPC.unichain],
     dexs: [
-      {
-        type: 'Uniswap',
+      createDexDefinition('Uniswap', {
         version: 'v2',
-        name: 'Uniswap V2',
-        logo: '/img/dex/uniswap.png',
         routerAddress: '0x284f11109359a7e1306c3e447ef14d38400063ff',
         factoryAddress: '0x1f98400000000000000000000000000000000002',
         swapRouterAddress: '0x5eF35d1ccB6724847026D4f7Bb08d0181047bAFf',
         rates: [3000],
-      },
+      }),
     ],
     explorerBaseUrl: 'https://uniscan.xyz',
     nativeToken: {
@@ -1222,26 +1178,20 @@ const supportedChainsBase: ChainDefinition[] = [
     deployUrl: '',
     rpcList: [DEFAULT_RPC.linea],
     dexs: [
-      {
-        type: 'PancakeSwap',
+      createDexDefinition('PancakeSwap', {
         version: 'v2',
-        name: 'PancakeSwap V2',
-        logo: '/img/dex/pancake.svg',
         routerAddress: '0x8cFe327CEc66d1C090Dd72bd0FF11d690C33a2Eb',
         factoryAddress: '0x02a84c1b3BBD7401a5f7fa98a384EBC70bB5749E',
         rates: [2500],
-      },
-      {
-        type: 'PancakeSwap',
+      }),
+      createDexDefinition('PancakeSwap', {
         version: 'v3',
-        name: 'PancakeSwap V3',
-        logo: '/img/dex/pancake.svg',
         routerAddress: '0x1b81D678ffb9C0263b24A97847620C99d213eB14',
         factoryAddress: '0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865',
         quoterV2Address: '0xbC203d7f83677c7ed3F7acEc959963E7F4ECC5C2',
         nonfungiblePositionManager: "0x427bF5b37357632377eCbEC9de3626C71A5396c1",
         rates: [100, 500, 2500, 10000],
-      }
+      })
     ],
     explorerBaseUrl: 'https://lineascan.build',
     nativeToken: {
@@ -1351,16 +1301,13 @@ const supportedChainsBase: ChainDefinition[] = [
     deployUrl: '',
     rpcList: [DEFAULT_RPC.blast],
     dexs: [
-      {
-        type: 'Uniswap',
+      createDexDefinition('Uniswap', {
         version: 'v2',
-        name: 'Uniswap V2',
-        logo: '/img/dex/uniswap.png',
         routerAddress: '0xBB66Eb1c5e875933D44DAe661dbD80e5D9B03035',
         factoryAddress: '0x5C346464d33F90bABaf70dB6388507CC889C1070',
         swapRouterAddress: '0x5eF35d1ccB6724847026D4f7Bb08d0181047bAFf',
         rates: [3000],
-      },
+      }),
     ],
     explorerBaseUrl: 'https://blastscan.io',
     nativeToken: {
