@@ -1,0 +1,129 @@
+.token-simple-control-creation-page {
+  .simple-control-form-card {
+    gap: 24px;
+  }
+
+  .field-span-full {
+    grid-column: 1 / -1;
+  }
+
+  .simple-control-address-input {
+    .ant-input-suffix {
+      margin-inline-start: 10px;
+    }
+  }
+
+  .inline-field-button.ant-btn {
+    height: 28px;
+    padding: 0 8px;
+    color: var(--theme-accent);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .simple-control-settings-panel {
+    display: grid;
+    gap: 12px;
+    padding: 20px;
+    border: 1px solid color-mix(in srgb, var(--theme-accent) 18%, var(--theme-line));
+    border-radius: 22px;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--theme-accent) 6%, transparent), transparent 72%),
+      color-mix(in srgb, var(--theme-surface-strong) 96%, transparent);
+  }
+
+  .tax-section-copy {
+    display: grid;
+    gap: 6px;
+
+    strong {
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+  }
+
+  .switch-grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  .switch-card {
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--theme-accent) 8%, var(--theme-line));
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--theme-surface-strong) 88%, transparent);
+  }
+
+  .switch-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 18px;
+  }
+
+  .switch-row .ant-switch {
+    flex: 0 0 auto;
+  }
+
+  .switch-copy {
+    display: grid;
+    min-width: 0;
+    gap: 6px;
+
+    strong {
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+  }
+
+  .wallet-limit-field {
+    display: grid;
+    gap: 8px;
+  }
+
+  .switch-card-content {
+    padding: 0 18px 18px;
+  }
+
+  .ant-switch {
+    background: color-mix(in srgb, var(--muted) 30%, transparent);
+  }
+
+  .ant-switch.ant-switch-checked {
+    background: var(--theme-accent);
+  }
+}
+
+@media (max-width: 640px) {
+  .token-simple-control-creation-page {
+    .simple-control-settings-panel {
+      padding: 16px;
+      border-radius: 18px;
+    }
+
+    .switch-row {
+      padding: 14px 16px;
+    }
+
+    .switch-card-content {
+      padding: 0 16px 16px;
+    }
+  }
+}

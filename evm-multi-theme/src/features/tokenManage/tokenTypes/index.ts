@@ -4,6 +4,11 @@ import {
   DividendTokenManageInfoSection,
   type DividendTokenManageViewProps,
 } from './dividend/dividend-token-manage-view'
+import {
+  SimpleControlTokenManageActionsSection,
+  SimpleControlTokenManageInfoSection,
+  type SimpleControlTokenManageViewProps,
+} from './simpleControl/simple-control-token-manage-view'
 
 type TokenManageRendererDefinition<TProps> = {
   renderInfo: (props: TProps) => ReactNode
@@ -17,4 +22,10 @@ export const tokenManageRendererRegistry = {
     renderActions: (props: DividendTokenManageViewProps): ReactNode =>
       createElement(DividendTokenManageActionsSection, props),
   } satisfies TokenManageRendererDefinition<DividendTokenManageViewProps>,
+  simpleControl: {
+    renderInfo: (props: SimpleControlTokenManageViewProps): ReactNode =>
+      createElement(SimpleControlTokenManageInfoSection, props),
+    renderActions: (props: SimpleControlTokenManageViewProps): ReactNode =>
+      createElement(SimpleControlTokenManageActionsSection, props),
+  } satisfies TokenManageRendererDefinition<SimpleControlTokenManageViewProps>,
 }

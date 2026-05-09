@@ -3,7 +3,8 @@ import { message } from 'antd'
 import { useAccount, useSwitchChain } from 'wagmi'
 import type { ChainDefinition } from '@/config/chains'
 import { getConnectorProvider } from '@/utils/wagmi-provider'
-import { executeDividendManageWrite, resolveTokenManageErrorKey } from './tokenManageService'
+import { executeTokenManageWrite, resolveTokenManageErrorKey } from './tokenManageService'
+import type { TokenManageType } from './model'
 
 type CurrentStep =
   | {
@@ -14,6 +15,7 @@ type CurrentStep =
 
 type ActionConfig = {
   key: string
+  tokenType?: TokenManageType
   title: string
   functionName: string
   args: unknown[]
@@ -94,9 +96,10 @@ export function useTokenManageActionRunner({
         throw new Error('tokenManage.errors.walletUnavailable')
       }
 
-      await executeDividendManageWrite({
+      await executeTokenManageWrite({
         chainDefinition,
         tokenAddress,
+        tokenType: config.tokenType ?? 'dividend',
         walletProvider,
         functionName: config.functionName,
         args: config.args,

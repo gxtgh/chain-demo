@@ -36,6 +36,7 @@ export const enUsMessages = {
     home: 'Home',
     tokenCreation: 'Token Creation',
     tokenTaxCreation: 'Tax Token',
+    tokenSimpleControlCreation: 'Multi-function Token',
     tokenDividendCreation: 'Dividend Token',
     tokenManage: 'Token Management',
     tokenVanityCreation: 'Vanity Token',
@@ -698,6 +699,166 @@ export const enUsMessages = {
       errorDescription: 'The transaction did not complete on-chain. Check the wallet status, network, and balance, then try again.',
     },
   },
+  tokenSimpleControlCreation: {
+    eyebrow: '',
+    title: 'Create Multi-function Token',
+    description:
+      'Create a {{tokenType}} token on {{chain}} with optional minting, pause control, blacklist support, and max-wallet protection.',
+    seo: {
+      title: 'Create {{tokenType}} Multi-function Token on {{chain}} | LaunchLayer',
+      description:
+        'Launch a {{tokenType}} multi-function token on {{chain}} with configurable minting, pause, blacklist, receive address, and wallet limit controls.',
+      keywords: 'Create Multi-function Token, {{tokenType}} Token Creator, {{chain}} Token Maker, Mint Pause Blacklist Wallet Limit',
+    },
+    fields: {
+      name: 'Token Full Name',
+      symbol: 'Token Symbol',
+      totalSupply: 'Supply',
+      decimals: 'Precision',
+      receiveAddress: 'Token Receive Address',
+      enableMint: 'Mint Tokens',
+      enablePause: 'Pause Trading/Transfers',
+      blacklistEnabled: 'Blacklist Feature',
+      enableWalletLimit: 'Max Holding Amount',
+      maxWalletAmount: 'Max Wallet Amount',
+    },
+    labels: {
+      creationFee: 'Creation Fee',
+      permissionConfiguration: 'Permissions & Lists',
+      permissionConfigurationNote:
+        'Choose the controls that should be available after deployment. These switches are written into the token at creation time.',
+      enableMintNote:
+        'Mint tokens to a specified address. Once this switch is disabled at creation, it cannot be enabled again.',
+      enablePauseNote:
+        'Pause all transfers or transactions. Once this switch is disabled at creation, it cannot be enabled again.',
+      blacklistEnabledNote:
+        'Block selected wallet addresses from trading. Once this switch is disabled at creation, it cannot be enabled again.',
+      enableWalletLimitNote:
+        'Set the maximum amount a single wallet can hold. Once this switch is disabled at creation, it cannot be enabled again.',
+    },
+    placeholders: {
+      name: 'Please enter the token full name',
+      symbol: 'Please enter the token symbol',
+      totalSupply: 'Please enter the supply',
+      decimals: 'Please enter the precision',
+      receiveAddress: 'Leave blank to receive tokens in the connected wallet',
+      maxWalletAmount: 'Please enter the maximum holding amount',
+    },
+    tooltips: {
+      name: 'The full token name shown in wallets, explorers, and trading interfaces.',
+      symbol: 'The short token symbol displayed in wallets and trading interfaces.',
+      totalSupply: 'The initial token amount minted during deployment. Decimals are applied automatically by the contract call.',
+      decimals: 'Defines the smallest divisible unit of the token. In most cases, 18 is recommended.',
+      receiveAddress: 'The address that receives the initial supply. If left empty, the connected wallet address is used.',
+      maxWalletAmount: 'The maximum token amount a single wallet can hold. It must be greater than 0 and no more than total supply.',
+      creationFee: 'The creation fee is read from the multi-function token factory. Network gas is charged separately when submitting.',
+    },
+    actions: {
+      submit: 'Create Multi-function Token',
+      submitting: 'Creating...',
+      close: 'Close',
+      retry: 'Try Again',
+      useCurrentWallet: 'Current Wallet',
+    },
+    status: {
+      factoryUnavailable: 'Multi-function token factory is not configured for this chain.',
+    },
+    steps: {
+      preparing: 'Prepare token parameters',
+      waitingWallet: 'Please sign the transaction',
+      pending: 'Multi-function token creation in progress',
+      completed: 'Creation completed',
+      failed: 'Creation failed',
+    },
+    errors: {
+      nameRequired: 'Token name is required.',
+      nameTooLong: 'Token name can be at most 100 characters.',
+      symbolRequired: 'Token symbol is required.',
+      symbolTooLong: 'Token symbol can be at most 100 characters.',
+      supplyRequired: 'Total supply is required.',
+      supplyInvalid: 'Total supply must be a positive amount.',
+      decimalsInvalid: 'Decimals must be between 0 and 18.',
+      receiveAddressInvalid: 'Please enter a valid receive address.',
+      maxWalletAmountRequired: 'Max wallet amount is required when wallet limit is enabled.',
+      maxWalletAmountInvalid: 'Max wallet amount must be greater than 0 and no more than total supply.',
+      walletRequired: 'Connect a wallet before submitting.',
+      walletUnavailable: 'Injected wallet was not found in this browser.',
+      factoryUnavailable: 'Multi-function token factory is not configured for this chain.',
+      insufficientBalance: 'Insufficient balance to pay gas and the creation fee.',
+      insufficientFactoryFee: 'The submitted creation fee is lower than the factory requirement.',
+      factoryFeeTransferFailed: 'Factory fee transfer failed. Please try again later.',
+      factoryRefundFailed: 'Factory refund failed. Please try again later.',
+      creationFailed: 'Token creation failed. Please check the wallet and network status, then try again.',
+    },
+    success: {
+      banner: 'Multi-function token created successfully',
+      tokenAddress: 'Token Address',
+      txHash: 'Transaction Hash',
+    },
+    successSummary: {
+      tokenAddress: 'Token Address',
+      txHash: 'Transaction Hash',
+      receiveAddress: 'Receive Address',
+      permissions: 'Enabled Controls',
+      basicTransfer: 'Basic transfer token',
+      enabled: 'Enabled',
+      disabled: 'Disabled',
+    },
+    overview: {
+      title: 'Multi-function Token',
+      description:
+        'This {{tokenType}} deployment flow is for teams that need a standard transferable token plus owner-operated controls such as minting, pause, blacklist, and wallet-limit settings.',
+      highlights: {
+        mint: 'Mint control',
+        pause: 'Pause control',
+        blacklist: 'Blacklist',
+        walletLimit: 'Wallet limit',
+      },
+      cards: {
+        permissions: {
+          title: 'Owner Controls',
+          description:
+            'Minting and pause controls can be enabled during creation, giving the owner wallet operational tools for supply and transfer management.',
+        },
+        limits: {
+          title: 'Wallet Protection',
+          description:
+            'The wallet-limit option caps non-whitelisted holder balances at launch. The owner, receive address, contract, and burn address are whitelisted by default.',
+        },
+        management: {
+          title: 'Post-launch Management',
+          description:
+            'After deployment, enabled modules can be managed from the contract owner wallet, including blacklist operations and max-wallet adjustments.',
+        },
+      },
+    },
+    nextSteps: {
+      title: 'Next Steps',
+      description: 'After deployment, keep the token address and review the controls before moving into liquidity, distribution, or public launch.',
+      note: 'This page deploys the token only. It does not create liquidity or open a trading pool.',
+      addWallet: {
+        title: 'Add to Wallet',
+        description: 'Import the token into common wallets using the contract address, symbol, and decimals.',
+      },
+      reviewPermissions: {
+        title: 'Review Controls',
+        description: 'Confirm which controls were enabled and make sure the owner wallet is held by the intended operator.',
+      },
+      configureLists: {
+        title: 'Configure Lists',
+        description: 'If blacklist or wallet-limit controls are enabled, prepare the addresses that should be managed or whitelisted.',
+      },
+      metadata: {
+        title: 'Complete Metadata',
+        description: 'Prepare logo, website, and social links so explorers and community materials can reference the token clearly.',
+      },
+    },
+    modal: {
+      progressTitle: 'Creating multi-function token',
+      successTitle: 'Multi-function token created successfully',
+      errorTitle: 'Multi-function token creation failed',
+    },
+  },
   tokenDividendCreation: {
     eyebrow: '',
     title: 'Create Dividend Token',
@@ -1024,7 +1185,7 @@ export const enUsMessages = {
     },
     empty: {
       kicker: 'Token Console',
-      title: 'Enter the token console',
+      title: 'Token console',
       description: 'After you enter a contract address, the console reads on-chain data for supported token types and arranges profile, parameters, permissions, and management actions into modules.',
       previewLabel: 'Console Structure',
       flow: {
@@ -1081,8 +1242,11 @@ export const enUsMessages = {
     header: {
       description: 'This console is organized around “see the state first, act second” so it is easier to confirm the token baseline, permission ownership, and dividend parameters before you change anything.',
       typeDividend: 'Dividend Token',
+      typeSimpleControl: 'Multi-function Token',
       tradingEnabled: 'Trading Enabled',
       tradingClosed: 'Trading Closed',
+      paused: 'Paused',
+      notPaused: 'Not Paused',
       sameTokenDividend: 'Same-Token Rewards',
       externalTokenDividend: 'Other Token',
       roleOwner: 'Owner',
@@ -1209,6 +1373,52 @@ export const enUsMessages = {
       listsPermissions: 'Lists/Permissions',
       tradingFees: 'Trading/Fees',
       danger: 'Risk',
+    },
+    simpleControl: {
+      tabs: {
+        controls: 'Controls',
+      },
+      info: {
+        addresses: 'Address Summary',
+        controls: 'Control Modules',
+      },
+      fields: {
+        pauseFeature: 'Trading/Transfer Pause Permission',
+        pauseStatus: 'Pause Status',
+        walletLimitFeature: 'Wallet Limit',
+        maxWalletAmount: 'Max Wallet Amount',
+      },
+      sections: {
+        controls: 'Trading/Transfer Controls',
+      },
+      actions: {
+        mint: {
+          description: 'Mint more tokens while the mint module is enabled. The recipient must be able to receive under the current wallet-limit settings.',
+        },
+        pause: {
+          title: 'Trading/Transfer Pause Control',
+          description: 'Pause or resume token trading and transfers when the pause module is enabled.',
+          pause: 'Pause Trading/Transfers',
+          resume: 'Resume Trading/Transfers',
+          pauseSuccess: 'Trading/transfers paused successfully',
+          pauseFailed: 'Failed to pause trading/transfers',
+          resumeSuccess: 'Trading/transfers resumed successfully',
+          resumeFailed: 'Failed to resume trading/transfers',
+        },
+        walletLimit: {
+          title: 'Wallet Limit',
+          description: 'Update or disable the max-wallet rule for non-whitelisted addresses.',
+          update: 'Update Wallet Limit',
+          updateSuccess: 'Wallet limit updated successfully',
+          updateFailed: 'Failed to update wallet limit',
+          disable: 'Disable Wallet Limit',
+          disableSuccess: 'Wallet limit disabled successfully',
+          disableFailed: 'Failed to disable wallet limit',
+        },
+        transferOwnership: {
+          description: 'Transfer owner control to a new address. The new owner is automatically added to the whitelist by the contract.',
+        },
+      },
     },
     placeholder: 'Please enter',
     actionButtons: {
@@ -1412,7 +1622,7 @@ export const enUsMessages = {
     },
     errors: {
       invalidTokenAddress: 'Please enter a valid token contract address.',
-      unsupportedTokenType: 'The first console version currently supports dividend tokens only.',
+      unsupportedTokenType: 'The current console supports dividend tokens and multi-function tokens only.',
       loadFailed: 'Failed to read token information. Please confirm the address and network.',
       walletRequired: 'Connect a wallet before continuing.',
       walletUnavailable: 'Injected wallet was not found in this browser.',
@@ -1443,6 +1653,16 @@ export const enUsMessages = {
       zeroAddress: 'The target address cannot be the zero address.',
       fundAddressDead: 'The marketing receiver cannot be the dead address.',
       tradingNotEnabled: 'Trading is not enabled yet.',
+      tradingPaused: 'Token trading/transfers are currently paused.',
+      pauseDisabled: 'Trading/transfer pause permission is disabled for this token.',
+      alreadyPaused: 'Token trading/transfers are already paused.',
+      notPaused: 'Token trading/transfers are not paused.',
+      walletLimitDisabled: 'Wallet limit is disabled for this token.',
+      invalidMaxWalletAmount: 'Max wallet amount must be greater than 0 and no more than total supply.',
+      whitelistDisabled: 'Whitelist permission is disabled.',
+      blacklistDisabled: 'Blacklist permission is disabled.',
+      listTooLong: 'The address list is too long. Submit up to 100 addresses at a time.',
+      conflictingListEntries: 'Whitelist and blacklist entries cannot conflict.',
       taxRateTooHigh: 'One tax group exceeds the contract limit.',
       taxTotalTooHigh: 'The combined tax exceeds the contract limit.',
       noPermission: 'The connected wallet does not have permission for this action.',

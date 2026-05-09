@@ -75,6 +75,12 @@ export const pageRouteConfigs: Record<SupportedPageKey, PageRouteConfig> = {
       // 'gate-layer',
     ],
   },
+  'token-simple-control-creation': {
+    page: 'token-simple-control-creation',
+    chainKeys: [
+      'bsc-testnet',
+    ],
+  },
   'token-vanity-creation': {
     page: 'token-vanity-creation',
     chainKeys: [

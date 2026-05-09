@@ -1,6 +1,7 @@
 import { BrowserProvider, Contract, Interface, JsonRpcProvider, getAddress, isAddress } from 'ethers'
 import type { EIP1193Provider } from 'viem'
 import tokenDividendAbi from '@/assets/abi/TokenDividend.json'
+import simpleControlTokenAbi from '@/assets/abi/SimpleControlToken.json'
 import { getChainRpcUrl, type ChainDefinition } from '@/config/chains'
 import { getDynamicGasOverrides } from '@/utils/evm-gas'
 import { isInsufficientFundsError } from '@/utils/evm-submit-error'
@@ -10,11 +11,13 @@ import {
   formatBigIntUnits,
   normalizeTokenAddress,
   type DividendTokenManageInfo,
+  type SimpleControlTokenManageInfo,
   type TokenDisplayInfo,
   type TokenManageType,
 } from './model'
 
 const tokenDividendInterface = new Interface(tokenDividendAbi)
+const simpleControlTokenInterface = new Interface(simpleControlTokenAbi)
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 export async function detectTokenType(chainDefinition: ChainDefinition, tokenAddress: string): Promise<TokenManageType | null> {
@@ -24,17 +27,27 @@ export async function detectTokenType(chainDefinition: ChainDefinition, tokenAdd
   }
 
   const provider = new JsonRpcProvider(rpcUrl)
-  const contract = new Contract(getAddress(tokenAddress), tokenDividendAbi, provider)
+  const normalizedAddress = getAddress(tokenAddress)
+  const dividendContract = new Contract(normalizedAddress, tokenDividendAbi, provider)
 
   const [isSameTokenDividend, receiveAddress, fundAddress] = await Promise.all([
-    safeRead(contract, 'isSameTokenDividend'),
-    safeRead(contract, 'receiveAddress'),
-    safeRead(contract, 'fundAddress'),
+    safeRead(dividendContract, 'isSameTokenDividend'),
+    safeRead(dividendContract, 'receiveAddress'),
+    safeRead(dividendContract, 'fundAddress'),
   ])
 
-  return typeof isSameTokenDividend === 'boolean' && isAddressValue(receiveAddress) && isAddressValue(fundAddress)
-    ? 'dividend'
-    : null
+  if (typeof isSameTokenDividend === 'boolean' && isAddressValue(receiveAddress) && isAddressValue(fundAddress)) {
+    return 'dividend'
+  }
+
+  const simpleControlContract = new Contract(normalizedAddress, simpleControlTokenAbi, provider)
+  const simpleConfig = await safeRead(simpleControlContract, 'getConfig')
+
+  if (Array.isArray(simpleConfig) && isAddressValue(simpleConfig[0]) && isAddressValue(simpleConfig[1])) {
+    return 'simpleControl'
+  }
+
+  return null
 }
 
 export async function loadDividendTokenManageInfo(
@@ -283,6 +296,83 @@ export async function queryWithdrawableDividend({
   }
 }
 
+export async function loadSimpleControlTokenManageInfo(
+  chainDefinition: ChainDefinition,
+  tokenAddress: string,
+): Promise<SimpleControlTokenManageInfo> {
+  const rpcUrl = getChainRpcUrl(chainDefinition)
+  if (!rpcUrl || !isAddress(tokenAddress)) {
+    throw new Error('tokenManage.errors.invalidTokenAddress')
+  }
+
+  const provider = new JsonRpcProvider(rpcUrl)
+  const normalizedAddress = getAddress(tokenAddress)
+  const contract = new Contract(normalizedAddress, simpleControlTokenAbi, provider)
+
+  const [
+    nameResult,
+    symbolResult,
+    decimalsResult,
+    totalSupplyResult,
+    configResult,
+    defaultExcludedAddressesResult,
+    whitelistAddresses,
+    blacklistAddresses,
+  ] = await Promise.all([
+    safeRead(contract, 'name'),
+    safeRead(contract, 'symbol'),
+    safeRead(contract, 'decimals'),
+    safeRead(contract, 'totalSupply'),
+    safeRead(contract, 'getConfig'),
+    safeRead(contract, 'getDefaultExcludedAddresses'),
+    readSimpleControlIndexedAddressList(contract, true),
+    readSimpleControlIndexedAddressList(contract, false),
+  ])
+
+  const name = readRequiredString(nameResult)
+  const symbol = readRequiredString(symbolResult)
+  const decimals = readRequiredNumber(decimalsResult)
+  const totalSupply = readRequiredBigInt(totalSupplyResult)
+
+  if (!Array.isArray(configResult)) {
+    throw new Error('tokenManage.errors.loadFailed')
+  }
+
+  const owner = readRequiredAddress(configResult[0])
+  const receiveAddress = readRequiredAddress(configResult[1])
+  const enableMint = readRequiredBoolean(configResult[2])
+  const enablePause = readRequiredBoolean(configResult[3])
+  const pause = readRequiredBoolean(configResult[4])
+  const blacklistEnabled = readRequiredBoolean(configResult[5])
+  const whitelistEnabled = readRequiredBoolean(configResult[6])
+  const enableWalletLimit = readRequiredBoolean(configResult[7])
+  const maxWalletAmount = readRequiredBigInt(configResult[8])
+  const protectedAddresses = dedupeAddresses(readAddressTuple(defaultExcludedAddressesResult))
+
+  return {
+    type: 'simpleControl',
+    address: normalizedAddress,
+    name,
+    symbol,
+    decimals,
+    totalSupply,
+    totalSupplyDisplay: formatBigIntUnits(totalSupply, decimals),
+    owner,
+    receiveAddress,
+    enableMint,
+    enablePause,
+    pause,
+    blacklistEnabled,
+    whitelistEnabled,
+    enableWalletLimit,
+    maxWalletAmount,
+    maxWalletAmountDisplay: formatBigIntUnits(maxWalletAmount, decimals),
+    whitelistAddresses: dedupeAddresses(whitelistAddresses),
+    blacklistAddresses: dedupeAddresses(blacklistAddresses),
+    protectedAddresses,
+  }
+}
+
 export async function executeDividendManageWrite({
   chainDefinition,
   tokenAddress,
@@ -321,6 +411,78 @@ export async function executeDividendManageWrite({
   }
 }
 
+export async function executeTokenManageWrite({
+  chainDefinition,
+  tokenAddress,
+  tokenType,
+  walletProvider,
+  functionName,
+  args,
+  onWaitingWallet,
+  onPending,
+}: {
+  chainDefinition: ChainDefinition
+  tokenAddress: string
+  tokenType: TokenManageType
+  walletProvider: EIP1193Provider
+  functionName: string
+  args: unknown[]
+  onWaitingWallet?: () => void
+  onPending?: () => void
+}) {
+  const abi = tokenType === 'simpleControl' ? simpleControlTokenAbi : tokenDividendAbi
+  return executeManageWriteWithAbi({
+    chainDefinition,
+    tokenAddress,
+    walletProvider,
+    abi,
+    functionName,
+    args,
+    onWaitingWallet,
+    onPending,
+  })
+}
+
+async function executeManageWriteWithAbi({
+  chainDefinition,
+  tokenAddress,
+  walletProvider,
+  abi,
+  functionName,
+  args,
+  onWaitingWallet,
+  onPending,
+}: {
+  chainDefinition: ChainDefinition
+  tokenAddress: string
+  walletProvider: EIP1193Provider
+  abi: object[]
+  functionName: string
+  args: unknown[]
+  onWaitingWallet?: () => void
+  onPending?: () => void
+}) {
+  if (!walletProvider || !isAddress(tokenAddress)) {
+    throw new Error('tokenManage.errors.walletUnavailable')
+  }
+
+  const browserProvider = new BrowserProvider(walletProvider)
+  const signer = await browserProvider.getSigner()
+  const contract = new Contract(getAddress(tokenAddress), abi, signer)
+  const gasEstimate = (await contract[functionName].estimateGas(...args)) as bigint
+  const gasLimit = (gasEstimate * 12n) / 10n
+  const overrides = await getDynamicGasOverrides(browserProvider, chainDefinition, gasLimit)
+  onWaitingWallet?.()
+  const transaction = await contract[functionName](...args, overrides)
+  onPending?.()
+  const receipt = await transaction.wait()
+
+  return {
+    txHash: transaction.hash as string,
+    receipt,
+  }
+}
+
 export function resolveTokenManageErrorKey(error: unknown) {
   if (isInsufficientFundsError(error)) {
     return 'tokenManage.errors.insufficientBalance'
@@ -332,7 +494,9 @@ export function resolveTokenManageErrorKey(error: unknown) {
   }
 
   try {
-    const parsed = tokenDividendInterface.parseError(revertData)
+    const parsed =
+      parseErrorWithInterface(tokenDividendInterface, revertData) ??
+      parseErrorWithInterface(simpleControlTokenInterface, revertData)
     const errorName = parsed?.name
     if (!errorName) {
       return null
@@ -340,6 +504,7 @@ export function resolveTokenManageErrorKey(error: unknown) {
 
     const errorMap: Record<string, string> = {
       MintNotEnabled: 'tokenManage.errors.mintDisabled',
+      MintDisabled: 'tokenManage.errors.mintDisabled',
       MintAmountExceedsCap: 'tokenManage.errors.mintExceedsCap',
       InvalidState: 'tokenManage.errors.invalidState',
       ProtectedAddress: 'tokenManage.errors.protectedAddress',
@@ -348,6 +513,16 @@ export function resolveTokenManageErrorKey(error: unknown) {
       FundDead: 'tokenManage.errors.fundAddressDead',
       MinHoldingMustBePositive: 'tokenManage.errors.minHoldingInvalid',
       TradingNotEnabled: 'tokenManage.errors.tradingNotEnabled',
+      TradingPaused: 'tokenManage.errors.tradingPaused',
+      PauseDisabled: 'tokenManage.errors.pauseDisabled',
+      AlreadyPaused: 'tokenManage.errors.alreadyPaused',
+      NotPaused: 'tokenManage.errors.notPaused',
+      WalletLimitNotEnabled: 'tokenManage.errors.walletLimitDisabled',
+      InvalidMaxWalletAmount: 'tokenManage.errors.invalidMaxWalletAmount',
+      WhitelistDisabled: 'tokenManage.errors.whitelistDisabled',
+      BlacklistDisabled: 'tokenManage.errors.blacklistDisabled',
+      ListTooLong: 'tokenManage.errors.listTooLong',
+      ConflictingListEntries: 'tokenManage.errors.conflictingListEntries',
       TaxRateTooHigh: 'tokenManage.errors.taxRateTooHigh',
       TaxTotalTooHigh: 'tokenManage.errors.taxTotalTooHigh',
       NotOwner: 'tokenManage.errors.noPermission',
@@ -359,6 +534,29 @@ export function resolveTokenManageErrorKey(error: unknown) {
   } catch {
     return null
   }
+}
+
+function parseErrorWithInterface(contractInterface: Interface, revertData: string) {
+  try {
+    return contractInterface.parseError(revertData)
+  } catch {
+    return null
+  }
+}
+
+async function readSimpleControlIndexedAddressList(contract: Contract, isWhitelist: boolean) {
+  const lengthResult = await safeRead(contract, isWhitelist ? 'getWhitelistLength' : 'getBlacklistLength')
+  const length = Number(readOptionalBigInt(lengthResult))
+  if (!Number.isFinite(length) || length <= 0) {
+    return [] as string[]
+  }
+
+  const functionName = isWhitelist ? 'getWhitelistAt' : 'getBlacklistAt'
+  const items = await Promise.all(
+    Array.from({ length }, (_, index) => safeRead(contract, functionName, [BigInt(index)])),
+  )
+
+  return items.map((item) => readOptionalAddress(item)).filter((item): item is string => Boolean(item))
 }
 
 async function readIndexedAddressList(contract: Contract, isWhitelist: boolean) {

@@ -54,6 +54,7 @@ export type SupportedPageKey =
   | 'home'
   | 'token-creation'
   | 'tax-token-creation'
+  | 'token-simple-control-creation'
   | 'token-dividend-creation'
   | 'token-manage'
   | 'token-vanity-creation'
@@ -371,6 +372,7 @@ const supportedChainsBase: ChainDefinition[] = [
       { key: 'tokenVanityFactory', label: 'Token Vanity Creation', address: '0x2D230df14678DD87EBc586EeDD6d0D14268Eb6c3' },
       { key: 'tokenTaxFactory', label: 'Tax Token Creation', address: '0xDbE4ec6610980A0Ea951F7f813A8078013b634eA', dex: 'PancakeSwap', version: 'v2',},
       { key: 'dividendTokenFactory', label: 'Dividend Token Creation', address: '0x50C7EfD2b974384aD14Be4264Ad6C4b64e0dCe26', dex: 'PancakeSwap', version: 'v2' },
+      { key: 'simpleControlTokenFactory', label: 'Simple Control Token Creation', address: '0x1C80587a3Be4BA80904A3553463965054F37f4d1' },
     ],
   },
   {
@@ -1690,6 +1692,7 @@ export function isSupportedPage(value?: string): value is SupportedPageKey {
     value === 'home' ||
     value === 'token-creation' ||
     value === 'tax-token-creation' ||
+    value === 'token-simple-control-creation' ||
     value === 'token-dividend-creation' ||
     value === 'token-manage' ||
     value === 'token-vanity-creation'

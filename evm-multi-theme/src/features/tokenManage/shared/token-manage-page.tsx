@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { message } from 'antd'
 import { useAccount } from 'wagmi'
@@ -20,17 +20,13 @@ export function TokenManagePage() {
   const tokenState = useTokenManage(chainDefinition, tokenAddress)
   const connectedAddress = String(address ?? '')
   const role =
-    tokenState.tokenType === 'dividend'
+    tokenState.tokenType === 'dividend' || tokenState.tokenType === 'simpleControl'
       ? resolveTokenManageRole({
           owner: tokenState.tokenInfo.owner,
-          fundAddress: tokenState.tokenInfo.fundAddress,
+          fundAddress: tokenState.tokenType === 'dividend' ? tokenState.tokenInfo.fundAddress : undefined,
           connectedAddress,
         })
       : 'viewer'
-
-  useEffect(() => {
-    setTokenAddressInput(searchParams.get('address')?.trim() ?? '')
-  }, [searchParams])
 
   const runner = useTokenManageActionRunner({
     chainDefinition,
@@ -70,7 +66,7 @@ export function TokenManagePage() {
   let tokenInfoContent: ReactNode = null
   let tokenActionContent: ReactNode = null
 
-  if (renderer && tokenState.tokenType === 'dividend') {
+  if (renderer && tokenState.tokenType) {
     const rendererProps = {
       chainDefinition,
       info: tokenState.tokenInfo,

@@ -44,8 +44,8 @@ type ActionSectionKey = 'supply' | 'dividend' | 'listsPermissions' | 'tradingFee
 type ManageStatCard = {
   key: string
   label: string
-  value: string
-  fullValue?: string
+  value: ReactNode
+  fullValue?: ReactNode
 }
 type ConfiguredTokenMatch = {
   token: TokenMeta
@@ -70,7 +70,7 @@ export function DividendTokenManageInfoSection({
 }: DividendTokenManageViewProps) {
   const canViewFundBadge = role === 'fund'
   const supplyCards = useMemo(() => buildSupplyCards(info, t), [info, t])
-  const dividendCards = useMemo(() => buildDividendCards(info, t), [info, t])
+  const dividendCards = useMemo(() => buildDividendCards(info, t, chainDefinition), [chainDefinition, info, t])
   const taxInfoGroups = useMemo(() => buildTaxInfoGroups(info, t), [info, t])
   const listSummaryCards = useMemo(() => buildListSummaryCards(info, t), [info, t])
   const routerDex = findDexByRouterAddress(chainDefinition.dexs, info.swapRouter)
@@ -469,7 +469,7 @@ function SectionBlock({
   )
 }
 
-function StatCard({ label, value, fullValue }: { label: string; value: string; fullValue?: string }) {
+function StatCard({ label, value, fullValue }: { label: string; value: ReactNode; fullValue?: ReactNode }) {
   return (
     <article className="summary-stat-card">
       <span>{label}</span>
@@ -1751,12 +1751,30 @@ function buildSupplyCards(info: DividendTokenManageInfo, t: (key: string, vars?:
   ]
 }
 
-function buildDividendCards(info: DividendTokenManageInfo, t: (key: string, vars?: Record<string, string | number>) => string): ManageStatCard[] {
+function buildDividendCards(
+  info: DividendTokenManageInfo,
+  t: (key: string, vars?: Record<string, string | number>) => string,
+  chainDefinition: ReturnType<typeof useRouteContext>['chainDefinition'],
+): ManageStatCard[] {
   const rewardTokenDecimals = info.dividendTokenInfo?.decimals ?? info.decimals
+  const basePoolToken = findConfiguredPoolTokenByAddress(chainDefinition, info.basePoolToken)
 
   return [
     { key: 'dividendMode', label: t('tokenManage.infoFields.dividendMode'), value: info.isSameTokenDividend ? t('tokenManage.infoFields.sameTokenDividend') : t('tokenManage.infoFields.externalTokenDividend') },
-    { key: 'poolToken', label: t('tokenManage.infoFields.poolToken'), value: info.basePoolTokenInfo?.symbol ?? formatAddressText(info.basePoolToken) },
+    {
+      key: 'poolToken',
+      label: t('tokenManage.infoFields.poolToken'),
+      value: basePoolToken ? (
+        <ConfiguredTokenValue
+          chainDefinition={chainDefinition}
+          match={basePoolToken}
+          nativeLabel={t('common.nativeToken')}
+          value={info.basePoolToken}
+        />
+      ) : (
+        info.basePoolTokenInfo?.symbol ?? formatAddressText(info.basePoolToken)
+      ),
+    },
     {
       key: 'minHolding',
       label: t('tokenManage.infoFields.minHolding'),

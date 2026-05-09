@@ -6,6 +6,7 @@ export type NavigationItem = {
     | 'nav.home'
     | 'nav.tokenCreation'
     | 'nav.tokenTaxCreation'
+    | 'nav.tokenSimpleControlCreation'
     | 'nav.tokenDividendCreation'
     | 'nav.tokenManage'
     | 'nav.tokenVanityCreation'
@@ -32,6 +33,11 @@ export const navigationItems: NavigationItem[] = [
     page: 'token-vanity-creation',
     titleKey: 'nav.tokenVanityCreation',
     slug: 'token-vanity-creation',
+  },
+  {
+    page: 'token-simple-control-creation',
+    titleKey: 'nav.tokenSimpleControlCreation',
+    slug: 'token-simple-control-creation',
   },
   {
     page: 'token-dividend-creation',

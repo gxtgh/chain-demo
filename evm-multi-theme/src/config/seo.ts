@@ -74,6 +74,26 @@ export function getPageSeo(page: SupportedPageKey, context: SeoContext): SeoDefi
     }
   }
 
+  if (page === 'token-simple-control-creation') {
+    return {
+      title: context.t('tokenSimpleControlCreation.seo.title', {
+        chain: context.chainName,
+        tokenType: context.tokenType,
+        symbol: context.nativeSymbol ?? '',
+      }),
+      description: context.t('tokenSimpleControlCreation.seo.description', {
+        chain: context.chainName,
+        tokenType: context.tokenType,
+        symbol: context.nativeSymbol ?? '',
+      }),
+      keywords: context.t('tokenSimpleControlCreation.seo.keywords', {
+        chain: context.chainName,
+        tokenType: context.tokenType,
+        symbol: context.nativeSymbol ?? '',
+      }),
+    }
+  }
+
   if (page === 'token-dividend-creation') {
     return {
       title: context.t('tokenDividendCreation.seo.title', {

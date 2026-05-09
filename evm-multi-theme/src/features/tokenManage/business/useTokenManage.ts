@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { ChainDefinition } from '@/config/chains'
-import { detectTokenType, loadDividendTokenManageInfo } from './tokenManageService'
+import { detectTokenType, loadDividendTokenManageInfo, loadSimpleControlTokenManageInfo } from './tokenManageService'
 import type { TokenManageState } from './model'
 
 export function useTokenManage(chainDefinition: ChainDefinition, tokenAddress: string) {
@@ -36,7 +36,7 @@ export function useTokenManage(chainDefinition: ChainDefinition, tokenAddress: s
           return
         }
 
-        if (tokenType !== 'dividend') {
+        if (!tokenType) {
           setState({
             tokenType: null,
             isLoading: false,
@@ -46,13 +46,15 @@ export function useTokenManage(chainDefinition: ChainDefinition, tokenAddress: s
           return
         }
 
-        const tokenInfo = await loadDividendTokenManageInfo(chainDefinition, tokenAddress)
+        const tokenInfo = tokenType === 'simpleControl'
+          ? await loadSimpleControlTokenManageInfo(chainDefinition, tokenAddress)
+          : await loadDividendTokenManageInfo(chainDefinition, tokenAddress)
         if (cancelled) {
           return
         }
 
         setState({
-          tokenType: 'dividend',
+          tokenType,
           tokenInfo,
           isLoading: false,
           isError: false,

@@ -1,6 +1,6 @@
 import type { ChainDefinition } from '@/config/chains'
 
-export type TokenManageType = 'dividend'
+export type TokenManageType = 'dividend' | 'simpleControl'
 
 export type TokenManageRole = 'owner' | 'fund' | 'viewer'
 
@@ -69,10 +69,40 @@ export type DividendTokenManageInfo = {
   protectedAddresses: string[]
 }
 
+export type SimpleControlTokenManageInfo = {
+  type: 'simpleControl'
+  address: string
+  name: string
+  symbol: string
+  decimals: number
+  totalSupply: bigint
+  totalSupplyDisplay: string
+  owner: string
+  receiveAddress: string
+  enableMint: boolean
+  enablePause: boolean
+  pause: boolean
+  blacklistEnabled: boolean
+  whitelistEnabled: boolean
+  enableWalletLimit: boolean
+  maxWalletAmount: bigint
+  maxWalletAmountDisplay: string
+  whitelistAddresses: string[]
+  blacklistAddresses: string[]
+  protectedAddresses: string[]
+}
+
 export type TokenManageState =
   | {
       tokenType: 'dividend'
       tokenInfo: DividendTokenManageInfo
+      isLoading: boolean
+      isError: false
+      errorKey?: never
+    }
+  | {
+      tokenType: 'simpleControl'
+      tokenInfo: SimpleControlTokenManageInfo
       isLoading: boolean
       isError: false
       errorKey?: never
@@ -158,7 +188,7 @@ export function resolveTokenManageRole({
   connectedAddress,
 }: {
   owner: string
-  fundAddress: string
+  fundAddress?: string
   connectedAddress: string
 }): TokenManageRole {
   const normalizedConnected = normalizeTokenAddress(connectedAddress)
@@ -170,7 +200,7 @@ export function resolveTokenManageRole({
     return 'owner'
   }
 
-  if (normalizeTokenAddress(fundAddress) === normalizedConnected) {
+  if (fundAddress && normalizeTokenAddress(fundAddress) === normalizedConnected) {
     return 'fund'
   }
 
