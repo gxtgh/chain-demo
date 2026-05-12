@@ -14,6 +14,7 @@ const translations: Record<SupportedLang, TranslationTree> = {
       standard: 'Create Standard Token',
       tax: 'Create Tax Token',
       okxTrade: 'OKX Trade Test',
+      customMessage: 'Custom Message Transfer',
     },
     shell: {
       chain: 'Chain',
@@ -123,6 +124,27 @@ const translations: Record<SupportedLang, TranslationTree> = {
             'Enable this for ERC20 -> native swaps, such as USDT to BNB/ETH. Disable it if Token 2 should stay as wrapped native ERC20.',
         },
       },
+      customMessage: {
+        eyebrow: 'Input Data Message',
+        title: 'Custom Message Transfer',
+        description:
+          'Send a normal EVM transfer with UTF-8 text written directly into transaction input data, so block explorers can display the message from calldata.',
+        fields: {
+          recipient: 'Recipient Address',
+          amount: 'Native Amount',
+          message: 'Custom Message',
+        },
+        preview: 'Payload Preview',
+        steps: {
+          send: 'Send Message Transfer',
+        },
+        notices: {
+          explanation:
+            'This is not a contract call or event log. The message is encoded as UTF-8 hex and sent as the transaction data field.',
+          amount:
+            'Use 0 for a message-only transaction, or add a native coin amount to make it a real value transfer with the same input data.',
+        },
+      },
     },
     ai: {
       title: 'AI Launch Copilot',
@@ -145,6 +167,7 @@ const translations: Record<SupportedLang, TranslationTree> = {
       standard: '创建标准代币',
       tax: '创建税费代币',
       okxTrade: 'OKX 交易测试',
+      customMessage: '自定义消息转账',
     },
     shell: {
       chain: '链',
@@ -249,6 +272,26 @@ const translations: Record<SupportedLang, TranslationTree> = {
             '做原生币 -> ERC20 时开启，例如 BNB/ETH 换 ERC20；关闭后代币1会强制按 ERC20 授权再交易。',
           toWrappedNativeMode:
             '做 ERC20 -> 原生币 时开启，例如 USDT 换 BNB/ETH；关闭后代币2会保留为包装原生币 ERC20。',
+        },
+      },
+      customMessage: {
+        eyebrow: 'Input Data Message',
+        title: '自定义消息转账',
+        description:
+          '发送一笔普通 EVM 转账，把 UTF-8 文本直接写入交易 input data，区块浏览器就可以在 calldata 里展示这段消息。',
+        fields: {
+          recipient: '接收地址',
+          amount: '原生币数量',
+          message: '自定义消息',
+        },
+        preview: '载荷预览',
+        steps: {
+          send: '发送消息转账',
+        },
+        notices: {
+          explanation:
+            '这不是合约调用，也不是事件日志，而是把消息按 UTF-8 编码成 hex 后放进交易 data 字段。',
+          amount: '填 0 可以只发送消息；也可以填写原生币数量，形成一笔带相同 input data 的真实转账。',
         },
       },
     },

@@ -1,5 +1,12 @@
 import type { ChainConfig } from '../../config/chains'
 
+type InjectedTransactionRequest = {
+  from: string
+  to: string
+  value?: string
+  data?: string
+}
+
 type EthereumProvider = {
   request: (payload: { method: string; params?: unknown[] | object }) => Promise<unknown>
   on?: (event: string, listener: (...args: unknown[]) => void) => void
@@ -61,6 +68,19 @@ export async function addOrSwitchChain(chainConfig: ChainConfig) {
       ],
     })
   }
+}
+
+export async function sendInjectedTransaction(tx: InjectedTransactionRequest) {
+  const result = (await window.ethereum?.request({
+    method: 'eth_sendTransaction',
+    params: [tx],
+  })) as string | undefined
+
+  if (!result) {
+    throw new Error('Wallet did not return a transaction hash.')
+  }
+
+  return result
 }
 
 export function shortAddress(value: string) {

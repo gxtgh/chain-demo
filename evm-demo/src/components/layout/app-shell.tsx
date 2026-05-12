@@ -5,10 +5,11 @@ import { useWallet } from '../../contexts/wallet-context'
 import { useAppRoute } from '../../hooks/use-app-route'
 import { ConnectButton } from '../wallet/connect-button'
 
-const pageLinks: Array<{ key: SupportedPageKey; navKey: 'nav.standard' | 'nav.tax' | 'nav.okxTrade' }> = [
+const pageLinks: Array<{ key: SupportedPageKey; navKey: 'nav.standard' | 'nav.tax' | 'nav.okxTrade' | 'nav.customMessage' }> = [
   { key: 'create-token', navKey: 'nav.standard' },
   { key: 'create-tax-token', navKey: 'nav.tax' },
   { key: 'okx-trade-test', navKey: 'nav.okxTrade' },
+  { key: 'custom-message-transfer', navKey: 'nav.customMessage' },
 ]
 
 export function AppShell() {
